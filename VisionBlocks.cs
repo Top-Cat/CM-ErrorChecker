@@ -10,34 +10,36 @@ namespace ErrorChecker
             float visionBlockLeft = -1f;
             float visionBlockRight = -1f;
 
-            float minTime = 0;
-            float maxTime = 1;
+            float minTime = 0.24f;
+            float maxTime = 0.75f;
 
             List<BeatmapNote> result = new List<BeatmapNote>();
 
             foreach(var note in notes) {
-                if (note._lineIndex < 2 && note._time - visionBlockLeft > minTime && note._time - visionBlockLeft <= maxTime)
+                if (note._time - visionBlockLeft <= maxTime)
                 {
-                    result.Add(note);
-                    Debug.Log("Left error " + note);
+                    if (note._lineIndex < 2 && note._time - visionBlockLeft > minTime)
+                    {
+                        result.Add(note);
+                    }
+
+                    if (note._lineLayer == 1 && note._lineIndex == 1)
+                    {
+                        result.Add(note);
+                    }
                 }
 
-                if (note._lineLayer == 1 && note._lineIndex == 1 && note._time - visionBlockLeft <= maxTime)
+                if (note._time - visionBlockRight <= maxTime)
                 {
-                    result.Add(note);
-                    Debug.Log("Left error 2 " + note);
-                }
+                    if (note._lineIndex > 1 && note._time - visionBlockRight > minTime)
+                    {
+                        result.Add(note);
+                    }
 
-                if (note._lineIndex > 1 && note._time - visionBlockRight > minTime && note._time - visionBlockRight <= maxTime)
-                {
-                    result.Add(note);
-                    Debug.Log("Right error " + note);
-                }
-
-                if (note._lineLayer == 1 && note._lineIndex == 2 && note._time - visionBlockLeft <= maxTime)
-                {
-                    result.Add(note);
-                    Debug.Log("Right error 2 " + note);
+                    if (note._lineLayer == 1 && note._lineIndex == 2 && note._time - visionBlockLeft <= maxTime)
+                    {
+                        result.Add(note);
+                    }
                 }
 
                 if (note._type != 3 && note._lineLayer == 1)

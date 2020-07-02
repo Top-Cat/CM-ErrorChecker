@@ -42,9 +42,13 @@ namespace ErrorChecker
         private void CheckErrors()
         {
             SelectionController.DeselectAll();
-            var blocks = VisionBlocks.Check(notesContainer.LoadedObjects.Cast<BeatmapNote>().OrderBy(it => it._time).ToList());
+            var allNotes = notesContainer.LoadedObjects.Cast<BeatmapNote>().OrderBy(it => it._time).ToList();
 
-            foreach (var block in blocks)
+            var errors = VisionBlocks.Check(allNotes).Union(
+                StackedNotes.Check(allNotes)
+            );
+
+            foreach (var block in errors)
             {
                 SelectionController.Select(block, true, false, false);
             }

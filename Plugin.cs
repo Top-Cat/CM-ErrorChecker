@@ -23,19 +23,13 @@ namespace ErrorChecker
 
         private void SceneLoaded(Scene arg0, LoadSceneMode arg1)
         {
-            if (arg0.buildIndex == 3)
+            if (arg0.buildIndex == 3) // Mapper scene
             {
-                foreach (GameObject rootObj in arg0.GetRootGameObjects())
-                {
-                    if (rootObj.name.Equals("Editor"))
-                    {
-                        notesContainer = rootObj.GetComponentInChildren<NotesContainer>();
-                    } else if (rootObj.GetComponent<MapEditorUI>() != null)
-                    {
-                        // Add button to UI
-                        UI.AddButton(rootObj, CheckErrors);
-                    }
-                }
+                notesContainer = UnityEngine.Object.FindObjectOfType<NotesContainer>();
+                var mapEditorUI = UnityEngine.Object.FindObjectOfType<MapEditorUI>();
+
+                // Add button to UI
+                UI.AddButton(mapEditorUI, CheckErrors);
             }
         }
 

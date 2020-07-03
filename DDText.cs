@@ -3,6 +3,7 @@ using UnityEngine;
 
 class DDText : TextMeshProUGUI
 {
+    // Don't ask, I wish this didn't exist
     protected override void Start()
     {
         base.Start();

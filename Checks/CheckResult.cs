@@ -23,6 +23,13 @@ public class CheckResult {
 
     }
 
+    public void Clear()
+    {
+        errors.Clear();
+        warnings.Clear();
+        all = null;
+    }
+
     public void Add(BeatmapNote note, string reason = "")
     {
         AddError(note, reason);

@@ -96,7 +96,14 @@ public class ErrorChecker
 
     public void NextBlock(int offset = 1)
     {
-        if (errors.all.Count < 1) return;
+        if (errors.all.Count < 1)
+        {
+            ui.problemInfoText.text = "No problems found";
+            ui.problemInfoText.fontSize = 12;
+            ui.problemInfoText.GetComponent<RectTransform>().sizeDelta = new Vector2(190, 50);
+
+            return;
+        }
 
         index = (index + offset) % errors.all.Count;
 
@@ -109,6 +116,13 @@ public class ErrorChecker
         if (time != null)
         {
             atsc.MoveToTimeInBeats(time ?? 0);
+        }
+
+        if (ui.problemInfoText != null)
+        {
+            ui.problemInfoText.text = errors.all[index]?.reason ?? "...";
+            ui.problemInfoText.fontSize = 12;
+            ui.problemInfoText.GetComponent<RectTransform>().sizeDelta = new Vector2(190, 50);
         }
     }
 

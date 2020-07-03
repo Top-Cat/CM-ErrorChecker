@@ -8,6 +8,8 @@ class StackedNotes : Check
 
     public override CheckResult PerformCheck(List<BeatmapNote> notes)
     {
+        result.Clear();
+
         for (int i = 0; i < notes.Count - 1; i++)
         {
             for (int j = i + 1; j < notes.Count; j++)

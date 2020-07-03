@@ -15,6 +15,8 @@ public class UI
     private ErrorChecker plugin;
     private List<Check> checks;
 
+    public TextMeshProUGUI problemInfoText;
+
     public UI(ErrorChecker plugin, List<Check> checks)
     {
         this.plugin = plugin;
@@ -71,7 +73,7 @@ public class UI
         popup.name = "ErrorChecker Popup";
         popup.transform.parent = parent.transform;
 
-        AttachTransform(popup, 200, 140, 1, 1, -150, -110);
+        AttachTransform(popup, 200, 140, 1, 1, -155, -110);
         var image = popup.AddComponent<Image>();
 
         image.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd");
@@ -79,17 +81,63 @@ public class UI
         image.color = new Color(0.24f, 0.24f, 0.24f, 1);
 
         AddDropdown(popup);
-        GenerateButton(popup.transform, "Perform", "Run", new Vector2(0, -120), () => {
+
+        ////////
+
+        GameObject minTimeLabel = new GameObject();
+        minTimeLabel.name = "MinTime Label";
+        minTimeLabel.transform.parent = popup.transform;
+
+        var transform = AttachTransform(minTimeLabel, 125, 17, 0.5f, 1, -7.5f, -60);
+        var textComponent = minTimeLabel.AddComponent<TextMeshProUGUI>();
+        transform.sizeDelta = new Vector2(125, 17); // TMP resets this because it hates me
+
+        textComponent.alignment = TextAlignmentOptions.Left;
+        textComponent.fontSize = 14;
+        textComponent.text = "Min Time";
+
+        ////////
+
+        GameObject maxTimeLabel = new GameObject();
+        maxTimeLabel.name = "MaxTime Label";
+        maxTimeLabel.transform.parent = popup.transform;
+
+        var transform2 = AttachTransform(maxTimeLabel, 125, 17, 0.5f, 1, -7.5f, -80);
+        var textComponent2 = maxTimeLabel.AddComponent<TextMeshProUGUI>();
+        transform2.sizeDelta = new Vector2(125, 17); // TMP resets this because it hates me
+
+        textComponent2.alignment = TextAlignmentOptions.Left;
+        textComponent2.fontSize = 14;
+        textComponent2.text = "Max Time";
+
+        ////////
+
+        GenerateButton(popup.transform, "Perform", "Run", new Vector2(0, -105), () => {
             plugin.CheckErrors(checks[dropdownComponent.value]);
         });
 
-        GenerateButton(popup.transform, "Previous", "<", new Vector2(-50, -120), () => {
+        GenerateButton(popup.transform, "Previous", "<", new Vector2(-50, -105), () => {
             plugin.NextBlock(-1);
         }, new Vector2(22, 25));
 
-        GenerateButton(popup.transform, "Next", ">", new Vector2(50, -120), () => {
+        GenerateButton(popup.transform, "Next", ">", new Vector2(50, -105), () => {
             plugin.NextBlock(1);
         }, new Vector2(22, 25));
+
+        ////////
+
+        GameObject problemInfo = new GameObject();
+        problemInfo.name = "Problem Info";
+        problemInfo.transform.parent = popup.transform;
+
+        var transform3 = AttachTransform(problemInfo, 125, 17, 0.5f, 1, 0, -122, 0.5f, 1);
+        problemInfoText = problemInfo.AddComponent<TextMeshProUGUI>();
+
+        problemInfoText.alignment = TextAlignmentOptions.Top;
+
+        problemInfoText.text = "...";
+        problemInfoText.fontSize = 12;
+        transform3.sizeDelta = new Vector2(190, 50);
     }
 
     public void AddDropdown(GameObject parent)

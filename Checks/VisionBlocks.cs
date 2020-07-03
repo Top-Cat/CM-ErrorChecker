@@ -8,6 +8,8 @@ class VisionBlocks : Check
 
     public override CheckResult PerformCheck(List<BeatmapNote> notes)
     {
+        result.Clear();
+
         float visionBlockLeft = -1f;
         float visionBlockRight = -1f;
 

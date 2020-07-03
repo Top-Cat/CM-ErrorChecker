@@ -17,6 +17,8 @@ class ExternalJS : Check
 
     public override CheckResult PerformCheck(List<BeatmapNote> notes)
     {
+        result.Clear();
+
         string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         StreamReader streamReader = new StreamReader(Path.Combine(assemblyFolder, fileName));
         string script = streamReader.ReadToEnd();
@@ -32,7 +34,9 @@ class ExternalJS : Check
             .SetValue("notes", arr.ToString())
             .SetValue("minTime", 0.24f)
             .SetValue("maxTime", 0.75f)
-            .Execute("notes = JSON.parse(notes); errors = []; warnings = [];")
+            .Execute("notes = JSON.parse(notes); errors = []; warnings = []; " +
+                "function addError(note, reason) { note.reason = reason; errors.push(note); }; " +
+                "function addWarning(note, reason) { note.reason = reason; warnings.push(note); };")
             .Execute(script)
             .Execute("errors = JSON.stringify(errors); warnings = JSON.stringify(warnings);")
             .GetValue("errors").AsString();
@@ -55,7 +59,7 @@ class ExternalJS : Check
             });
 
             if (obj != null)
-                result.Add(obj);
+                result.Add(obj, errObj["reason"] ?? "");
         }
 
         foreach (var err in warnings)
@@ -71,7 +75,7 @@ class ExternalJS : Check
             });
 
             if (obj != null)
-                result.AddWarning(obj);
+                result.AddWarning(obj, errObj["reason"] ?? "");
         }
 
         return result;

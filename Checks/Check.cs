@@ -37,7 +37,6 @@ public abstract class Check
 
     public virtual CheckResult PerformCheck(List<BeatmapNote> notes, params float[] vals)
     {
-        Debug.Log("Y");
         if (vals.Length == 0 && Params.Count == 0)
         {
             return PerformCheck(notes);

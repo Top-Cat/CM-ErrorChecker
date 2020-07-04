@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="ILMerge" Version="3.0.40" />
-    <PackageReference Include="Jint" Version="2.11.58" />
+    <PackageReference Include="Jint" Version="3.0.0-beta-1828" />
   </ItemGroup>
 
   <ItemGroup>

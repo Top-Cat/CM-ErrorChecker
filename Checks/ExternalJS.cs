@@ -1,5 +1,4 @@
 ﻿using Jint;
-using Jint.Native.Array;
 using SimpleJSON;
 using System;
 using System.Collections.Generic;
@@ -29,7 +28,6 @@ class ExternalJS : Check
         JSONObject ps = JSON.Parse(engine.GetValue(exports, "params").AsString()).AsObject;
         foreach (var p in ps)
         {
-            Debug.Log(fileName + " has param " + p);
             float.TryParse(p.Value.Value, out float def);
             Params.Add(new Param(p.Key, def));
         }

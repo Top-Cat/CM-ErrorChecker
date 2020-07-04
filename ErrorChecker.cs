@@ -27,7 +27,6 @@ public class ErrorChecker
     private void Init()
     {
         SceneManager.sceneLoaded += SceneLoaded;
-        Debug.Log("Plugin has loaded! 4");
 
         string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         foreach (string file in Directory.GetFiles(assemblyFolder, "*.js"))
@@ -94,9 +93,10 @@ public class ErrorChecker
                 }
             }
 
+            index = 0;
             NextBlock(0);
         }
-        catch (Exception e) { Debug.Log(e.Message); Debug.Log(e.StackTrace); }
+        catch (Exception) {}
     }
 
     public void NextBlock(int offset = 1)
@@ -149,6 +149,6 @@ public class ErrorChecker
     [Exit]
     private void Exit()
     {
-        Debug.Log("Application has closed!");
+        
     }
 }

@@ -182,6 +182,7 @@ public class UI
 
         problemInfoText.text = "...";
         problemInfoText.fontSize = 12;
+        problemInfoText.enableWordWrapping = true;
         transform3.sizeDelta = new Vector2(190, 50);
     }
 
@@ -219,7 +220,7 @@ public class UI
                 y -= 23;
             }
 
-            popup.GetComponent<RectTransform>().sizeDelta = new Vector2(200, 40 - y);
+            popup.GetComponent<RectTransform>().sizeDelta = new Vector2(200, 51 - y);
             foreach (var rt in navigation)
             {
                 rt.anchoredPosition = new Vector3(rt.anchoredPosition.x, y - 5, 0);
@@ -228,7 +229,6 @@ public class UI
 
             // Generates the caret in the text fields, who knows
             paramContainer.SetActive(true);
-            Debug.Log("Update params!");
         });
 
         ///////

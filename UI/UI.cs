@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using TMPro;
 using UnityEditor;
@@ -21,6 +22,11 @@ public class UI
     public List<TMP_InputField> paramTexts = new List<TMP_InputField>();
     public List<RectTransform> navigation = new List<RectTransform>();
 
+    private Sprite UISprite;
+    private Sprite DropdownArrow;
+    private Sprite Checkmark;
+    private Sprite Background;
+
     public UI(ErrorChecker plugin, List<Check> checks)
     {
         this.plugin = plugin;
@@ -29,12 +35,43 @@ public class UI
 
     public void AddButton(MapEditorUI rootObj)
     {
-        AddPopup(rootObj);
-
         var parent = rootObj.mainUIGroup[3];
+
+        var existingSliderImages = rootObj.GetComponentInChildren<SongTimelineController>().GetComponentInChildren<Slider>().GetComponentsInChildren<Image>();
+        foreach (var s in existingSliderImages)
+        {
+            if (s.gameObject.name == "Background")
+            {
+                Background = s.sprite;
+            }
+        }
+
+        var existingDropdown = rootObj.GetComponentInChildren<TMP_Dropdown>();
+        UISprite = existingDropdown.image.sprite;
+        var sprites = existingDropdown.GetComponentsInChildren<Image>(true);
+        foreach (var s in sprites)
+        {
+            Debug.LogError(s.gameObject.name);
+            if (s.gameObject.name == "Arrow")
+            {
+                DropdownArrow = s.sprite;
+            }
+            else if (s.gameObject.name == "Item Checkmark")
+            {
+                Checkmark = s.sprite;
+            }
+        }
+
+        AddPopup(rootObj);
+        popup.SetActive(false);
 
         GenerateButton(parent.transform, "ErrorChecker Button", "Check Errors", new Vector2(330, -20), () =>
         {
+            foreach (var rt in navigation)
+            {
+                var txt = rt.GetComponentInChildren<TextMeshProUGUI>();
+                rt.GetComponentInChildren<TextMeshProUGUI>().fontSize = 12;
+            }
             popup.SetActive(!popup.activeSelf);
         });
     }
@@ -52,7 +89,8 @@ public class UI
 
         buttonObj.onClick.AddListener(onClick);
 
-        image.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
+        image.sprite = UISprite;
+        //image.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
         image.type = Image.Type.Sliced;
         image.color = new Color(0.4f, 0.4f, 0.4f, 1);
 
@@ -93,7 +131,8 @@ public class UI
         AttachTransform(minTimeText, 80, 20, 0.5f, 1, 30, y);
         var inputComponent = minTimeText.AddComponent<TMP_InputField>();
         var image2 = minTimeText.AddComponent<Image>();
-        image2.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
+        image2.sprite = UISprite;
+        //image2.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
         image2.type = Image.Type.Sliced;
         image2.pixelsPerUnitMultiplier = 3;
         image2.color = new Color(0.3f, 0.3f, 0.3f, 1);
@@ -130,14 +169,14 @@ public class UI
         var parent = rootObj.mainUIGroup[3];
 
         popup = new GameObject();
-        popup.SetActive(false);
         popup.name = "ErrorChecker Popup";
         popup.transform.parent = parent.transform;
 
         AttachTransform(popup, 200, 151, 1, 1, -155, -40, 0.5f, 1);
         var image = popup.AddComponent<Image>();
 
-        image.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd");
+        image.sprite = Background;
+        //image.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd");
         image.type = Image.Type.Sliced;
         image.color = new Color(0.24f, 0.24f, 0.24f, 1);
 
@@ -198,7 +237,8 @@ public class UI
 
         var image = dropdown.AddComponent<Image>();
 
-        image.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
+        image.sprite = UISprite;
+        //image.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
         image.type = Image.Type.Sliced;
         image.color = new Color(0.18f, 0.18f, 0.18f, 1);
 
@@ -221,9 +261,9 @@ public class UI
             }
 
             paramContainer.GetComponent<RectTransform>().sizeDelta = popup.GetComponent<RectTransform>().sizeDelta = new Vector2(200, 51 - y);
-            foreach (var rt in navigation)
+            foreach (var rt2 in navigation)
             {
-                rt.anchoredPosition = new Vector3(rt.anchoredPosition.x, y - 5, 0);
+                rt2.anchoredPosition = new Vector3(rt2.anchoredPosition.x, y - 5, 0);
             }
             problemInfoText.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, y - 22, 0);
 
@@ -257,7 +297,8 @@ public class UI
 
         Font ArialFont = Resources.GetBuiltinResource<Font>("Arial.ttf");
 
-        image2.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/DropdownArrow.psd");
+        image2.sprite = DropdownArrow;
+        //image2.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/DropdownArrow.psd");
         image2.material = ArialFont.material;
         image2.color = Color.white;
 
@@ -308,7 +349,8 @@ public class UI
         AttachTransform(templateCheck, 15, 15, 0, 0.5f, 10, 0);
         var image3 = templateCheck.AddComponent<Image>();
 
-        image3.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Checkmark.psd");
+        image3.sprite = Checkmark;
+        //image3.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Checkmark.psd");
         image3.material = ArialFont.material;
         toggle.graphic = image3;
 

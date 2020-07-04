@@ -134,7 +134,7 @@ public class UI
         popup.name = "ErrorChecker Popup";
         popup.transform.parent = parent.transform;
 
-        AttachTransform(popup, 200, 140, 1, 1, -155, -40, 0.5f, 1);
+        AttachTransform(popup, 200, 151, 1, 1, -155, -40, 0.5f, 1);
         var image = popup.AddComponent<Image>();
 
         image.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd");
@@ -148,7 +148,7 @@ public class UI
         paramContainer = new GameObject();
         paramContainer.name = "Param Container";
         paramContainer.transform.parent = popup.transform;
-        AttachTransform(paramContainer, 200, 140, 0.5f, 0.5f, 0, 0);
+        AttachTransform(paramContainer, 200, 151, 0.5f, 0.5f, 0, 0);
 
         AddEntry("Min Time", -54, "0.24");
         AddEntry("Max Time", -77, "0.75");
@@ -220,7 +220,7 @@ public class UI
                 y -= 23;
             }
 
-            popup.GetComponent<RectTransform>().sizeDelta = new Vector2(200, 51 - y);
+            paramContainer.GetComponent<RectTransform>().sizeDelta = popup.GetComponent<RectTransform>().sizeDelta = new Vector2(200, 51 - y);
             foreach (var rt in navigation)
             {
                 rt.anchoredPosition = new Vector3(rt.anchoredPosition.x, y - 5, 0);

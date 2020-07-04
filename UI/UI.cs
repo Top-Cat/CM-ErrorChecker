@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.Collections.Generic;
 using System.Linq;
 using TMPro;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -37,6 +34,7 @@ public class UI
     {
         var parent = rootObj.mainUIGroup[3];
 
+        // Please don't judge me, these should probably be bundled with this plugin but this works for now
         var existingSliderImages = rootObj.GetComponentInChildren<SongTimelineController>().GetComponentInChildren<Slider>().GetComponentsInChildren<Image>();
         foreach (var s in existingSliderImages)
         {
@@ -51,7 +49,6 @@ public class UI
         var sprites = existingDropdown.GetComponentsInChildren<Image>(true);
         foreach (var s in sprites)
         {
-            Debug.LogError(s.gameObject.name);
             if (s.gameObject.name == "Arrow")
             {
                 DropdownArrow = s.sprite;
@@ -90,7 +87,6 @@ public class UI
         buttonObj.onClick.AddListener(onClick);
 
         image.sprite = UISprite;
-        //image.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
         image.type = Image.Type.Sliced;
         image.color = new Color(0.4f, 0.4f, 0.4f, 1);
 
@@ -132,7 +128,6 @@ public class UI
         var inputComponent = minTimeText.AddComponent<TMP_InputField>();
         var image2 = minTimeText.AddComponent<Image>();
         image2.sprite = UISprite;
-        //image2.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
         image2.type = Image.Type.Sliced;
         image2.pixelsPerUnitMultiplier = 3;
         image2.color = new Color(0.3f, 0.3f, 0.3f, 1);
@@ -176,7 +171,6 @@ public class UI
         var image = popup.AddComponent<Image>();
 
         image.sprite = Background;
-        //image.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd");
         image.type = Image.Type.Sliced;
         image.color = new Color(0.24f, 0.24f, 0.24f, 1);
 
@@ -238,7 +232,6 @@ public class UI
         var image = dropdown.AddComponent<Image>();
 
         image.sprite = UISprite;
-        //image.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
         image.type = Image.Type.Sliced;
         image.color = new Color(0.18f, 0.18f, 0.18f, 1);
 
@@ -298,7 +291,6 @@ public class UI
         Font ArialFont = Resources.GetBuiltinResource<Font>("Arial.ttf");
 
         image2.sprite = DropdownArrow;
-        //image2.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/DropdownArrow.psd");
         image2.material = ArialFont.material;
         image2.color = Color.white;
 
@@ -350,7 +342,6 @@ public class UI
         var image3 = templateCheck.AddComponent<Image>();
 
         image3.sprite = Checkmark;
-        //image3.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Checkmark.psd");
         image3.material = ArialFont.material;
         toggle.graphic = image3;
 

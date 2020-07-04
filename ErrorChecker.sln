@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30204.135
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErrorChecker", "..\ErrorChecker2\ErrorChecker.csproj", "{600D3953-D125-4C0F-A5CF-0E3906D6B6F6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErrorChecker", "ErrorChecker.csproj", "{600D3953-D125-4C0F-A5CF-0E3906D6B6F6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

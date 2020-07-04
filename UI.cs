@@ -17,8 +17,9 @@ public class UI
 
     public TextMeshProUGUI problemInfoText;
 
-    public TMP_InputField minTime;
-    public TMP_InputField maxTime;
+    private GameObject paramContainer;
+    public List<TMP_InputField> paramTexts = new List<TMP_InputField>();
+    public List<RectTransform> navigation = new List<RectTransform>();
 
     public UI(ErrorChecker plugin, List<Check> checks)
     {
@@ -38,13 +39,13 @@ public class UI
         });
     }
 
-    private void GenerateButton(Transform parent, string title, string text, Vector2 pos, UnityAction onClick, Vector2? size = null)
+    private RectTransform GenerateButton(Transform parent, string title, string text, Vector2 pos, UnityAction onClick, Vector2? size = null)
     {
         GameObject button = new GameObject();
         button.name = title;
         button.transform.parent = parent;
 
-        AttachTransform(button, size?.x ?? 70, size?.y ?? 25, 0.5f, 1, pos.x, pos.y);
+        var rt = AttachTransform(button, size?.x ?? 70, size?.y ?? 25, 0.5f, 1, pos.x, pos.y);
         var image = button.AddComponent<Image>();
         var buttonObj = button.AddComponent<Button>();
         button.AddComponent<Mask>();
@@ -65,10 +66,14 @@ public class UI
         textComponent.alignment = TextAlignmentOptions.Center;
         textComponent.SetText(text);
         textComponent.fontSize = 12;
+
+        return rt;
     }
 
-    private TMP_InputField AddEntry(Transform parent, string title, float y, string def)
+    private TMP_InputField AddEntry(string title, float y, string def)
     {
+        Transform parent = paramContainer.transform;
+
         GameObject minTimeLabel = new GameObject();
         minTimeLabel.name = title + " Label";
         minTimeLabel.transform.parent = parent;
@@ -116,6 +121,7 @@ public class UI
         inputComponent.text = def;
         inputComponent.onFocusSelectAll = false;
 
+        paramTexts.Add(inputComponent);
         return inputComponent;
     }
 
@@ -128,7 +134,7 @@ public class UI
         popup.name = "ErrorChecker Popup";
         popup.transform.parent = parent.transform;
 
-        AttachTransform(popup, 200, 140, 1, 1, -155, -110);
+        AttachTransform(popup, 200, 140, 1, 1, -155, -40, 0.5f, 1);
         var image = popup.AddComponent<Image>();
 
         image.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd");
@@ -139,22 +145,29 @@ public class UI
 
         ////////
 
-        minTime = AddEntry(popup.transform, "Min Time", -54, "0.24");
-        maxTime = AddEntry(popup.transform, "Max Time", -77, "0.75");
+        paramContainer = new GameObject();
+        paramContainer.name = "Param Container";
+        paramContainer.transform.parent = popup.transform;
+        AttachTransform(paramContainer, 200, 140, 0.5f, 0.5f, 0, 0);
+
+        AddEntry("Min Time", -54, "0.24");
+        AddEntry("Max Time", -77, "0.75");
 
         ////////
 
-        GenerateButton(popup.transform, "Perform", "Run", new Vector2(0, -105), () => {
+        navigation.Clear();
+
+        navigation.Add(GenerateButton(popup.transform, "Perform", "Run", new Vector2(0, -105), () => {
             plugin.CheckErrors(checks[dropdownComponent.value]);
-        });
+        }));
 
-        GenerateButton(popup.transform, "Previous", "<", new Vector2(-50, -105), () => {
+        navigation.Add(GenerateButton(popup.transform, "Previous", "<", new Vector2(-50, -105), () => {
             plugin.NextBlock(-1);
-        }, new Vector2(22, 25));
+        }, new Vector2(22, 25)));
 
-        GenerateButton(popup.transform, "Next", ">", new Vector2(50, -105), () => {
+        navigation.Add(GenerateButton(popup.transform, "Next", ">", new Vector2(50, -105), () => {
             plugin.NextBlock(1);
-        }, new Vector2(22, 25));
+        }, new Vector2(22, 25)));
 
         ////////
 
@@ -189,6 +202,34 @@ public class UI
         image.color = new Color(0.18f, 0.18f, 0.18f, 1);
 
         dropdownComponent.targetGraphic = image;
+        dropdownComponent.onValueChanged.AddListener((i) =>
+        {
+            paramContainer.SetActive(false);
+            foreach (Transform child in paramContainer.transform)
+            {
+                UnityEngine.Object.Destroy(child.gameObject);
+            }
+            paramTexts.Clear();
+
+            var vals = checks[i].Params;
+            float y = -54;
+            foreach (var v in vals)
+            {
+                AddEntry(v.name, y, v.def.ToString());
+                y -= 23;
+            }
+
+            popup.GetComponent<RectTransform>().sizeDelta = new Vector2(200, 40 - y);
+            foreach (var rt in navigation)
+            {
+                rt.anchoredPosition = new Vector3(rt.anchoredPosition.x, y - 5, 0);
+            }
+            problemInfoText.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, y - 22, 0);
+
+            // Generates the caret in the text fields, who knows
+            paramContainer.SetActive(true);
+            Debug.Log("Update params!");
+        });
 
         ///////
 

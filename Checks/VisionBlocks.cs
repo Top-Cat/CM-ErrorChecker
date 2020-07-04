@@ -1,12 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 class VisionBlocks : Check
 {
     public VisionBlocks() : base("Vision Blocks")
     {
+        Params.Add(new Param("Min Time", 0.24f));
+        Params.Add(new Param("Max Time", 0.75f));
     }
 
-    public override CheckResult PerformCheck(List<BeatmapNote> notes, float minTime, float maxTime)
+    public override CheckResult PerformCheck(List<BeatmapNote> notes, params float[] vals)
+    {
+        if (vals.Length > 1)
+        {
+            return PerformCheck(notes, vals[0], vals[1]);
+        }
+        throw new ArgumentException("Wrong number of parameters");
+    }
+
+    public CheckResult PerformCheck(List<BeatmapNote> notes, float minTime, float maxTime)
     {
         result.Clear();
 

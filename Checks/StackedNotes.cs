@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 class StackedNotes : Check
 {
@@ -6,7 +7,7 @@ class StackedNotes : Check
     {
     }
 
-    public override CheckResult PerformCheck(List<BeatmapNote> notes, float minTime, float maxTime)
+    public override CheckResult PerformCheck(List<BeatmapNote> notes)
     {
         result.Clear();
 

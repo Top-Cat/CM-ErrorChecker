@@ -71,9 +71,11 @@ public class ErrorChecker
 
         try
         {
-            float.TryParse(ui.minTime.text, out float minTime);
-            float.TryParse(ui.maxTime.text, out float maxTime);
-            errors = check.PerformCheck(allNotes, minTime, maxTime).Commit();
+            float[] vals = ui.paramTexts.Select(it => {
+                float.TryParse(it.text, out float val);
+                return val;
+            }).ToArray();
+            errors = check.PerformCheck(allNotes, vals).Commit();
 
             // Highlight blocks in loaded containers in case we don't scrub far enough with MoveToTimeInBeats to load them
             foreach (var block in errors.errors)
@@ -94,7 +96,7 @@ public class ErrorChecker
 
             NextBlock(0);
         }
-        catch (Exception) { }
+        catch (Exception e) { Debug.Log(e.Message); Debug.Log(e.StackTrace); }
     }
 
     public void NextBlock(int offset = 1)

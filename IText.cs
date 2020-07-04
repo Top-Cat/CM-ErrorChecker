@@ -8,9 +8,13 @@ class IText : TextMeshProUGUI
     {
         base.Start();
         var sel = transform.parent.GetComponentInChildren<TMP_SelectionCaret>();
-        var transform2 = sel.gameObject.GetComponent<RectTransform>();
+        if (sel != null)
+        {
+            var transform2 = sel.gameObject.GetComponent<RectTransform>();
+            transform2.offsetMin = transform2.offsetMax = new Vector2(0, 0);
+        }
 
         fontSize = 12;
-        transform2.offsetMin = rectTransform.offsetMin = transform2.offsetMax = rectTransform.offsetMax = new Vector2(0, 0);
+         rectTransform.offsetMin = rectTransform.offsetMax = new Vector2(0, 0);
     }
 }

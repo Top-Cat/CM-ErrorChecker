@@ -1,44 +1,58 @@
 ﻿using Jint;
+using Jint.Native.Array;
 using SimpleJSON;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
 class ExternalJS : Check
 {
-    private string fileName;
+    private Engine engine = new Engine();
 
-    public ExternalJS(string fileName) : base("ExternalJS: " + fileName)
+    public ExternalJS(string fileName)
     {
-        this.fileName = fileName;
-    }
-
-    public override CheckResult PerformCheck(List<BeatmapNote> notes, float minTime, float maxTime)
-    {
-        result.Clear();
-
         string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         StreamReader streamReader = new StreamReader(Path.Combine(assemblyFolder, fileName));
         string script = streamReader.ReadToEnd();
         streamReader.Close();
 
-        var engine = new Engine();
+        engine
+            .SetValue("log", new Action<object>(Debug.Log))
+            .Execute("module = {exports: {}};")
+            .Execute(script)
+            .Execute("module.exports.params = JSON.stringify(module.exports.params);");
+
+        var exports = engine.GetValue(engine.GetValue("module"), "exports");
+        JSONObject ps = JSON.Parse(engine.GetValue(exports, "params").AsString()).AsObject;
+        foreach (var p in ps)
+        {
+            Debug.Log(fileName + " has param " + p);
+            float.TryParse(p.Value.Value, out float def);
+            Params.Add(new Param(p.Key, def));
+        }
+        string name = engine.GetValue(exports, "name").AsString();
+        Name = "ExternalJS: " + name;
+    }
+
+    public override CheckResult PerformCheck(List<BeatmapNote> notes, params float[] vals)
+    {
+        result.Clear();
 
         var arr = new JSONArray();
         notes.ForEach(it => arr.Add(it.ConvertToJSON()));
 
         string r = engine
-            .SetValue("log", new Action<object>(Debug.Log))
             .SetValue("notes", arr.ToString())
             .SetValue("minTime", 0.24f)
             .SetValue("maxTime", 0.75f)
             .Execute("notes = JSON.parse(notes); errors = []; warnings = []; " +
                 "function addError(note, reason) { note.reason = reason; errors.push(note); }; " +
-                "function addWarning(note, reason) { note.reason = reason; warnings.push(note); };")
-            .Execute(script)
-            .Execute("errors = JSON.stringify(errors); warnings = JSON.stringify(warnings);")
+                "function addWarning(note, reason) { note.reason = reason; warnings.push(note); };" +
+                "module.exports.performCheck({notes: notes}" + (vals.Length > 0 ? ", " + string.Join(",", vals.Select(it => it.ToString())) : "") + ");" +
+                "errors = JSON.stringify(errors); warnings = JSON.stringify(warnings);")
             .GetValue("errors").AsString();
         string w = engine
             .GetValue("warnings").AsString();

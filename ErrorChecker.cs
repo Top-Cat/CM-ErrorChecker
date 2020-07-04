@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 [Plugin("Error Checker")]
 public class ErrorChecker
@@ -70,7 +71,9 @@ public class ErrorChecker
 
         try
         {
-            errors = check.PerformCheck(allNotes).Commit();
+            float.TryParse(ui.minTime.text, out float minTime);
+            float.TryParse(ui.maxTime.text, out float maxTime);
+            errors = check.PerformCheck(allNotes, minTime, maxTime).Commit();
 
             // Highlight blocks in loaded containers in case we don't scrub far enough with MoveToTimeInBeats to load them
             foreach (var block in errors.errors)

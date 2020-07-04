@@ -10,5 +10,5 @@ public abstract class Check
         Name = name;
     }
 
-    public abstract CheckResult PerformCheck(List<BeatmapNote> notes);
+    public abstract CheckResult PerformCheck(List<BeatmapNote> notes, float minTime, float maxTime);
 }

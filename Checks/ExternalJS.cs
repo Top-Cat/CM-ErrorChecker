@@ -15,7 +15,7 @@ class ExternalJS : Check
         this.fileName = fileName;
     }
 
-    public override CheckResult PerformCheck(List<BeatmapNote> notes)
+    public override CheckResult PerformCheck(List<BeatmapNote> notes, float minTime, float maxTime)
     {
         result.Clear();
 

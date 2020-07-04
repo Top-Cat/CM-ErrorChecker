@@ -17,6 +17,9 @@ public class UI
 
     public TextMeshProUGUI problemInfoText;
 
+    public TMP_InputField minTime;
+    public TMP_InputField maxTime;
+
     public UI(ErrorChecker plugin, List<Check> checks)
     {
         this.plugin = plugin;
@@ -64,6 +67,58 @@ public class UI
         textComponent.fontSize = 12;
     }
 
+    private TMP_InputField AddEntry(Transform parent, string title, float y, string def)
+    {
+        GameObject minTimeLabel = new GameObject();
+        minTimeLabel.name = title + " Label";
+        minTimeLabel.transform.parent = parent;
+
+        var transform = AttachTransform(minTimeLabel, 125, 17, 0.5f, 1, -7.5f, y);
+        var textComponent = minTimeLabel.AddComponent<TextMeshProUGUI>();
+        transform.sizeDelta = new Vector2(125, 17); // TMP resets this because it hates me
+
+        textComponent.alignment = TextAlignmentOptions.Left;
+        textComponent.fontSize = 14;
+        textComponent.text = title;
+
+        GameObject minTimeText = new GameObject();
+        minTimeText.name = title + " Text";
+        minTimeText.transform.parent = parent;
+
+        AttachTransform(minTimeText, 80, 20, 0.5f, 1, 30, y);
+        var inputComponent = minTimeText.AddComponent<TMP_InputField>();
+        var image2 = minTimeText.AddComponent<Image>();
+        image2.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
+        image2.type = Image.Type.Sliced;
+        image2.pixelsPerUnitMultiplier = 3;
+        image2.color = new Color(0.3f, 0.3f, 0.3f, 1);
+
+        GameObject textArea = new GameObject();
+        textArea.name = "Text Area";
+        textArea.transform.parent = minTimeText.transform;
+
+        var rt = textArea.AddComponent<RectTransform>();
+        textArea.AddComponent<RectMask2D>();
+        
+        StretchTransform(rt);
+        rt.offsetMin = new Vector2(5, 4);
+        rt.offsetMax = new Vector2(-5, -5);
+        inputComponent.textViewport = rt;
+
+        GameObject minTimeTmp = new GameObject();
+        minTimeTmp.name = "Text";
+        minTimeTmp.transform.parent = textArea.transform;
+
+        var rt2 = minTimeTmp.AddComponent<RectTransform>();
+        StretchTransform(rt2);
+        var txtComponent = minTimeTmp.AddComponent<IText>();
+        inputComponent.textComponent = txtComponent;
+        inputComponent.text = def;
+        inputComponent.onFocusSelectAll = false;
+
+        return inputComponent;
+    }
+
     public void AddPopup(MapEditorUI rootObj)
     {
         var parent = rootObj.mainUIGroup[3];
@@ -84,31 +139,8 @@ public class UI
 
         ////////
 
-        GameObject minTimeLabel = new GameObject();
-        minTimeLabel.name = "MinTime Label";
-        minTimeLabel.transform.parent = popup.transform;
-
-        var transform = AttachTransform(minTimeLabel, 125, 17, 0.5f, 1, -7.5f, -60);
-        var textComponent = minTimeLabel.AddComponent<TextMeshProUGUI>();
-        transform.sizeDelta = new Vector2(125, 17); // TMP resets this because it hates me
-
-        textComponent.alignment = TextAlignmentOptions.Left;
-        textComponent.fontSize = 14;
-        textComponent.text = "Min Time";
-
-        ////////
-
-        GameObject maxTimeLabel = new GameObject();
-        maxTimeLabel.name = "MaxTime Label";
-        maxTimeLabel.transform.parent = popup.transform;
-
-        var transform2 = AttachTransform(maxTimeLabel, 125, 17, 0.5f, 1, -7.5f, -80);
-        var textComponent2 = maxTimeLabel.AddComponent<TextMeshProUGUI>();
-        transform2.sizeDelta = new Vector2(125, 17); // TMP resets this because it hates me
-
-        textComponent2.alignment = TextAlignmentOptions.Left;
-        textComponent2.fontSize = 14;
-        textComponent2.text = "Max Time";
+        minTime = AddEntry(popup.transform, "Min Time", -54, "0.24");
+        maxTime = AddEntry(popup.transform, "Max Time", -77, "0.75");
 
         ////////
 
@@ -146,7 +178,7 @@ public class UI
         dropdown.name = "Check Type";
         dropdown.transform.parent = parent.transform;
 
-        AttachTransform(dropdown, 160, 30, 0.5f, 1, 0, -30);
+        AttachTransform(dropdown, 186, 30, 0.5f, 1, 0, -23);
         dropdownComponent = dropdown.AddComponent<TMP_Dropdown>();
         dropdownComponent.AddOptions(checks.Select(it => it.Name).ToList());
 
@@ -195,7 +227,7 @@ public class UI
         template.SetActive(false);
         template.transform.parent = dropdown.transform;
 
-        var rt = AttachTransform(template, 155, 20, 0.5f, 1, 0, -27.5f, 0.5f, 1);
+        var rt = AttachTransform(template, 175, 20, 0.5f, 1, 0, -27.5f, 0.5f, 1);
 
         dropdownComponent.template = rt;
 
@@ -205,7 +237,7 @@ public class UI
         itemTemplate.name = "Item";
         itemTemplate.transform.parent = template.transform;
 
-        AttachTransform(itemTemplate, 155, 20, 0.5f, 0.5f, 0, 0);
+        AttachTransform(itemTemplate, 175, 20, 0.5f, 0.5f, 0, 0);
         var toggle = itemTemplate.AddComponent<Toggle>();
 
         toggle.colors = new ColorBlock
@@ -223,7 +255,7 @@ public class UI
         templateBg.name = "Item Background";
         templateBg.transform.parent = itemTemplate.transform;
 
-        AttachTransform(templateBg, 155, 20, 0.5f, 0.5f, 0, 0);
+        AttachTransform(templateBg, 175, 20, 0.5f, 0.5f, 0, 0);
         toggle.targetGraphic = templateBg.AddComponent<Image>();
 
         ///////
@@ -232,7 +264,7 @@ public class UI
         templateCheck.name = "Item Checkmark";
         templateCheck.transform.parent = itemTemplate.transform;
 
-        AttachTransform(templateCheck, 20, 20, 0, 0.5f, 10, 0);
+        AttachTransform(templateCheck, 15, 15, 0, 0.5f, 10, 0);
         var image3 = templateCheck.AddComponent<Image>();
 
         image3.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Checkmark.psd");

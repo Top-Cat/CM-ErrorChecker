@@ -35,6 +35,24 @@ class ExternalJS : Check
         Name = "ExternalJS: " + name;
     }
 
+    private BeatmapNote FromDynamic(dynamic note, List<BeatmapNote> notes)
+    {
+        float _time = Convert.ChangeType(note._time, typeof(float));
+        int _lineIndex = Convert.ChangeType(note._lineIndex, typeof(int));
+        int _lineLayer = Convert.ChangeType(note._lineLayer, typeof(int));
+        int _type = Convert.ChangeType(note._type, typeof(int));
+        int _cutDirection = Convert.ChangeType(note._cutDirection, typeof(int));
+
+        return notes.Find(it =>
+        {
+            return Mathf.Approximately(_time, it._time) &&
+                _lineIndex == it._lineIndex &&
+                _lineLayer == it._lineLayer &&
+                _type == it._type &&
+                _cutDirection == it._cutDirection;
+        });
+    }
+
     public override CheckResult PerformCheck(List<BeatmapNote> notes, params float[] vals)
     {
         result.Clear();
@@ -42,53 +60,25 @@ class ExternalJS : Check
         var arr = new JSONArray();
         notes.ForEach(it => arr.Add(it.ConvertToJSON()));
 
-        string r = engine
+        engine
             .SetValue("notes", arr.ToString())
             .SetValue("minTime", 0.24f)
             .SetValue("maxTime", 0.75f)
-            .Execute("notes = JSON.parse(notes); errors = []; warnings = []; " +
-                "function addError(note, reason) { note.reason = reason; errors.push(note); }; " +
-                "function addWarning(note, reason) { note.reason = reason; warnings.push(note); };" +
-                "module.exports.performCheck({notes: notes}" + (vals.Length > 0 ? ", " + string.Join(",", vals.Select(it => it.ToString())) : "") + ");" +
-                "errors = JSON.stringify(errors); warnings = JSON.stringify(warnings);")
-            .GetValue("errors").AsString();
-        string w = engine
-            .GetValue("warnings").AsString();
-
-        JSONArray errors = JSON.Parse(r).AsArray;
-        JSONArray warnings = JSON.Parse(w).AsArray;
-
-        foreach (var err in errors)
-        {
-            var errObj = err.Value.AsObject;
-            var obj = notes.Find(it =>
+            .SetValue("addError", new Action<object, string>((dynamic note, string str) =>
             {
-                return Mathf.Approximately(errObj["_time"].AsFloat, it._time) &&
-                    errObj["_lineIndex"].AsInt == it._lineIndex &&
-                    errObj["_lineLayer"].AsInt == it._lineLayer &&
-                    errObj["_type"].AsInt == it._type &&
-                    errObj["_cutDirection"].AsInt == it._cutDirection;
-            });
+                var obj = FromDynamic(note, notes);
 
-            if (obj != null)
-                result.Add(obj, errObj["reason"] ?? "");
-        }
-
-        foreach (var err in warnings)
-        {
-            var errObj = err.Value.AsObject;
-            var obj = notes.Find(it =>
+                if (obj != null)
+                    result.Add(obj, str ?? "");
+            }))
+            .SetValue("addWarning", new Action<object, string>((dynamic note, string str) =>
             {
-                return Mathf.Approximately(errObj["_time"].AsFloat, it._time) &&
-                    errObj["_lineIndex"].AsInt == it._lineIndex &&
-                    errObj["_lineLayer"].AsInt == it._lineLayer &&
-                    errObj["_type"].AsInt == it._type &&
-                    errObj["_cutDirection"].AsInt == it._cutDirection;
-            });
+                var obj = FromDynamic(note, notes);
 
-            if (obj != null)
-                result.AddWarning(obj, errObj["reason"] ?? "");
-        }
+                if (obj != null)
+                    result.AddWarning(obj, str ?? "");
+            }))
+            .Execute("notes = JSON.parse(notes); module.exports.performCheck({notes: notes}" + (vals.Length > 0 ? ", " + string.Join(",", vals.Select(it => it.ToString())) : "") + ");");
 
         return result;
     }

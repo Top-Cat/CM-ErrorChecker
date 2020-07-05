@@ -24,6 +24,8 @@ public class UI
     private Sprite Checkmark;
     private Sprite Background;
 
+    private TMP_FontAsset font;
+
     public UI(ErrorChecker plugin, List<Check> checks)
     {
         this.plugin = plugin;
@@ -45,6 +47,8 @@ public class UI
         }
 
         var existingDropdown = rootObj.GetComponentInChildren<TMP_Dropdown>();
+        var text = existingDropdown.GetComponentInChildren<TextMeshProUGUI>();
+        font = text.font;
         UISprite = existingDropdown.image.sprite;
         var sprites = existingDropdown.GetComponentsInChildren<Image>(true);
         foreach (var s in sprites)
@@ -97,6 +101,7 @@ public class UI
         AttachTransform(textObj, 200, 50, 0.5f, 0.5f, 0, 0);
         var textComponent = textObj.AddComponent<TextMeshProUGUI>();
 
+        textComponent.font = font;
         textComponent.alignment = TextAlignmentOptions.Center;
         textComponent.SetText(text);
         textComponent.fontSize = 12;
@@ -116,6 +121,7 @@ public class UI
         var textComponent = minTimeLabel.AddComponent<TextMeshProUGUI>();
         transform.sizeDelta = new Vector2(125, 17); // TMP resets this because it hates me
 
+        textComponent.font = font;
         textComponent.alignment = TextAlignmentOptions.Left;
         textComponent.fontSize = 14;
         textComponent.text = title;
@@ -151,6 +157,7 @@ public class UI
         var rt2 = minTimeTmp.AddComponent<RectTransform>();
         StretchTransform(rt2);
         var txtComponent = minTimeTmp.AddComponent<IText>();
+        txtComponent.font = font;
         inputComponent.textComponent = txtComponent;
         inputComponent.text = def;
         inputComponent.onFocusSelectAll = false;
@@ -211,6 +218,7 @@ public class UI
         var transform3 = AttachTransform(problemInfo, 125, 17, 0.5f, 1, 0, -122, 0.5f, 1);
         problemInfoText = problemInfo.AddComponent<TextMeshProUGUI>();
 
+        problemInfoText.font = font;
         problemInfoText.alignment = TextAlignmentOptions.Top;
 
         problemInfoText.text = "...";
@@ -274,6 +282,7 @@ public class UI
         var textComponent = label.AddComponent<TextMeshProUGUI>();
         transform.sizeDelta = new Vector2(125, 17); // TMP resets this because it hates me
 
+        textComponent.font = font;
         textComponent.alignment = TextAlignmentOptions.Left;
         textComponent.fontSize = 14;
 
@@ -354,6 +363,7 @@ public class UI
         var textComponent2 = templateLabel.AddComponent<DDText>();
         dropdownComponent.itemText = textComponent2;
 
+        textComponent2.font = font;
         textComponent2.alignment = TextAlignmentOptions.Left;
         textComponent2.fontSize = 16;
 

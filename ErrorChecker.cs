@@ -101,7 +101,7 @@ public class ErrorChecker
 
     public void NextBlock(int offset = 1)
     {
-        if (errors.all.Count < 1)
+        if (errors == null || errors.all.Count < 1)
         {
             ui.problemInfoText.text = "No problems found";
             ui.problemInfoText.fontSize = 12;

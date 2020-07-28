@@ -25,15 +25,25 @@ As this is essentially alpha the interface for these checks may change but for n
 module.exports = {
 	name: "My error check",
 	params: {"Min Time": 0.24},
-	performCheck: function(data, minTime) { }
+	run: function(cursor, notes, events, walls, _, global, data)
 };
 ```
 
 * **name** appears in the drop-down ingame.
 * **params** is an object, for each key a text field will be show to the user where they can enter a value which will be passed to you as a float
-* **performCheck** is a function that will be called when the user runs your check
-  * The first parameter to the function will have information about the map. For now it only contains `notes` which has a list of all the notes ordered by time (I can't guarantee what order notes that happen at the same time will be in for now)
-  * Extra parameters will be provided based on what you've supplied in params. I _assume_ this will be returned in order, how these are provided may have to change
+* **run** is a function that will be called when the user runs your check, this is currently designed to be compatible with MM scripts, you just need to add the name and params.
+	* The first parameter to the function is the position the user is looking at in the map
+	* Next is an array of notes ordered by time (I can't guarantee what order notes that happen at the same time will be in for now) which can be modified. You can directly modify the values of notes in the array with code like `notes[0]._time = 10;`
+OR if you want to generate a fresh array you need to provide your new array in object returned from your function (see below)
+	*	Lighting events are provided next and work the same as notes
+	*	Obstacles are last of the map objects and work the same as notes
+	*	In MM scripts the parameter here was called save? I don't know what it did but this parameter is just an empty object and has no use. Provided for compatibility.
+	*	The global parameter can be used to persist data between runs of your script, it will be unchanged on future invocations. It also includes a `params` array which contains the values set for your params. (I _assume_ this will be returned in order)
+	*	Data has information about the map, currently the list of data is as follows:
+		*	currentBPM - The bpm at the cursor accounting for BPM changes
+		*	songBPM - The bpm of the song
+		*	NJS - The note jump speed set for the song
+		*	offset - How far into the song the user starts
 
 Two functions will be defined before calling `performCheck`
 * **addError**(note, reason) - Pass back the problem note object, all it's properties (except `_customData`) must match the original passed note for it to be marked properly and you can provide a reason as the second parameter

@@ -4,9 +4,9 @@ function performCheck(data) {
 		note = notes[x];
 
 		if (Math.random() > 0.95) {
-			errors.push(note);
+			addError(note, "");
 		} else if (Math.random() > 0.95) {
-			warnings.push(note);
+			addWarning(note, "");
 		}
 	}
 }

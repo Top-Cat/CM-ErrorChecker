@@ -1,5 +1,6 @@
-function performCheck(data, minTime, maxTime) {
-	notes = data.notes;
+function performCheck(cursor, notes, events, walls, _, global, data) {
+	minTime = global.params[0];
+	maxTime = global.params[1];
 	visionBlockLeft = -1;
 	visionBlockRight = -1;
 
@@ -46,5 +47,5 @@ function performCheck(data, minTime, maxTime) {
 module.exports = {
 	name: "Vision Blocks",
 	params: {"Min Time": 0.24, "Max Time": 0.75},
-	performCheck: performCheck
+	run: performCheck
 };

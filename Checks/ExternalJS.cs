@@ -67,7 +67,7 @@ class ExternalJS : Check
             engine
                 .SetValue("require", new Func<string, JsValue>(Bind<string, string, JsValue>(require, assemblyFolder)))
                 .SetValue("log", new Action<object>(Debug.Log))
-                .Execute("module = {exports: {}}; console = {log: log};")
+                .Execute("module = {exports: {}}; console = {log: log}; var global = {};")
                 .Execute(script)
                 .Execute("module.exports.params = JSON.stringify(module.exports.params);");
         }
@@ -107,17 +107,43 @@ class ExternalJS : Check
         });
     }
 
+    class MapData {
+        public float currentBPM { get; private set; }
+        public float songBPM { get; private set; }
+        public float NJS { get; private set; }
+        public float offset { get; private set; }
+
+        public MapData(float currentBPM, float songBPM, float NJS, float offset)
+        {
+            this.currentBPM = currentBPM;
+            this.songBPM = songBPM;
+            this.NJS = NJS;
+            this.offset = offset;
+        }
+    }
+
     public override CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, params float[] vals)
     {
         result.Clear();
 
-        float currentBeat = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.NOTE).AudioTimeSyncController.CurrentBeat;
+        var atsc = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.NOTE).AudioTimeSyncController;
+        float currentBeat = atsc.CurrentBeat;
+
+        var collection = BeatmapObjectContainerCollection.GetCollectionForType<BPMChangesContainer>(BeatmapObject.Type.BPM_CHANGE);
+        var lastBPMChange = collection.FindLastBPM(atsc.CurrentBeat);
+        var currentBPM = lastBPMChange?._BPM ?? atsc.song.beatsPerMinute;
 
         try {
         engine
             .SetValue("notes", notes.Select(it => new Note(it)).ToArray())
             .SetValue("walls", walls.Select(it => new Wall(it)).ToArray())
             .SetValue("events", events.Select(it => new Event(it)).ToArray())
+            .SetValue("data", new MapData(
+                currentBPM,
+                atsc.song.beatsPerMinute,
+                BeatSaberSongContainer.Instance.difficultyData.noteJumpMovementSpeed,
+                BeatSaberSongContainer.Instance.difficultyData.noteJumpStartBeatOffset
+            ))
             .SetValue("cursor", currentBeat)
             .SetValue("minTime", 0.24f)
             .SetValue("maxTime", 0.75f)
@@ -135,7 +161,8 @@ class ExternalJS : Check
                 if (obj != null)
                     result.AddWarning(obj, str ?? "");
             }))
-            .Execute("var output = module.exports.run ? module.exports.run(cursor, notes, events, walls) : module.exports.performCheck({notes: notes}" + (vals.Length > 0 ? ", " + string.Join(",", vals.Select(it => it.ToString())) : "") + ");" +
+            .Execute("global.params = [" + string.Join(",", vals.Select(it => it.ToString())) + "];" +
+            "var output = module.exports.run ? module.exports.run(cursor, notes, events, walls, {}, global, data) : module.exports.performCheck({notes: notes}" + (vals.Length > 0 ? ", " + string.Join(",", vals.Select(it => it.ToString())) : "") + ");" +
             "if (output && output.notes) { notes = output.notes; };" +
             "if (output && output.events) { events = output.events; };" +
             "if (output && output.walls) { walls = output.walls; };");

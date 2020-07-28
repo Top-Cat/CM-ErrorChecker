@@ -44,8 +44,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\ChroMapper\Temp\bin\Debug\Assembly-CSharp-firstpass.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\ChroMapper\Library\ScriptAssemblies\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="Esprima, Version=2.0.0.0, Culture=neutral, PublicKeyToken=2e92ba9c8d81157f, processorArchitecture=MSIL">
       <HintPath>..\ErrorChecker\packages\Esprima.2.0.0-beta-1298\lib\net461\Esprima.dll</HintPath>
@@ -64,8 +63,10 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>..\ChroMapper\Temp\bin\Debug\Unity.TextMeshPro.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\ChroMapper\Library\ScriptAssemblies\Unity.TextMeshPro.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro.Editor">
+      <HintPath>..\ChroMapper\Library\ScriptAssemblies\Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\ChroMapper\Temp\bin\Debug\UnityEngine.dll</HintPath>
@@ -99,6 +100,10 @@
     <Compile Include="UI\DDText.cs" />
     <Compile Include="UI\IText.cs" />
     <Compile Include="UI\UI.cs" />
+    <Compile Include="Wrappers\Event.cs" />
+    <Compile Include="Wrappers\Wall.cs" />
+    <Compile Include="Wrappers\Note.cs" />
+    <Compile Include="Wrappers\Wrapper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -118,4 +123,8 @@
   <Import Project="..\ErrorChecker\packages\Microsoft.Build.Tasks.Git.1.0.0\build\Microsoft.Build.Tasks.Git.targets" Condition="Exists('..\ErrorChecker\packages\Microsoft.Build.Tasks.Git.1.0.0\build\Microsoft.Build.Tasks.Git.targets')" />
   <Import Project="..\ErrorChecker\packages\Microsoft.SourceLink.Common.1.0.0\build\Microsoft.SourceLink.Common.targets" Condition="Exists('..\ErrorChecker\packages\Microsoft.SourceLink.Common.1.0.0\build\Microsoft.SourceLink.Common.targets')" />
   <Import Project="..\ErrorChecker\packages\Microsoft.SourceLink.GitHub.1.0.0\build\Microsoft.SourceLink.GitHub.targets" Condition="Exists('..\ErrorChecker\packages\Microsoft.SourceLink.GitHub.1.0.0\build\Microsoft.SourceLink.GitHub.targets')" />
+  <PropertyGroup>
+    <PostBuildEvent>del ..\..\..\ChroMapper\Plugins\ErrorChecker\ErrorChecker.dll
+copy ErrorChecker.dll ..\..\..\ChroMapper\Plugins\ErrorChecker\</PostBuildEvent>
+  </PropertyGroup>
 </Project>

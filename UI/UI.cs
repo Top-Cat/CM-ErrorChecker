@@ -117,13 +117,15 @@ public class UI
         minTimeLabel.name = title + " Label";
         minTimeLabel.transform.parent = parent;
 
-        var transform = AttachTransform(minTimeLabel, 125, 17, 0.5f, 1, -7.5f, y);
+        var transform = AttachTransform(minTimeLabel, 75, 17, 0.5f, 1, -52.5f, y);
         var textComponent = minTimeLabel.AddComponent<TextMeshProUGUI>();
-        transform.sizeDelta = new Vector2(125, 17); // TMP resets this because it hates me
+        transform.sizeDelta = new Vector2(75, 17); // TMP resets this because it hates me
 
         textComponent.font = font;
-        textComponent.alignment = TextAlignmentOptions.Left;
-        textComponent.fontSize = 14;
+        textComponent.alignment = TextAlignmentOptions.Center;
+        textComponent.enableAutoSizing = true;
+        textComponent.fontSizeMin = 8;
+        textComponent.fontSizeMax = 16;
         textComponent.text = title;
 
         GameObject minTimeText = new GameObject();

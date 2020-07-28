@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 public abstract class Check
 {
@@ -30,16 +29,16 @@ public abstract class Check
         
     }
 
-    public virtual CheckResult PerformCheck(List<BeatmapNote> notes)
+    public virtual CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls)
     {
         throw new ArgumentException("Wrong number of parameters");
     }
 
-    public virtual CheckResult PerformCheck(List<BeatmapNote> notes, params float[] vals)
+    public virtual CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, params float[] vals)
     {
         if (vals.Length == 0 && Params.Count == 0)
         {
-            return PerformCheck(notes);
+            return PerformCheck(notes, events, walls);
         }
         throw new ArgumentException("Wrong number of parameters");
     }

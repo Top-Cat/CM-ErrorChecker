@@ -5,12 +5,13 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 [Plugin("Error Checker")]
 public class ErrorChecker
 {
     private NotesContainer notesContainer;
+    private ObstaclesContainer wallsContainer;
+    private EventsContainer eventsContainer;
     private List<Check> checks = new List<Check>()
     {
         new VisionBlocks(),
@@ -42,6 +43,8 @@ public class ErrorChecker
         if (arg0.buildIndex == 3) // Mapper scene
         {
             notesContainer = UnityEngine.Object.FindObjectOfType<NotesContainer>();
+            wallsContainer = UnityEngine.Object.FindObjectOfType<ObstaclesContainer>();
+            eventsContainer = UnityEngine.Object.FindObjectOfType<EventsContainer>();
             var mapEditorUI = UnityEngine.Object.FindObjectOfType<MapEditorUI>();
 
             atsc = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.NOTE).AudioTimeSyncController;
@@ -54,6 +57,8 @@ public class ErrorChecker
     public void CheckErrors(Check check)
     {
         var allNotes = notesContainer.LoadedObjects.Cast<BeatmapNote>().OrderBy(it => it._time).ToList();
+        var allWalls = wallsContainer.LoadedObjects.Cast<BeatmapObstacle>().OrderBy(it => it._time).ToList();
+        var allEvents = eventsContainer.LoadedObjects.Cast<MapEvent>().OrderBy(it => it._time).ToList();
 
         if (errors != null)
         {
@@ -74,7 +79,7 @@ public class ErrorChecker
                 float.TryParse(it.text, out float val);
                 return val;
             }).ToArray();
-            errors = check.PerformCheck(allNotes, vals).Commit();
+            errors = check.PerformCheck(allNotes, allEvents, allWalls, vals).Commit();
 
             // Highlight blocks in loaded containers in case we don't scrub far enough with MoveToTimeInBeats to load them
             foreach (var block in errors.errors)
@@ -96,7 +101,7 @@ public class ErrorChecker
             index = 0;
             NextBlock(0);
         }
-        catch (Exception) {}
+        catch (Exception e) { Debug.LogError(e.Message + e.StackTrace); }
     }
 
     public void NextBlock(int offset = 1)

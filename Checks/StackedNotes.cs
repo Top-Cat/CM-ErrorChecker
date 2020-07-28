@@ -7,7 +7,7 @@ class StackedNotes : Check
     {
     }
 
-    public override CheckResult PerformCheck(List<BeatmapNote> notes)
+    public override CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls)
     {
         result.Clear();
 

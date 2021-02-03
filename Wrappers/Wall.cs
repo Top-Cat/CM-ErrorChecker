@@ -1,4 +1,5 @@
-﻿using Jint.Native.Object;
+﻿using Jint;
+using Jint.Native.Object;
 using UnityEngine;
 
 class Wall : Wrapper<BeatmapObstacle>
@@ -56,12 +57,12 @@ class Wall : Wrapper<BeatmapObstacle>
         }
     }
 
-    public Wall(BeatmapObstacle wall) : base(wall)
+    public Wall(Engine engine, BeatmapObstacle wall) : base(engine, wall)
     {
         spawned = true;
     }
 
-    public Wall(ObjectInstance o) : base(new BeatmapObstacle(
+    public Wall(Engine engine, ObjectInstance o) : base(engine, new BeatmapObstacle(
             (float)GetJsValue(o, "_time"),
             (int)GetJsValue(o, "_lineIndex"),
             (int)GetJsValue(o, "_type"),

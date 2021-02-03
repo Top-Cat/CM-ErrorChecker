@@ -5,6 +5,8 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using Object = System.Object;
 
 [Plugin("Error Checker")]
 public class ErrorChecker
@@ -51,6 +53,17 @@ public class ErrorChecker
 
             // Add button to UI
             ui.AddButton(mapEditorUI);
+        }
+        else if (arg0.buildIndex == 2) // Song Info scene
+        {
+            var images = UnityEngine.Object.FindObjectOfType<SongInfoEditUI>().GetComponentsInChildren<Image>();
+            foreach (var i in images)
+            {
+                if (i.transform.parent.name != "Revert Button") continue;
+
+                ui.ReloadSprite = i.sprite;
+                break;
+            }
         }
     }
 

@@ -1,4 +1,5 @@
-﻿using Jint.Native.Object;
+﻿using Jint;
+using Jint.Native.Object;
 
 class Event : Wrapper<MapEvent>
 { 
@@ -30,12 +31,12 @@ class Event : Wrapper<MapEvent>
         }
     }
 
-    public Event(MapEvent mapEvent) : base(mapEvent)
+    public Event(Engine engine, MapEvent mapEvent) : base(engine, mapEvent)
     {
         spawned = true;
     }
 
-    public Event(ObjectInstance o) : base(new MapEvent(
+    public Event(Engine engine, ObjectInstance o) : base(engine, new MapEvent(
             (float) GetJsValue(o, "_time"),
             (int) GetJsValue(o, "_type"),
             (int) GetJsValue(o, "_value")

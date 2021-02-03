@@ -42,4 +42,14 @@ public abstract class Check
         }
         throw new ArgumentException("Wrong number of parameters");
     }
+
+    public virtual void OnSelected()
+    {
+
+    }
+
+    public virtual void Reload()
+    {
+
+    }
 }

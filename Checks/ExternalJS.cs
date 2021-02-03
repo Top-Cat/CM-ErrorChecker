@@ -7,20 +7,36 @@ using Jint.Runtime.Interop;
 using SimpleJSON;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Esprima;
 using UnityEngine;
 
 class ExternalJS : Check
 {
     private Engine engine = new Engine();
+    private readonly string fileName;
+    private bool valid;
 
     public Func<U, TResult> Bind<T, U, TResult>(Func<T, U, TResult> func, T arg)
     {
         return (file) => func(arg, file);
     }
 
+    private static void LogIt(object o)
+    {
+        if (o is ExpandoObject ex)
+        {
+            Debug.Log(JSONWraper.dictToJSON(ex));
+        }
+        else
+        {
+            Debug.Log(o);
+        }
+    }
+    
     private JsValue require(string folder, string file) {
         if (!file.EndsWith(".js"))
         {
@@ -32,7 +48,7 @@ class ExternalJS : Check
         try
         {
             var e = new Engine()
-                .SetValue("log", new Action<object>(Debug.Log))
+                .SetValue("log", new Action<object>(LogIt))
                 .SetValue("require", new Func<string, JsValue>(Bind<string, string, JsValue>(require, newFolder)))
                 .Execute("exports = {}; module = {exports: exports}; console = {log: log};")
                 .Execute(jsSource);
@@ -57,36 +73,72 @@ class ExternalJS : Check
 
     public ExternalJS(string fileName)
     {
-        string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        StreamReader streamReader = new StreamReader(Path.Combine(assemblyFolder, fileName));
-        string script = streamReader.ReadToEnd();
+        this.fileName = fileName;
+        LoadJS();
+    }
+
+    public override void Reload()
+    {
+        engine = new Engine();
+        LoadJS();
+    }
+
+    private void LoadJS()
+    {
+        var assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        var streamReader = new StreamReader(Path.Combine(assemblyFolder, fileName));
+        var script = streamReader.ReadToEnd();
         streamReader.Close();
 
         try
         {
             engine
                 .SetValue("require", new Func<string, JsValue>(Bind<string, string, JsValue>(require, assemblyFolder)))
-                .SetValue("log", new Action<object>(Debug.Log))
+                .SetValue("log", new Action<object>(LogIt))
                 .Execute("module = {exports: {}}; console = {log: log}; var global = {};")
                 .Execute(script)
                 .Execute("module.exports.params = JSON.stringify(module.exports.params);");
+
+            var exports = engine.GetValue(engine.GetValue("module"), "exports");
+            var @params = engine.GetValue(exports, "params");
+            if (@params.IsString())
+            {
+                var ps = JSON.Parse(@params.AsString()).AsObject;
+                foreach (var p in ps)
+                {
+                    float.TryParse(p.Value.Value, out var def);
+                    Params.Add(new Param(p.Key, def));
+                }
+            }
+
+            var nameObj = engine.GetValue(exports, "name");
+            if (nameObj.IsString())
+            {
+                var name = nameObj.AsString();
+                Name = "ExternalJS: " + name;
+            }
+            else
+            {
+                Name = $"ExternalJS: {fileName}";
+            }
+
+            valid = true;
         }
         catch (JavaScriptException jse)
         {
-            Debug.Log(jse);
-            Debug.Log("LINE: " + jse.LineNumber);
-            Debug.Log("COLUMN: " + jse.Column);
+            Name = $"ExternalJS: [{fileName}]";
+            Debug.LogWarning($"Error loading {fileName}\n{jse.Message}");
         }
-
-        var exports = engine.GetValue(engine.GetValue("module"), "exports");
-        JSONObject ps = JSON.Parse(engine.GetValue(exports, "params").AsString()).AsObject;
-        foreach (var p in ps)
+        catch (ParserException jse)
         {
-            float.TryParse(p.Value.Value, out float def);
-            Params.Add(new Param(p.Key, def));
+            Name = $"ExternalJS: [{fileName}]";
+            Debug.LogWarning($"Error loading {fileName}\n{jse.Message}");
         }
-        string name = engine.GetValue(exports, "name").AsString();
-        Name = "ExternalJS: " + name;
+    }
+
+    public override void OnSelected()
+    {
+        if (!valid) LoadJS();
     }
 
     private BeatmapNote FromDynamic(dynamic note, List<BeatmapNote> notes)
@@ -133,11 +185,12 @@ class ExternalJS : Check
         var lastBPMChange = collection.FindLastBPM(atsc.CurrentBeat);
         var currentBPM = lastBPMChange?._BPM ?? atsc.song.beatsPerMinute;
 
-        try {
-        engine
-            .SetValue("notes", notes.Select(it => new Note(it)).ToArray())
-            .SetValue("walls", walls.Select(it => new Wall(it)).ToArray())
-            .SetValue("events", events.Select(it => new Event(it)).ToArray())
+        try
+        {
+            engine
+            .SetValue("notes", notes.Select(it => new Note(engine, it)).ToArray())
+            .SetValue("walls", walls.Select(it => new Wall(engine, it)).ToArray())
+            .SetValue("events", events.Select(it => new Event(engine, it)).ToArray())
             .SetValue("data", new MapData(
                 currentBPM,
                 atsc.song.beatsPerMinute,
@@ -169,15 +222,13 @@ class ExternalJS : Check
         }
         catch (JavaScriptException jse)
         {
-            Debug.Log(jse);
-            Debug.Log("LINE: " + jse.LineNumber);
-            Debug.Log("COLUMN: " + jse.Column);
+            Debug.LogWarning($"Error running {fileName}\n{jse.Message}");
         }
 
 
-        Reconcile(engine.GetValue("notes").AsArray(), notes, i => new Note(i), BeatmapObject.Type.NOTE);
-        Reconcile(engine.GetValue("walls").AsArray(), walls, i => new Wall(i), BeatmapObject.Type.OBSTACLE);
-        Reconcile(engine.GetValue("events").AsArray(), events, i => new Event(i), BeatmapObject.Type.EVENT);
+        Reconcile(engine.GetValue("notes").AsArray(), notes, i => new Note(engine, i), BeatmapObject.Type.NOTE);
+        Reconcile(engine.GetValue("walls").AsArray(), walls, i => new Wall(engine, i), BeatmapObject.Type.OBSTACLE);
+        Reconcile(engine.GetValue("events").AsArray(), events, i => new Event(engine, i), BeatmapObject.Type.EVENT);
 
         return result;
     }
@@ -187,10 +238,13 @@ class ExternalJS : Check
         List<U> outputNotes = new List<U>();
         foreach (var test in noteArr)
         {
-            if (test is ObjectWrapper)
+            if (test is U a)
             {
-                var o = test as ObjectWrapper;
-                var note = o.Target as U;
+                outputNotes.Add(a);
+            }
+            else if (test is ObjectWrapper b)
+            {
+                var note = b.Target as U;
 
                 outputNotes.Add(note);
             }
@@ -214,7 +268,7 @@ class ExternalJS : Check
         var collection = BeatmapObjectContainerCollection.GetCollectionForType(type);
         foreach (var removeMe in toRemove)
         {
-            collection.LoadedContainers.TryGetValue(removeMe, out BeatmapObjectContainer container);
+            collection.LoadedContainers.TryGetValue(removeMe, out BeatmapObjectContainer container); // Does this do something?
             collection.DeleteObject(removeMe, false);
         }
 

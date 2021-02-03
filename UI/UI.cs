@@ -23,6 +23,7 @@ public class UI
     private Sprite DropdownArrow;
     private Sprite Checkmark;
     private Sprite Background;
+    public Sprite ReloadSprite;
 
     private TMP_FontAsset font;
 
@@ -34,7 +35,7 @@ public class UI
 
     public void AddButton(MapEditorUI rootObj)
     {
-        var parent = rootObj.mainUIGroup[3];
+        var parent = rootObj.mainUIGroup[5];
 
         // Please don't judge me, these should probably be bundled with this plugin but this works for now
         var existingSliderImages = rootObj.GetComponentInChildren<SongTimelineController>().GetComponentInChildren<Slider>().GetComponentsInChildren<Image>();
@@ -46,8 +47,8 @@ public class UI
             }
         }
 
-        var existingDropdown = rootObj.GetComponentInChildren<TMP_Dropdown>();
-        var text = existingDropdown.GetComponentInChildren<TextMeshProUGUI>();
+        var existingDropdown = rootObj.GetComponentInChildren<TMP_Dropdown>(true);
+        var text = existingDropdown.GetComponentInChildren<TextMeshProUGUI>(true);
         font = text.font;
         UISprite = existingDropdown.image.sprite;
         var sprites = existingDropdown.GetComponentsInChildren<Image>(true);
@@ -66,12 +67,12 @@ public class UI
         AddPopup(rootObj);
         popup.SetActive(false);
 
-        GenerateButton(parent.transform, "ErrorChecker Button", "Check Errors", new Vector2(330, -20), () =>
+        GenerateButton(parent.transform, "ErrorChecker Button", "Check Errors", new Vector2(-360, -20), () =>
         {
             foreach (var rt in navigation)
             {
                 var txt = rt.GetComponentInChildren<TextMeshProUGUI>();
-                rt.GetComponentInChildren<TextMeshProUGUI>().fontSize = 12;
+                if (txt != null) txt.fontSize = 12;
             }
             popup.SetActive(!popup.activeSelf);
         });
@@ -79,7 +80,7 @@ public class UI
 
     private RectTransform GenerateButton(Transform parent, string title, string text, Vector2 pos, UnityAction onClick, Vector2? size = null)
     {
-        GameObject button = new GameObject();
+        var button = new GameObject();
         button.name = title;
         button.transform.parent = parent;
 
@@ -94,7 +95,7 @@ public class UI
         image.type = Image.Type.Sliced;
         image.color = new Color(0.4f, 0.4f, 0.4f, 1);
 
-        GameObject textObj = new GameObject();
+        var textObj = new GameObject();
         textObj.name = "Text";
         textObj.transform.parent = button.transform;
 
@@ -105,6 +106,37 @@ public class UI
         textComponent.alignment = TextAlignmentOptions.Center;
         textComponent.SetText(text);
         textComponent.fontSize = 12;
+
+        return rt;
+    }
+
+    private RectTransform GenerateButton(Transform parent, string title, Sprite buttonImage, Vector2 pos, UnityAction onClick, Vector2? size = null)
+    {
+        var button = new GameObject();
+        button.name = title;
+        button.transform.parent = parent;
+
+        var rt = AttachTransform(button, size?.x ?? 70, size?.y ?? 25, 0.5f, 1, pos.x, pos.y);
+        var image = button.AddComponent<Image>();
+        var buttonObj = button.AddComponent<Button>();
+        button.AddComponent<Mask>();
+
+        buttonObj.onClick.AddListener(onClick);
+
+        image.sprite = UISprite;
+        image.type = Image.Type.Sliced;
+        image.color = new Color(0.4f, 0.4f, 0.4f, 1);
+
+        var textObj = new GameObject();
+        textObj.name = "Text";
+        textObj.transform.parent = button.transform;
+
+        AttachTransform(textObj, 10, 12, 0.5f, 0.5f, 0, 0);
+        var textComponent = textObj.AddComponent<Image>();
+
+        textComponent.sprite = buttonImage;
+        textComponent.type = Image.Type.Sliced;
+        textComponent.color = Color.white;
 
         return rt;
     }
@@ -170,13 +202,13 @@ public class UI
 
     public void AddPopup(MapEditorUI rootObj)
     {
-        var parent = rootObj.mainUIGroup[3];
+        var parent = rootObj.mainUIGroup[5];
 
         popup = new GameObject();
         popup.name = "ErrorChecker Popup";
         popup.transform.parent = parent.transform;
 
-        AttachTransform(popup, 200, 151, 1, 1, -155, -40, 0.5f, 1);
+        AttachTransform(popup, 220, 151, 0.5f, 1, -434, -35, 0.5f, 1);
         var image = popup.AddComponent<Image>();
 
         image.sprite = Background;
@@ -184,6 +216,10 @@ public class UI
         image.color = new Color(0.24f, 0.24f, 0.24f, 1);
 
         AddDropdown(popup);
+
+        GenerateButton(popup.transform, "Reload", ReloadSprite, new Vector2(95, -23), () => {
+            checks[dropdownComponent.value].Reload();
+        }, new Vector2(22, 25));
 
         ////////
 
@@ -235,7 +271,7 @@ public class UI
         dropdown.name = "Check Type";
         dropdown.transform.parent = parent.transform;
 
-        AttachTransform(dropdown, 186, 30, 0.5f, 1, 0, -23);
+        AttachTransform(dropdown, 186, 30, 0.5f, 1, -10, -23);
         dropdownComponent = dropdown.AddComponent<TMP_Dropdown>();
         dropdownComponent.AddOptions(checks.Select(it => it.Name).ToList());
 
@@ -251,10 +287,11 @@ public class UI
             paramContainer.SetActive(false);
             foreach (Transform child in paramContainer.transform)
             {
-                UnityEngine.Object.Destroy(child.gameObject);
+                Object.Destroy(child.gameObject);
             }
             paramTexts.Clear();
 
+            checks[i].OnSelected();
             var vals = checks[i].Params;
             float y = -54;
             foreach (var v in vals)
@@ -263,7 +300,7 @@ public class UI
                 y -= 23;
             }
 
-            paramContainer.GetComponent<RectTransform>().sizeDelta = popup.GetComponent<RectTransform>().sizeDelta = new Vector2(200, 51 - y);
+            paramContainer.GetComponent<RectTransform>().sizeDelta = popup.GetComponent<RectTransform>().sizeDelta = new Vector2(220, 51 - y);
             foreach (var rt2 in navigation)
             {
                 rt2.anchoredPosition = new Vector3(rt2.anchoredPosition.x, y - 5, 0);

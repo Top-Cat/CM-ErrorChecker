@@ -1,4 +1,5 @@
-﻿using Jint.Native.Object;
+﻿using Jint;
+using Jint.Native.Object;
 
 class Note : Wrapper<BeatmapNote>
 { 
@@ -50,12 +51,12 @@ class Note : Wrapper<BeatmapNote>
         }
     }
 
-    public Note(BeatmapNote note) : base(note)
+    public Note(Engine engine, BeatmapNote note) : base(engine, note)
     {
         spawned = true;
     }
 
-    public Note(ObjectInstance o) : base(new BeatmapNote(
+    public Note(Engine engine, ObjectInstance o) : base(engine, new BeatmapNote(
         (float) GetJsValue(o, "_time"),
         (int) GetJsValue(o, "_lineIndex"),
         (int) GetJsValue(o, "_lineLayer"),

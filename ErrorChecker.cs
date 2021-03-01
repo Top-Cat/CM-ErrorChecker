@@ -6,7 +6,6 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using Object = System.Object;
 
 [Plugin("Error Checker")]
 public class ErrorChecker
@@ -14,6 +13,7 @@ public class ErrorChecker
     private NotesContainer notesContainer;
     private ObstaclesContainer wallsContainer;
     private EventsContainer eventsContainer;
+    private CustomEventsContainer customEventsContainer;
     private List<Check> checks = new List<Check>()
     {
         new VisionBlocks(),
@@ -23,6 +23,7 @@ public class ErrorChecker
     private UI ui;
     private AudioTimeSyncController atsc;
     private int index = 0;
+    private bool movedAfterRun = false;
 
     private static readonly int OutlineColor = Shader.PropertyToID("_OutlineColor");
 
@@ -47,6 +48,7 @@ public class ErrorChecker
             notesContainer = UnityEngine.Object.FindObjectOfType<NotesContainer>();
             wallsContainer = UnityEngine.Object.FindObjectOfType<ObstaclesContainer>();
             eventsContainer = UnityEngine.Object.FindObjectOfType<EventsContainer>();
+            customEventsContainer = UnityEngine.Object.FindObjectOfType<CustomEventsContainer>();
             var mapEditorUI = UnityEngine.Object.FindObjectOfType<MapEditorUI>();
 
             atsc = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.NOTE).AudioTimeSyncController;
@@ -72,6 +74,7 @@ public class ErrorChecker
         var allNotes = notesContainer.LoadedObjects.Cast<BeatmapNote>().OrderBy(it => it._time).ToList();
         var allWalls = wallsContainer.LoadedObjects.Cast<BeatmapObstacle>().OrderBy(it => it._time).ToList();
         var allEvents = eventsContainer.LoadedObjects.Cast<MapEvent>().OrderBy(it => it._time).ToList();
+        var allCustomEvents = customEventsContainer.LoadedObjects.Cast<BeatmapCustomEvent>().OrderBy(it => it._time).ToList();
 
         if (errors != null)
         {
@@ -92,7 +95,7 @@ public class ErrorChecker
                 float.TryParse(it.text, out float val);
                 return val;
             }).ToArray();
-            errors = check.PerformCheck(allNotes, allEvents, allWalls, vals).Commit();
+            errors = check.PerformCheck(allNotes, allEvents, allWalls, allCustomEvents, vals).Commit();
 
             // Highlight blocks in loaded containers in case we don't scrub far enough with MoveToTimeInBeats to load them
             foreach (var block in errors.errors)
@@ -112,19 +115,33 @@ public class ErrorChecker
             }
 
             index = 0;
-            NextBlock(0);
+            movedAfterRun = false;
+            
+            if (errors == null || errors.all.Count < 1)
+            {
+                ui.problemInfoText.text = "No problems found";
+            }
+            else
+            {
+                ui.problemInfoText.text = $"{errors.all.Count} problems found";
+            }
+            ui.problemInfoText.fontSize = 12;
+            ui.problemInfoText.GetComponent<RectTransform>().sizeDelta = new Vector2(190, 50);
+            //NextBlock(0);
         }
         catch (Exception e) { Debug.LogError(e.Message + e.StackTrace); }
     }
 
     public void NextBlock(int offset = 1)
     {
+        if (!movedAfterRun)
+        {
+            movedAfterRun = true;
+            if (offset > 0) offset = 0;
+        }
+        
         if (errors == null || errors.all.Count < 1)
         {
-            ui.problemInfoText.text = "No problems found";
-            ui.problemInfoText.fontSize = 12;
-            ui.problemInfoText.GetComponent<RectTransform>().sizeDelta = new Vector2(190, 50);
-
             return;
         }
 

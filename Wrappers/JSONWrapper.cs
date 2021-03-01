@@ -3,21 +3,23 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using System.Security.Cryptography;
 using Jint;
 using Jint.Native;
-using Jint.Native.Object;
 using Jint.Runtime.Descriptors;
 using SimpleJSON;
 using UnityEngine;
 using Types = Jint.Runtime.Types;
 
-class JSONWraper : ObjectInstance
+class JSONWraper
 {
     private readonly Engine engine;
     private readonly JSONNode wrapped;
-    private readonly Action deleteObj;
+    private readonly Func<bool> deleteObj;
 
-    public JSONWraper(Engine engine, JSONNode wrapped, Action deleteObj) : base(engine)
+    public float _test = 1.0f;
+
+    public JSONWraper(Engine engine, JSONNode wrapped, Func<bool> deleteObj)
     {
         this.engine = engine;
         this.wrapped = wrapped;
@@ -147,16 +149,6 @@ class JSONWraper : ObjectInstance
         }
     }
 
-    public override IEnumerable<KeyValuePair<JsValue, PropertyDescriptor>> GetOwnProperties()
-    {
-        var result = new List<KeyValuePair<JsValue, PropertyDescriptor>>();
-        foreach (var k in wrapped.Keys)
-        {
-            result.Add(new KeyValuePair<JsValue, PropertyDescriptor>(k, new PropertyDescriptor(k, true, true, true)));
-        }
-        return result;
-    }
-
     private JsValue JSONToJS(JSONNode node)
     {
         if (node.IsString)
@@ -187,34 +179,15 @@ class JSONWraper : ObjectInstance
 
         if (node.IsObject)
         {
-            return new JSONWraper(engine, node, deleteObj);
+            var obj = engine.Object.Construct(new JsValue[0]);
+            foreach (var kv in node)
+            {
+                obj.Set(kv.Key, JSONToJS(kv.Value));
+            }
+            return obj;
         }
 
         return null;
-    }
-    
-    public override JsValue Get(JsValue property, JsValue receiver)
-    {
-        var obj = wrapped[property.ToString()];
-        return obj != null ? JSONToJS(obj) : property;
-    }
-
-    public override bool Set(JsValue property, JsValue value, JsValue receiver)
-    {
-        Debug.Log("SetA");
-        Debug.Log(property.ToString());
-        this[property.ToString()] = value;
-        return true;
-    }
-
-    public override List<JsValue> GetOwnPropertyKeys(Types types = Types.None | Types.String | Types.Symbol)
-    {
-        var result = new List<JsValue>();
-        foreach (var k in wrapped.Keys)
-        {
-            result.Add(k);
-        }
-        return result;
     }
 
     public override string ToString()
@@ -224,6 +197,6 @@ class JSONWraper : ObjectInstance
 
     public JsValue ToJSON(JsValue receiver)
     {
-        return this;
+        return JSONToJS(wrapped);
     }
 }

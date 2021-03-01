@@ -9,7 +9,7 @@ class VisionBlocks : Check
         Params.Add(new Param("Max Time", 0.75f));
     }
 
-    public override CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, params float[] vals)
+    public override CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, List<BeatmapCustomEvent> customEvents, params float[] vals)
     {
         if (vals.Length > 1)
         {

@@ -174,12 +174,12 @@ class ExternalJS : Check
         }
     }
 
-    public override CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, params float[] vals)
+    public override CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, List<BeatmapCustomEvent> customEvents, params float[] vals)
     {
         result.Clear();
 
         var atsc = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.NOTE).AudioTimeSyncController;
-        float currentBeat = atsc.CurrentBeat;
+        var currentBeat = atsc.CurrentBeat;
 
         var collection = BeatmapObjectContainerCollection.GetCollectionForType<BPMChangesContainer>(BeatmapObject.Type.BPM_CHANGE);
         var lastBPMChange = collection.FindLastBPM(atsc.CurrentBeat);
@@ -191,6 +191,7 @@ class ExternalJS : Check
             .SetValue("notes", notes.Select(it => new Note(engine, it)).ToArray())
             .SetValue("walls", walls.Select(it => new Wall(engine, it)).ToArray())
             .SetValue("events", events.Select(it => new Event(engine, it)).ToArray())
+            .SetValue("customEvents", customEvents.Select(it => new CustomEvent(engine, it)).ToArray())
             .SetValue("data", new MapData(
                 currentBPM,
                 atsc.song.beatsPerMinute,
@@ -215,9 +216,10 @@ class ExternalJS : Check
                     result.AddWarning(obj, str ?? "");
             }))
             .Execute("global.params = [" + string.Join(",", vals.Select(it => it.ToString())) + "];" +
-            "var output = module.exports.run ? module.exports.run(cursor, notes, events, walls, {}, global, data) : module.exports.performCheck({notes: notes}" + (vals.Length > 0 ? ", " + string.Join(",", vals.Select(it => it.ToString())) : "") + ");" +
+            "var output = module.exports.run ? module.exports.run(cursor, notes, events, walls, {}, global, data, customEvents) : module.exports.performCheck({notes: notes}" + (vals.Length > 0 ? ", " + string.Join(",", vals.Select(it => it.ToString())) : "") + ");" +
             "if (output && output.notes) { notes = output.notes; };" +
             "if (output && output.events) { events = output.events; };" +
+            "if (output && output.customEvents) { customEvents = output.customEvents; };" +
             "if (output && output.walls) { walls = output.walls; };");
         }
         catch (JavaScriptException jse)
@@ -225,17 +227,25 @@ class ExternalJS : Check
             Debug.LogWarning($"Error running {fileName}\n{jse.Message}");
         }
 
+        var actions = new List<BeatmapAction>();
+        actions.AddRange(Reconcile(engine.GetValue("notes").AsArray(), notes, i => new Note(engine, i), BeatmapObject.Type.NOTE));
+        actions.AddRange(Reconcile(engine.GetValue("walls").AsArray(), walls, i => new Wall(engine, i), BeatmapObject.Type.OBSTACLE));
+        actions.AddRange(Reconcile(engine.GetValue("events").AsArray(), events, i => new Event(engine, i), BeatmapObject.Type.EVENT));
+        actions.AddRange(Reconcile(engine.GetValue("customEvents").AsArray(), customEvents, i => new CustomEvent(engine, i), BeatmapObject.Type.CUSTOM_EVENT));
 
-        Reconcile(engine.GetValue("notes").AsArray(), notes, i => new Note(engine, i), BeatmapObject.Type.NOTE);
-        Reconcile(engine.GetValue("walls").AsArray(), walls, i => new Wall(engine, i), BeatmapObject.Type.OBSTACLE);
-        Reconcile(engine.GetValue("events").AsArray(), events, i => new Event(engine, i), BeatmapObject.Type.EVENT);
+        if (actions.Count > 0)
+        {
+            var allAction = new ActionCollectionAction(actions, true, true, "External Script");
+            BeatmapActionContainer.AddAction(allAction);
+        }
 
         return result;
     }
 
-    private void Reconcile<T, U>(ArrayInstance noteArr, List<T> notes, Func<ObjectInstance, U> inst, BeatmapObject.Type type) where U : Wrapper<T> where T : BeatmapObject
+    private List<BeatmapAction> Reconcile<T, U>(ArrayInstance noteArr, List<T> notes, Func<ObjectInstance, U> inst, BeatmapObject.Type type) where U : Wrapper<T> where T : BeatmapObject
     {
-        List<U> outputNotes = new List<U>();
+        var beatmapActions = new List<BeatmapAction>();
+        var outputNotes = new List<U>();
         foreach (var test in noteArr)
         {
             if (test is U a)
@@ -262,21 +272,32 @@ class ExternalJS : Check
             }
         }
 
-        var outputObjs = outputNotes.Select(it => it.wrapped);
+        var outputObjs = outputNotes.Select(it => it.wrapped).ToHashSet();
         var toRemove = notes.Where(it => !outputObjs.Contains(it));
 
         var collection = BeatmapObjectContainerCollection.GetCollectionForType(type);
         foreach (var removeMe in toRemove)
         {
-            collection.LoadedContainers.TryGetValue(removeMe, out BeatmapObjectContainer container); // Does this do something?
+            //collection.LoadedContainers.TryGetValue(removeMe, out BeatmapObjectContainer container); // Does this do something?
+            beatmapActions.Add(new BeatmapObjectDeletionAction(removeMe, "Script deleted object"));
             collection.DeleteObject(removeMe, false);
         }
 
         foreach (var note in outputNotes)
         {
-            note.SpawnObject();
+            if (!note.SpawnObject()) continue;
+
+            if (note.original != null)
+            {
+                beatmapActions.Add(new BeatmapObjectModifiedAction(note.wrapped, note.wrapped, note.original, "Script edited object"));
+            }
+            else
+            {
+                beatmapActions.Add(new BeatmapObjectPlacementAction(note.wrapped, Enumerable.Empty<BeatmapObject>(), "Script spawned object"));
+            }
         }
 
         collection.RefreshPool();
+        return beatmapActions;
     }
 }

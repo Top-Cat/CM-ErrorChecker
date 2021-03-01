@@ -1,7 +1,7 @@
 ﻿using Jint;
 using Jint.Native.Object;
 
-class Note : Wrapper<BeatmapNote>
+class Note : VanillaWrapper<BeatmapNote>
 { 
     public float _time {
         get { return wrapped._time; }
@@ -63,30 +63,32 @@ class Note : Wrapper<BeatmapNote>
         (int) GetJsValue(o, "_type"),
         (int) GetJsValue(o, "_cutDirection"),
         GetCustomData(o)
-    ))
+    ), false)
     {
         spawned = false;
 
         DeleteObject();
     }
 
-    public override void SpawnObject()
+    public override bool SpawnObject()
     {
-        if (spawned) return;
+        if (spawned) return false;
 
         var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.NOTE);
         collection.SpawnObject(wrapped, false, false);
 
         spawned = true;
+        return true;
     }
 
-    protected override void DeleteObject()
+    protected override bool DeleteObject()
     {
-        if (!spawned) return;
+        if (!spawned) return false;
 
         var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.NOTE);
         collection.DeleteObject(wrapped, false);
 
         spawned = false;
+        return true;
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Jint;
 using Jint.Native.Object;
 
-class Event : VanillaWrapper<MapEvent>
+class CustomEvent : Wrapper<BeatmapCustomEvent>
 { 
     public float _time {
         get { return wrapped._time; }
@@ -11,7 +11,7 @@ class Event : VanillaWrapper<MapEvent>
         }
     }
 
-    public int _type
+    public string _type
     {
         get { return wrapped._type; }
         set
@@ -21,25 +21,25 @@ class Event : VanillaWrapper<MapEvent>
         }
     }
 
-    public int _value
+    public object _data
     {
-        get { return wrapped._value; }
+        get => new JSONWraper(engine, wrapped._customData, DeleteObject);
         set
         {
             DeleteObject();
-            wrapped._value = value;
+            wrapped._customData = JSONWraper.castObjToJSON(value);
         }
     }
 
-    public Event(Engine engine, MapEvent mapEvent) : base(engine, mapEvent)
+    public CustomEvent(Engine engine, BeatmapCustomEvent customEvent) : base(engine, customEvent)
     {
         spawned = true;
     }
 
-    public Event(Engine engine, ObjectInstance o) : base(engine, new MapEvent(
+    public CustomEvent(Engine engine, ObjectInstance o) : base(engine, new BeatmapCustomEvent(
             (float) GetJsValue(o, "_time"),
-            (int) GetJsValue(o, "_type"),
-            (int) GetJsValue(o, "_value")
+            GetJsString(o, "_type"),
+            GetCustomData(o, "_data")
         ), false)
     {
         spawned = false;

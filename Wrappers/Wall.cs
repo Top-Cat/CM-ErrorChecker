@@ -2,7 +2,7 @@
 using Jint.Native.Object;
 using UnityEngine;
 
-class Wall : Wrapper<BeatmapObstacle>
+class Wall : VanillaWrapper<BeatmapObstacle>
 { 
     public float _time {
         get { return wrapped._time; }
@@ -69,30 +69,32 @@ class Wall : Wrapper<BeatmapObstacle>
             (float)GetJsValue(o, "_duration"),
             (int)GetJsValue(o, "_width"),
             GetCustomData(o)
-        ))
+        ), false)
     {
         spawned = false;
 
         DeleteObject();
     }
 
-    public override void SpawnObject()
+    public override bool SpawnObject()
     {
-        if (spawned) return;
+        if (spawned) return false;
 
         var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.OBSTACLE);
         collection.SpawnObject(wrapped, false, false);
 
         spawned = true;
+        return true;
     }
 
-    protected override void DeleteObject()
+    protected override bool DeleteObject()
     {
-        if (!spawned) return;
+        if (!spawned) return false;
 
         var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.OBSTACLE);
         collection.DeleteObject(wrapped, false);
 
         spawned = false;
+        return true;
     }
 }

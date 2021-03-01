@@ -107,9 +107,10 @@
     <Compile Include="UI\DDText.cs" />
     <Compile Include="UI\IText.cs" />
     <Compile Include="UI\UI.cs" />
+    <Compile Include="Wrappers\CustomEvent.cs" />
     <Compile Include="Wrappers\Event.cs" />
     <Compile Include="Wrappers\JSONWrapper.cs" />
-    <Compile Include="Wrappers\NoteArray.cs" />
+    <Compile Include="Wrappers\VanillaWrapper.cs" />
     <Compile Include="Wrappers\Wall.cs" />
     <Compile Include="Wrappers\Note.cs" />
     <Compile Include="Wrappers\Wrapper.cs" />
@@ -141,7 +142,7 @@
   <Import Project="..\ErrorChecker\packages\Microsoft.SourceLink.Common.1.0.0\build\Microsoft.SourceLink.Common.targets" Condition="Exists('..\ErrorChecker\packages\Microsoft.SourceLink.Common.1.0.0\build\Microsoft.SourceLink.Common.targets')" />
   <Import Project="..\ErrorChecker\packages\Microsoft.SourceLink.GitHub.1.0.0\build\Microsoft.SourceLink.GitHub.targets" Condition="Exists('..\ErrorChecker\packages\Microsoft.SourceLink.GitHub.1.0.0\build\Microsoft.SourceLink.GitHub.targets')" />
   <PropertyGroup>
-    <PostBuildEvent>"C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\SignTool" sign /t http://timestamp.digicert.com /sha1 494ABC44B6FB828C0F185DB80A88C043C4DE77C4 ErrorChecker.dll
+    <PostBuildEvent>"C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\SignTool" sign /t http://timestamp.digicert.com /fd sha256 /sha1 494ABC44B6FB828C0F185DB80A88C043C4DE77C4 ErrorChecker.dll
 del ..\..\..\ChroMapper2\Plugins\ErrorChecker\ErrorChecker.dll
 copy ErrorChecker.dll ..\..\..\ChroMapper2\Plugins\ErrorChecker\</PostBuildEvent>
   </PropertyGroup>

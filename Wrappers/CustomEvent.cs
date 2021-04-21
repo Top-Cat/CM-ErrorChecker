@@ -40,7 +40,7 @@ class CustomEvent : Wrapper<BeatmapCustomEvent>
             (float) GetJsValue(o, "_time"),
             GetJsString(o, "_type"),
             GetCustomData(o, "_data")
-        ), false)
+    ), false, GetJsBool(o, "selected"))
     {
         spawned = false;
 

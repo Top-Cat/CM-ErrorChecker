@@ -36,6 +36,14 @@ class ExternalJS : Check
             Debug.Log(o);
         }
     }
+
+    private static void Alert(string o)
+    {
+        PersistentUI.Instance.ShowDialogBox(o, r =>
+        {
+            // Callback?
+        }, PersistentUI.DialogBoxPresetType.Ok);
+    }
     
     private JsValue require(string folder, string file) {
         if (!file.EndsWith(".js"))
@@ -49,6 +57,7 @@ class ExternalJS : Check
         {
             var e = new Engine()
                 .SetValue("log", new Action<object>(LogIt))
+                .SetValue("alert", new Action<string>(Alert))
                 .SetValue("require", new Func<string, JsValue>(Bind<string, string, JsValue>(require, newFolder)))
                 .Execute("exports = {}; module = {exports: exports}; console = {log: log};")
                 .Execute(jsSource);
@@ -95,12 +104,14 @@ class ExternalJS : Check
             engine
                 .SetValue("require", new Func<string, JsValue>(Bind<string, string, JsValue>(require, assemblyFolder)))
                 .SetValue("log", new Action<object>(LogIt))
+                .SetValue("alert", new Action<string>(Alert))
                 .Execute("module = {exports: {}}; console = {log: log}; var global = {};")
                 .Execute(script)
                 .Execute("module.exports.params = JSON.stringify(module.exports.params);");
 
             var exports = engine.GetValue(engine.GetValue("module"), "exports");
             var @params = engine.GetValue(exports, "params");
+            Params.Clear();
             if (@params.IsString())
             {
                 var ps = JSON.Parse(@params.AsString()).AsObject;
@@ -227,6 +238,7 @@ class ExternalJS : Check
             Debug.LogWarning($"Error running {fileName}\n{jse.Message}");
         }
 
+        SelectionController.DeselectAll();
         var actions = new List<BeatmapAction>();
         actions.AddRange(Reconcile(engine.GetValue("notes").AsArray(), notes, i => new Note(engine, i), BeatmapObject.Type.NOTE));
         actions.AddRange(Reconcile(engine.GetValue("walls").AsArray(), walls, i => new Wall(engine, i), BeatmapObject.Type.OBSTACLE));
@@ -286,6 +298,7 @@ class ExternalJS : Check
         foreach (var note in outputNotes)
         {
             if (!note.SpawnObject()) continue;
+            if (note.selected) SelectionController.Select(note.wrapped, true);
 
             if (note.original != null)
             {

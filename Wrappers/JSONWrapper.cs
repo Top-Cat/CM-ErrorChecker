@@ -3,13 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
-using System.Security.Cryptography;
 using Jint;
 using Jint.Native;
-using Jint.Runtime.Descriptors;
 using SimpleJSON;
 using UnityEngine;
-using Types = Jint.Runtime.Types;
 
 class JSONWraper
 {

@@ -39,8 +39,9 @@ class Event : VanillaWrapper<MapEvent>
     public Event(Engine engine, ObjectInstance o) : base(engine, new MapEvent(
             (float) GetJsValue(o, "_time"),
             (int) GetJsValue(o, "_type"),
-            (int) GetJsValue(o, "_value")
-        ), false)
+            (int) GetJsValue(o, "_value"),
+            GetCustomData(o)
+        ), false, GetJsBool(o, "selected"))
     {
         spawned = false;
 

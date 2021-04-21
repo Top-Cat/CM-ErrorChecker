@@ -63,7 +63,7 @@ class Note : VanillaWrapper<BeatmapNote>
         (int) GetJsValue(o, "_type"),
         (int) GetJsValue(o, "_cutDirection"),
         GetCustomData(o)
-    ), false)
+    ), false, GetJsBool(o, "selected"))
     {
         spawned = false;
 

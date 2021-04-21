@@ -83,6 +83,10 @@
       <HintPath>..\ChroMapper2\Temp\bin\Debug\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>..\ChroMapper2\Temp\bin\Debug\UnityEngine.ImageConversionModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="UnityEngine.TextRenderingModule">
       <HintPath>..\ChroMapper2\Temp\bin\Debug\UnityEngine.TextRenderingModule.dll</HintPath>
       <Private>False</Private>
@@ -122,6 +126,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Icon.png" />
     <Content Include="FodyWeavers.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -69,7 +69,7 @@ class Wall : VanillaWrapper<BeatmapObstacle>
             (float)GetJsValue(o, "_duration"),
             (int)GetJsValue(o, "_width"),
             GetCustomData(o)
-        ), false)
+        ), false, GetJsBool(o, "selected"))
     {
         spawned = false;
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -27,10 +28,29 @@ public class UI
 
     private TMP_FontAsset font;
 
+    private readonly ExtensionButton errorCheckerButton = new ExtensionButton();
+
     public UI(ErrorChecker plugin, List<Check> checks)
     {
         this.plugin = plugin;
         this.checks = checks;
+
+        errorCheckerButton.Tooltip = "Check Errors";
+
+        using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ErrorChecker.Icon.png"))
+        {
+            var len = (int) stream.Length;
+            var bytes = new byte[len];
+            stream.Read(bytes, 0, len);
+
+            var texture2D = new Texture2D(512, 512);
+            texture2D.LoadImage(bytes);
+
+            errorCheckerButton.Icon = Sprite.Create(texture2D, new Rect(0, 0, texture2D.width, texture2D.height), new Vector2(0, 0), 100.0f, 0, SpriteMeshType.Tight);
+        }
+
+        Debug.Log("add button");
+        ExtensionButtons.AddButton(errorCheckerButton);
     }
 
     public void AddButton(MapEditorUI rootObj)
@@ -67,7 +87,9 @@ public class UI
         AddPopup(rootObj);
         popup.SetActive(false);
 
-        GenerateButton(parent.transform, "ErrorChecker Button", "Check Errors", new Vector2(-360, -20), () =>
+        //GenerateButton(parent.transform, "ErrorChecker Button", "Check Errors", new Vector2(-360, -20), () =>
+
+        errorCheckerButton.OnClick = () =>
         {
             foreach (var rt in navigation)
             {
@@ -75,7 +97,7 @@ public class UI
                 if (txt != null) txt.fontSize = 12;
             }
             popup.SetActive(!popup.activeSelf);
-        });
+        };
     }
 
     private RectTransform GenerateButton(Transform parent, string title, string text, Vector2 pos, UnityAction onClick, Vector2? size = null)
@@ -208,7 +230,7 @@ public class UI
         popup.name = "ErrorChecker Popup";
         popup.transform.parent = parent.transform;
 
-        AttachTransform(popup, 220, 151, 0.5f, 1, -434, -35, 0.5f, 1);
+        AttachTransform(popup, 220, 151, 0.5f, 1, -434, -5, 0.5f, 1);
         var image = popup.AddComponent<Image>();
 
         image.sprite = Background;
@@ -219,6 +241,7 @@ public class UI
 
         GenerateButton(popup.transform, "Reload", ReloadSprite, new Vector2(95, -23), () => {
             checks[dropdownComponent.value].Reload();
+            UpdateSelected(dropdownComponent.value);
         }, new Vector2(22, 25));
 
         ////////
@@ -265,6 +288,35 @@ public class UI
         transform3.sizeDelta = new Vector2(190, 50);
     }
 
+    private void UpdateSelected(int i)
+    {
+        paramContainer.SetActive(false);
+        foreach (Transform child in paramContainer.transform)
+        {
+            Object.Destroy(child.gameObject);
+        }
+        paramTexts.Clear();
+
+        checks[i].OnSelected();
+        var vals = checks[i].Params;
+        float y = -54;
+        foreach (var v in vals)
+        {
+            AddEntry(v.name, y, v.def.ToString());
+            y -= 23;
+        }
+
+        paramContainer.GetComponent<RectTransform>().sizeDelta = popup.GetComponent<RectTransform>().sizeDelta = new Vector2(220, 51 - y);
+        foreach (var rt2 in navigation)
+        {
+            rt2.anchoredPosition = new Vector3(rt2.anchoredPosition.x, y - 5, 0);
+        }
+        problemInfoText.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, y - 22, 0);
+
+        // Generates the caret in the text fields, who knows
+        paramContainer.SetActive(true);
+    }
+
     public void AddDropdown(GameObject parent)
     {
         GameObject dropdown = new GameObject();
@@ -282,34 +334,7 @@ public class UI
         image.color = new Color(0.18f, 0.18f, 0.18f, 1);
 
         dropdownComponent.targetGraphic = image;
-        dropdownComponent.onValueChanged.AddListener((i) =>
-        {
-            paramContainer.SetActive(false);
-            foreach (Transform child in paramContainer.transform)
-            {
-                Object.Destroy(child.gameObject);
-            }
-            paramTexts.Clear();
-
-            checks[i].OnSelected();
-            var vals = checks[i].Params;
-            float y = -54;
-            foreach (var v in vals)
-            {
-                AddEntry(v.name, y, v.def.ToString());
-                y -= 23;
-            }
-
-            paramContainer.GetComponent<RectTransform>().sizeDelta = popup.GetComponent<RectTransform>().sizeDelta = new Vector2(220, 51 - y);
-            foreach (var rt2 in navigation)
-            {
-                rt2.anchoredPosition = new Vector3(rt2.anchoredPosition.x, y - 5, 0);
-            }
-            problemInfoText.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, y - 22, 0);
-
-            // Generates the caret in the text fields, who knows
-            paramContainer.SetActive(true);
-        });
+        dropdownComponent.onValueChanged.AddListener(UpdateSelected);
 
         ///////
 

@@ -12,7 +12,7 @@ abstract class VanillaWrapper<T> : Wrapper<T> where T : BeatmapObject
         }
     }
 
-    protected VanillaWrapper(Engine engine, T wrapped, bool hasOriginal = true) : base(engine, wrapped, hasOriginal)
+    protected VanillaWrapper(Engine engine, T wrapped, bool hasOriginal = true, bool? selected = null) : base(engine, wrapped, hasOriginal, selected)
     {
     }
 }

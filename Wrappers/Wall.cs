@@ -1,13 +1,11 @@
 ﻿using Jint;
 using Jint.Native.Object;
-using UnityEngine;
 
 class Wall : VanillaWrapper<BeatmapObstacle>
 { 
     public float _time {
-        get { return wrapped._time; }
+        get => wrapped._time;
         set {
-            Debug.Log("Set wall time to " + value);
             DeleteObject();
             wrapped._time = value;
         }
@@ -15,10 +13,9 @@ class Wall : VanillaWrapper<BeatmapObstacle>
 
     public int _lineIndex
     {
-        get { return wrapped._lineIndex; }
+        get => wrapped._lineIndex;
         set
         {
-            Debug.Log("Set wall index to " + value);
             DeleteObject();
             wrapped._lineIndex = value;
         }
@@ -26,10 +23,9 @@ class Wall : VanillaWrapper<BeatmapObstacle>
 
     public int _type
     {
-        get { return wrapped._type; }
+        get => wrapped._type;
         set
         {
-            Debug.Log("Set wall type to " + value);
             DeleteObject();
             wrapped._type = value;
         }
@@ -37,10 +33,9 @@ class Wall : VanillaWrapper<BeatmapObstacle>
 
     public float _duration
     {
-        get { return wrapped._duration; }
+        get => wrapped._duration;
         set
         {
-            Debug.Log("Set wall duration to " + value);
             DeleteObject();
             wrapped._duration = value;
         }
@@ -48,10 +43,9 @@ class Wall : VanillaWrapper<BeatmapObstacle>
 
     public int _width
     {
-        get { return wrapped._width; }
+        get => wrapped._width;
         set
         {
-            Debug.Log("Set wall width to " + value);
             DeleteObject();
             wrapped._width = value;
         }
@@ -87,7 +81,7 @@ class Wall : VanillaWrapper<BeatmapObstacle>
         return true;
     }
 
-    protected override bool DeleteObject()
+    internal override bool DeleteObject()
     {
         if (!spawned) return false;
 

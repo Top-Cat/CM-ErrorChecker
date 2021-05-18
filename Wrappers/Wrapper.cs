@@ -59,7 +59,7 @@ abstract class Wrapper<T> where T : BeatmapObject
 
     public abstract bool SpawnObject();
 
-    protected abstract bool DeleteObject();
+    internal abstract bool DeleteObject();
 
     public override string ToString()
     {

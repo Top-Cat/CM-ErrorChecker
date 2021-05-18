@@ -4,7 +4,7 @@ using Jint.Native.Object;
 class Note : VanillaWrapper<BeatmapNote>
 { 
     public float _time {
-        get { return wrapped._time; }
+        get => wrapped._time;
         set {
             DeleteObject();
             wrapped._time = value;
@@ -13,7 +13,7 @@ class Note : VanillaWrapper<BeatmapNote>
 
     public int _lineIndex
     {
-        get { return wrapped._lineIndex; }
+        get => wrapped._lineIndex;
         set
         {
             DeleteObject();
@@ -23,7 +23,7 @@ class Note : VanillaWrapper<BeatmapNote>
 
     public int _lineLayer
     {
-        get { return wrapped._lineLayer; }
+        get => wrapped._lineLayer;
         set
         {
             DeleteObject();
@@ -33,7 +33,7 @@ class Note : VanillaWrapper<BeatmapNote>
 
     public int _cutDirection
     {
-        get { return wrapped._cutDirection; }
+        get => wrapped._cutDirection;
         set
         {
             DeleteObject();
@@ -43,7 +43,7 @@ class Note : VanillaWrapper<BeatmapNote>
 
     public int _type
     {
-        get { return wrapped._type; }
+        get => wrapped._type;
         set
         {
             DeleteObject();
@@ -81,7 +81,7 @@ class Note : VanillaWrapper<BeatmapNote>
         return true;
     }
 
-    protected override bool DeleteObject()
+    internal override bool DeleteObject()
     {
         if (!spawned) return false;
 

@@ -4,7 +4,7 @@ using Jint.Native.Object;
 class Event : VanillaWrapper<MapEvent>
 { 
     public float _time {
-        get { return wrapped._time; }
+        get => wrapped._time;
         set {
             DeleteObject();
             wrapped._time = value;
@@ -13,7 +13,7 @@ class Event : VanillaWrapper<MapEvent>
 
     public int _type
     {
-        get { return wrapped._type; }
+        get => wrapped._type;
         set
         {
             DeleteObject();
@@ -23,7 +23,7 @@ class Event : VanillaWrapper<MapEvent>
 
     public int _value
     {
-        get { return wrapped._value; }
+        get => wrapped._value;
         set
         {
             DeleteObject();
@@ -59,7 +59,7 @@ class Event : VanillaWrapper<MapEvent>
         return true;
     }
 
-    protected override bool DeleteObject()
+    internal override bool DeleteObject()
     {
         if (!spawned) return false;
 

@@ -111,6 +111,7 @@
     <Compile Include="UI\DDText.cs" />
     <Compile Include="UI\IText.cs" />
     <Compile Include="UI\UI.cs" />
+    <Compile Include="Wrappers\BpmChange.cs" />
     <Compile Include="Wrappers\CustomEvent.cs" />
     <Compile Include="Wrappers\Event.cs" />
     <Compile Include="Wrappers\JSONWrapper.cs" />

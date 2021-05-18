@@ -25,7 +25,7 @@ As this is essentially alpha the interface for these checks may change but for n
 module.exports = {
 	name: "My error check",
 	params: {"Min Time": 0.24},
-	run: function(cursor, notes, events, walls, _, global, data)
+	run: function(cursor, notes, events, walls, _, global, data, customEvents, bpmChanges)
 };
 ```
 
@@ -44,6 +44,8 @@ OR if you want to generate a fresh array you need to provide your new array in o
 		*	songBPM - The bpm of the song
 		*	NJS - The note jump speed set for the song
 		*	offset - How far into the song the user starts
+	* Custom events are custom objects used for [noodling](https://github.com/Aeroluna/NoodleExtensions/blob/master/Documentation/AnimationDocs.md#custom-events)
+	* BPM Changes may be useful for working out what the bpm is at a point in a map or programatically creating slides
 
 Two functions will be defined before calling `performCheck`
 * **addError**(note, reason) - Pass back the problem note object, all it's properties (except `_customData`) must match the original passed note for it to be marked properly and you can provide a reason as the second parameter

@@ -185,7 +185,7 @@ class ExternalJS : Check
         }
     }
 
-    public override CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, List<BeatmapCustomEvent> customEvents, params float[] vals)
+    public override CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, List<BeatmapCustomEvent> customEvents, List<BeatmapBPMChange> bpmChanges, params float[] vals)
     {
         result.Clear();
 
@@ -196,13 +196,20 @@ class ExternalJS : Check
         var lastBPMChange = collection.FindLastBPM(atsc.CurrentBeat);
         var currentBPM = lastBPMChange?._BPM ?? atsc.song.beatsPerMinute;
 
+        var originalNotes = notes.Select(it => new Note(engine, it)).ToArray();
+        var originalWalls = walls.Select(it => new Wall(engine, it)).ToArray();
+        var originalEvents = events.Select(it => new Event(engine, it)).ToArray();
+        var originalCustomEvents = customEvents.Select(it => new CustomEvent(engine, it)).ToArray();
+        var originalBpmChanges = bpmChanges.Select(it => new BpmChange(engine, it)).ToArray();
+
         try
         {
             engine
-            .SetValue("notes", notes.Select(it => new Note(engine, it)).ToArray())
-            .SetValue("walls", walls.Select(it => new Wall(engine, it)).ToArray())
-            .SetValue("events", events.Select(it => new Event(engine, it)).ToArray())
-            .SetValue("customEvents", customEvents.Select(it => new CustomEvent(engine, it)).ToArray())
+            .SetValue("notes", originalNotes)
+            .SetValue("walls", originalWalls)
+            .SetValue("events", originalEvents)
+            .SetValue("customEvents", originalCustomEvents)
+            .SetValue("bpmChanges", originalBpmChanges)
             .SetValue("data", new MapData(
                 currentBPM,
                 atsc.song.beatsPerMinute,
@@ -227,10 +234,11 @@ class ExternalJS : Check
                     result.AddWarning(obj, str ?? "");
             }))
             .Execute("global.params = [" + string.Join(",", vals.Select(it => it.ToString())) + "];" +
-            "var output = module.exports.run ? module.exports.run(cursor, notes, events, walls, {}, global, data, customEvents) : module.exports.performCheck({notes: notes}" + (vals.Length > 0 ? ", " + string.Join(",", vals.Select(it => it.ToString())) : "") + ");" +
+            "var output = module.exports.run ? module.exports.run(cursor, notes, events, walls, {}, global, data, customEvents, bpmChanges) : module.exports.performCheck({notes: notes}" + (vals.Length > 0 ? ", " + string.Join(",", vals.Select(it => it.ToString())) : "") + ");" +
             "if (output && output.notes) { notes = output.notes; };" +
             "if (output && output.events) { events = output.events; };" +
             "if (output && output.customEvents) { customEvents = output.customEvents; };" +
+            "if (output && output.bpmChanges) { bpmChanges = output.bpmChanges; };" +
             "if (output && output.walls) { walls = output.walls; };");
         }
         catch (JavaScriptException jse)
@@ -240,10 +248,11 @@ class ExternalJS : Check
 
         SelectionController.DeselectAll();
         var actions = new List<BeatmapAction>();
-        actions.AddRange(Reconcile(engine.GetValue("notes").AsArray(), notes, i => new Note(engine, i), BeatmapObject.Type.NOTE));
-        actions.AddRange(Reconcile(engine.GetValue("walls").AsArray(), walls, i => new Wall(engine, i), BeatmapObject.Type.OBSTACLE));
-        actions.AddRange(Reconcile(engine.GetValue("events").AsArray(), events, i => new Event(engine, i), BeatmapObject.Type.EVENT));
-        actions.AddRange(Reconcile(engine.GetValue("customEvents").AsArray(), customEvents, i => new CustomEvent(engine, i), BeatmapObject.Type.CUSTOM_EVENT));
+        actions.AddRange(Reconcile(originalNotes, engine.GetValue("notes").AsArray(), notes, i => new Note(engine, i), BeatmapObject.Type.NOTE));
+        actions.AddRange(Reconcile(originalWalls, engine.GetValue("walls").AsArray(), walls, i => new Wall(engine, i), BeatmapObject.Type.OBSTACLE));
+        actions.AddRange(Reconcile(originalEvents, engine.GetValue("events").AsArray(), events, i => new Event(engine, i), BeatmapObject.Type.EVENT));
+        actions.AddRange(Reconcile(originalCustomEvents, engine.GetValue("customEvents").AsArray(), customEvents, i => new CustomEvent(engine, i), BeatmapObject.Type.CUSTOM_EVENT));
+        actions.AddRange(Reconcile(originalBpmChanges, engine.GetValue("bpmChanges").AsArray(), bpmChanges, i => new BpmChange(engine, i), BeatmapObject.Type.BPM_CHANGE));
 
         if (actions.Count > 0)
         {
@@ -254,7 +263,7 @@ class ExternalJS : Check
         return result;
     }
 
-    private List<BeatmapAction> Reconcile<T, U>(ArrayInstance noteArr, List<T> notes, Func<ObjectInstance, U> inst, BeatmapObject.Type type) where U : Wrapper<T> where T : BeatmapObject
+    private List<BeatmapAction> Reconcile<T, U>(IEnumerable<U> original, ArrayInstance noteArr, List<T> notes, Func<ObjectInstance, U> inst, BeatmapObject.Type type) where U : Wrapper<T> where T : BeatmapObject
     {
         var beatmapActions = new List<BeatmapAction>();
         var outputNotes = new List<U>();
@@ -284,15 +293,19 @@ class ExternalJS : Check
             }
         }
 
+        var lookup = original.ToDictionary(x => x.wrapped, x => x);
+
         var outputObjs = outputNotes.Select(it => it.wrapped).ToHashSet();
         var toRemove = notes.Where(it => !outputObjs.Contains(it));
 
         var collection = BeatmapObjectContainerCollection.GetCollectionForType(type);
         foreach (var removeMe in toRemove)
         {
+            var wrapper = lookup[removeMe];
+
             //collection.LoadedContainers.TryGetValue(removeMe, out BeatmapObjectContainer container); // Does this do something?
-            beatmapActions.Add(new BeatmapObjectDeletionAction(removeMe, "Script deleted object"));
-            collection.DeleteObject(removeMe, false);
+            beatmapActions.Add(new BeatmapObjectDeletionAction(wrapper.original, "Script deleted object"));
+            wrapper.DeleteObject();
         }
 
         foreach (var note in outputNotes)

@@ -14,6 +14,7 @@ public class ErrorChecker
     private ObstaclesContainer wallsContainer;
     private EventsContainer eventsContainer;
     private CustomEventsContainer customEventsContainer;
+    private BPMChangesContainer bpmChangesContainer;
     private List<Check> checks = new List<Check>()
     {
         new VisionBlocks(),
@@ -49,6 +50,7 @@ public class ErrorChecker
             wallsContainer = UnityEngine.Object.FindObjectOfType<ObstaclesContainer>();
             eventsContainer = UnityEngine.Object.FindObjectOfType<EventsContainer>();
             customEventsContainer = UnityEngine.Object.FindObjectOfType<CustomEventsContainer>();
+            bpmChangesContainer = UnityEngine.Object.FindObjectOfType<BPMChangesContainer>();
             var mapEditorUI = UnityEngine.Object.FindObjectOfType<MapEditorUI>();
 
             atsc = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.NOTE).AudioTimeSyncController;
@@ -75,6 +77,7 @@ public class ErrorChecker
         var allWalls = wallsContainer.LoadedObjects.Cast<BeatmapObstacle>().OrderBy(it => it._time).ToList();
         var allEvents = eventsContainer.LoadedObjects.Cast<MapEvent>().OrderBy(it => it._time).ToList();
         var allCustomEvents = customEventsContainer.LoadedObjects.Cast<BeatmapCustomEvent>().OrderBy(it => it._time).ToList();
+        var allBpmChanges = bpmChangesContainer.LoadedObjects.Cast<BeatmapBPMChange>().OrderBy(it => it._time).ToList();
 
         if (errors != null)
         {
@@ -95,7 +98,7 @@ public class ErrorChecker
                 float.TryParse(it.text, out float val);
                 return val;
             }).ToArray();
-            errors = check.PerformCheck(allNotes, allEvents, allWalls, allCustomEvents, vals).Commit();
+            errors = check.PerformCheck(allNotes, allEvents, allWalls, allCustomEvents, allBpmChanges, vals).Commit();
 
             // Highlight blocks in loaded containers in case we don't scrub far enough with MoveToTimeInBeats to load them
             foreach (var block in errors.errors)

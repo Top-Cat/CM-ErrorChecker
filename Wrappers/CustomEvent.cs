@@ -2,9 +2,9 @@
 using Jint.Native.Object;
 
 class CustomEvent : Wrapper<BeatmapCustomEvent>
-{ 
+{
     public float _time {
-        get { return wrapped._time; }
+        get => wrapped._time;
         set {
             DeleteObject();
             wrapped._time = value;
@@ -13,7 +13,7 @@ class CustomEvent : Wrapper<BeatmapCustomEvent>
 
     public string _type
     {
-        get { return wrapped._type; }
+        get => wrapped._type;
         set
         {
             DeleteObject();
@@ -58,7 +58,7 @@ class CustomEvent : Wrapper<BeatmapCustomEvent>
         return true;
     }
 
-    protected override bool DeleteObject()
+    internal override bool DeleteObject()
     {
         if (!spawned) return false;
 

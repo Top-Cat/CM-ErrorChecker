@@ -29,16 +29,16 @@ public abstract class Check
         
     }
 
-    public virtual CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, List<BeatmapCustomEvent> customEvents)
+    public virtual CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, List<BeatmapCustomEvent> customEvents, List<BeatmapBPMChange> bpmChanges)
     {
         throw new ArgumentException("Wrong number of parameters");
     }
 
-    public virtual CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, List<BeatmapCustomEvent> customEvents, params float[] vals)
+    public virtual CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, List<BeatmapCustomEvent> customEvents, List<BeatmapBPMChange> bpmChanges, params float[] vals)
     {
         if (vals.Length == 0 && Params.Count == 0)
         {
-            return PerformCheck(notes, events, walls, customEvents);
+            return PerformCheck(notes, events, walls, customEvents, bpmChanges);
         }
         throw new ArgumentException("Wrong number of parameters");
     }

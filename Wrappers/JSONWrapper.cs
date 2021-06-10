@@ -193,6 +193,7 @@ class JSONWraper
         return wrapped.ToString();
     }
 
+    // ReSharper disable once InconsistentNaming
     public ArrayInstance concat(params JsValue[] args)
     {
         if (!wrapped.IsArray)
@@ -205,6 +206,21 @@ class JSONWraper
         }
 
         return arr;
+    }
+
+    // ReSharper disable once InconsistentNaming
+    public int? push(params JsValue[] args)
+    {
+        if (!wrapped.IsArray)
+            return null;
+
+        var thisArr = wrapped.AsArray;
+        foreach (var jsValue in args)
+        {
+            thisArr.Add(castJSToJSON(jsValue));
+        }
+
+        return thisArr.Count;
     }
 
     public JsValue ToJSON(JsValue receiver)

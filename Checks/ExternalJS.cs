@@ -123,8 +123,9 @@ class ExternalJS : Check
                 .SetValue("alert", new Action<string>(Alert))
                 .SetValue("isCSharpArray", new Func<object, bool?>(IsCSharpArray))
                 .Execute("module = {exports: {}}; console = {log: log}; var global = {};" +
-                         "oldIsArray = Array.isArray; Array.isArray = function(o) { let a = isCSharpArray(o); return a !== null ? a : oldIsArray(o); };" + 
-                         "oldConcat = Array.prototype.concat; Array.prototype.concat = function() { let mapped = [...arguments].map(x => isCSharpArray(x) === true ? x.ToJSON(null) : x); return oldConcat.call(this, ...mapped); };")
+                         "oldIsArray = Array.isArray; Array.isArray = function(o) { let a = isCSharpArray(o); return a !== null ? a : oldIsArray(o); };" +
+                         "oldConcat = Array.prototype.concat; Array.prototype.concat = function() { let mapped = [...arguments].map(x => isCSharpArray(x) === true ? x.ToJSON(null) : x); return oldConcat.call(this, ...mapped); };" +
+                         "oldPush = Array.prototype.push; Array.prototype.push = function() { let mapped = [...arguments].map(x => isCSharpArray(x) === true ? x.ToJSON(null) : x); return oldPush.call(this, ...mapped); };")
                 .Execute(script)
                 .Execute("module.exports.params = JSON.stringify(module.exports.params);");
 

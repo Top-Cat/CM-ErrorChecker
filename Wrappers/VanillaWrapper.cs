@@ -4,7 +4,7 @@ abstract class VanillaWrapper<T> : Wrapper<T> where T : BeatmapObject
 {
     public object _customData
     {
-        get => new JSONWraper(engine, wrapped._customData, DeleteObject);
+        get => wrapped._customData == null ? null : new JSONWraper(engine, wrapped._customData, DeleteObject);
         set
         {
             DeleteObject();

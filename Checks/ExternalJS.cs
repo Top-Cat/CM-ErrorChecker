@@ -44,6 +44,16 @@ class ExternalJS : Check
             // Callback?
         }, PersistentUI.DialogBoxPresetType.Ok);
     }
+
+    private static bool? IsCSharpArray(object o)
+    {
+        if (o is JSONWraper jw)
+        {
+            return jw.wrapped.IsArray;
+        }
+
+        return null;
+    }
     
     private JsValue require(string folder, string file) {
         if (!file.EndsWith(".js"))
@@ -105,7 +115,9 @@ class ExternalJS : Check
                 .SetValue("require", new Func<string, JsValue>(Bind<string, string, JsValue>(require, assemblyFolder)))
                 .SetValue("log", new Action<object>(LogIt))
                 .SetValue("alert", new Action<string>(Alert))
-                .Execute("module = {exports: {}}; console = {log: log}; var global = {};")
+                .SetValue("isCSharpArray", new Func<object, bool?>(IsCSharpArray))
+                .Execute("module = {exports: {}}; console = {log: log}; var global = {};" +
+                         "oldIsArray = Array.isArray; Array.isArray = function(o) { let a = isCSharpArray(o); return a !== null ? a : oldIsArray(o); };")
                 .Execute(script)
                 .Execute("module.exports.params = JSON.stringify(module.exports.params);");
 

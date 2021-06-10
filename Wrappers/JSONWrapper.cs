@@ -11,10 +11,8 @@ using UnityEngine;
 class JSONWraper
 {
     private readonly Engine engine;
-    private readonly JSONNode wrapped;
+    internal readonly JSONNode wrapped;
     private readonly Func<bool> deleteObj;
-
-    public float _test = 1.0f;
 
     public JSONWraper(Engine engine, JSONNode wrapped, Func<bool> deleteObj)
     {
@@ -128,20 +126,20 @@ class JSONWraper
         {
             if (wrapped.IsArray && int.TryParse(aKey, out var aIndex))
             {
-                return new JSONWraper(engine, wrapped[aIndex], deleteObj);
+                return wrapped[aIndex] == null ? null : new JSONWraper(engine, wrapped[aIndex], deleteObj);
             }
             return wrapped.HasKey(aKey) ? new JSONWraper(engine, wrapped[aKey], deleteObj) : null;
         }
         set
         {
-            Debug.Log("Set");
+            //Debug.Log("Set");
             deleteObj();
             if (wrapped.IsArray && int.TryParse(aKey, out var aIndex))
             {
                 wrapped[aIndex] = castObjToJSON(value); 
                 return;
             }
-            Debug.Log(castObjToJSON(value));
+            //Debug.Log(castObjToJSON(value));
             wrapped[aKey] = castObjToJSON(value);
         }
     }

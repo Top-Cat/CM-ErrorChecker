@@ -65,7 +65,10 @@ class ExternalJS : Check
         string newFolder = new FileInfo(fullPath).DirectoryName;
         try
         {
-            var e = new Engine()
+            var e = new Engine(options =>
+                {
+                    options.LimitRecursion(200).TimeoutInterval(TimeSpan.FromSeconds(30L));
+                })
                 .SetValue("log", new Action<object>(LogIt))
                 .SetValue("alert", new Action<string>(Alert))
                 .SetValue("require", new Func<string, JsValue>(Bind<string, string, JsValue>(require, newFolder)))
@@ -98,7 +101,10 @@ class ExternalJS : Check
 
     public override void Reload()
     {
-        engine = new Engine();
+        engine = new Engine(options =>
+        {
+            options.LimitRecursion(200).TimeoutInterval(TimeSpan.FromSeconds(30L));
+        });
         LoadJS();
     }
 
@@ -117,7 +123,8 @@ class ExternalJS : Check
                 .SetValue("alert", new Action<string>(Alert))
                 .SetValue("isCSharpArray", new Func<object, bool?>(IsCSharpArray))
                 .Execute("module = {exports: {}}; console = {log: log}; var global = {};" +
-                         "oldIsArray = Array.isArray; Array.isArray = function(o) { let a = isCSharpArray(o); return a !== null ? a : oldIsArray(o); };")
+                         "oldIsArray = Array.isArray; Array.isArray = function(o) { let a = isCSharpArray(o); return a !== null ? a : oldIsArray(o); };" + 
+                         "oldConcat = Array.prototype.concat; Array.prototype.concat = function() { let mapped = [...arguments].map(x => isCSharpArray(x) === true ? x.ToJSON(null) : x); return oldConcat.call(this, ...mapped); };")
                 .Execute(script)
                 .Execute("module.exports.params = JSON.stringify(module.exports.params);");
 

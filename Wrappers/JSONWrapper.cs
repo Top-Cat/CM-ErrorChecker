@@ -5,6 +5,7 @@ using System.Dynamic;
 using System.Linq;
 using Jint;
 using Jint.Native;
+using Jint.Native.Array;
 using SimpleJSON;
 using UnityEngine;
 
@@ -153,13 +154,15 @@ class JSONWraper
         
         if (node.IsArray)
         {
-            var vals = new List<JsValue>();
-            foreach (var kv in node.AsArray.Values)
+            var asArr = node.AsArray;
+            var nativeArr = engine.Array.Construct(0);
+
+            foreach (var kv in asArr.Values)
             {
-                vals.Add(JSONToJS(kv));
+                engine.Array.PrototypeObject.Push(nativeArr, new[] { JSONToJS(kv) });
             }
 
-            return engine.Array.Construct(vals.ToArray());
+            return nativeArr;
         }
 
         if (node.IsNumber)
@@ -188,6 +191,20 @@ class JSONWraper
     public override string ToString()
     {
         return wrapped.ToString();
+    }
+
+    public ArrayInstance concat(params JsValue[] args)
+    {
+        if (!wrapped.IsArray)
+            return null;
+
+        var arr = JSONToJS(wrapped) as ArrayInstance;
+        foreach (var jsValue in args)
+        {
+            engine.Array.PrototypeObject.Push(arr, new[] { jsValue });
+        }
+
+        return arr;
     }
 
     public JsValue ToJSON(JsValue receiver)

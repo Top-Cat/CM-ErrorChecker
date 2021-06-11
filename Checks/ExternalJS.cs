@@ -45,16 +45,6 @@ class ExternalJS : Check
         }, PersistentUI.DialogBoxPresetType.Ok);
     }
 
-    private static bool? IsCSharpArray(object o)
-    {
-        if (o is JSONWraper jw)
-        {
-            return jw.wrapped.IsArray;
-        }
-
-        return null;
-    }
-    
     private JsValue require(string folder, string file) {
         if (!file.EndsWith(".js"))
         {
@@ -121,11 +111,7 @@ class ExternalJS : Check
                 .SetValue("require", new Func<string, JsValue>(Bind<string, string, JsValue>(require, assemblyFolder)))
                 .SetValue("log", new Action<object>(LogIt))
                 .SetValue("alert", new Action<string>(Alert))
-                .SetValue("isCSharpArray", new Func<object, bool?>(IsCSharpArray))
-                .Execute("module = {exports: {}}; console = {log: log}; var global = {};" +
-                         "oldIsArray = Array.isArray; Array.isArray = function(o) { let a = isCSharpArray(o); return a !== null ? a : oldIsArray(o); };" +
-                         "oldConcat = Array.prototype.concat; Array.prototype.concat = function() { let mapped = [...arguments].map(x => isCSharpArray(x) === true ? x.ToJSON(null) : x); return oldConcat.call(this, ...mapped); };" +
-                         "oldPush = Array.prototype.push; Array.prototype.push = function() { let mapped = [...arguments].map(x => isCSharpArray(x) === true ? x.ToJSON(null) : x); return oldPush.call(this, ...mapped); };")
+                .Execute("module = {exports: {}}; console = {log: log}; var global = {};")
                 .Execute(script)
                 .Execute("module.exports.params = JSON.stringify(module.exports.params);");
 

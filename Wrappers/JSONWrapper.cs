@@ -5,9 +5,7 @@ using System.Dynamic;
 using System.Linq;
 using Jint;
 using Jint.Native;
-using Jint.Native.Array;
 using SimpleJSON;
-using UnityEngine;
 
 class JSONWraper
 {
@@ -127,9 +125,9 @@ class JSONWraper
         {
             if (wrapped.IsArray && int.TryParse(aKey, out var aIndex))
             {
-                return wrapped[aIndex] == null ? null : new JSONWraper(engine, wrapped[aIndex], deleteObj);
+                return wrapped[aIndex] == null ? null : JSONToJS(wrapped[aIndex]);
             }
-            return wrapped.HasKey(aKey) ? new JSONWraper(engine, wrapped[aKey], deleteObj) : null;
+            return wrapped.HasKey(aKey) ? (wrapped[aKey].IsObject ? (object) new JSONWraper(engine, wrapped[aKey], deleteObj) : JSONToJS(wrapped[aKey])) : null;
         }
         set
         {
@@ -191,36 +189,6 @@ class JSONWraper
     public override string ToString()
     {
         return wrapped.ToString();
-    }
-
-    // ReSharper disable once InconsistentNaming
-    public ArrayInstance concat(params JsValue[] args)
-    {
-        if (!wrapped.IsArray)
-            return null;
-
-        var arr = JSONToJS(wrapped) as ArrayInstance;
-        foreach (var jsValue in args)
-        {
-            engine.Array.PrototypeObject.Push(arr, new[] { jsValue });
-        }
-
-        return arr;
-    }
-
-    // ReSharper disable once InconsistentNaming
-    public int? push(params JsValue[] args)
-    {
-        if (!wrapped.IsArray)
-            return null;
-
-        var thisArr = wrapped.AsArray;
-        foreach (var jsValue in args)
-        {
-            thisArr.Add(castJSToJSON(jsValue));
-        }
-
-        return thisArr.Count;
     }
 
     public JsValue ToJSON(JsValue receiver)

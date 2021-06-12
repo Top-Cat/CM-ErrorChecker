@@ -13,11 +13,29 @@ class JSONWraper
     internal readonly JSONNode wrapped;
     private readonly Func<bool> deleteObj;
 
-    public JSONWraper(Engine engine, JSONNode wrapped, Func<bool> deleteObj)
+    private readonly Dictionary<string, JsValue> observe = new Dictionary<string, JsValue>();
+    private Action checkObserved;
+    private bool cleanObserved = true;
+
+    public JSONWraper(Engine engine, ref Action parent, JSONNode wrapped, Func<bool> deleteObj)
     {
         this.engine = engine;
         this.wrapped = wrapped;
         this.deleteObj = deleteObj;
+        parent += CheckObserved;
+    }
+
+    private void CheckObserved()
+    {
+        cleanObserved = false;
+        checkObserved?.Invoke();
+        foreach (var keyValuePair in observe)
+        {
+            this[keyValuePair.Key] = keyValuePair.Value;
+            deleteObj();
+        }
+
+        cleanObserved = true;
     }
 
     private static JSONNode arrToJSON(IEnumerable arr)
@@ -125,14 +143,18 @@ class JSONWraper
         {
             if (wrapped.IsArray && int.TryParse(aKey, out var aIndex))
             {
-                return wrapped[aIndex] == null ? null : JSONToJS(wrapped[aIndex]);
+                if (wrapped[aIndex] == null)
+                    return null;
+
+                return ToObserve(aKey, wrapped[aIndex]);
             }
-            return wrapped.HasKey(aKey) ? (wrapped[aKey].IsObject ? (object) new JSONWraper(engine, wrapped[aKey], deleteObj) : JSONToJS(wrapped[aKey])) : null;
+            return wrapped.HasKey(aKey) ? (wrapped[aKey].IsObject ? (object) new JSONWraper(engine, ref checkObserved, wrapped[aKey], deleteObj) : ToObserve(aKey, wrapped[aKey])) : null;
         }
         set
         {
             //Debug.Log("Set");
             deleteObj();
+            if (cleanObserved) observe.Remove(aKey);
             if (wrapped.IsArray && int.TryParse(aKey, out var aIndex))
             {
                 wrapped[aIndex] = castObjToJSON(value); 
@@ -141,6 +163,14 @@ class JSONWraper
             //Debug.Log(castObjToJSON(value));
             wrapped[aKey] = castObjToJSON(value);
         }
+    }
+
+    private JsValue ToObserve(string key, JSONNode original)
+    {
+        if (!observe.ContainsKey(key))
+            observe.Add(key, JSONToJS(original));
+
+        return observe[key];
     }
 
     private JsValue JSONToJS(JSONNode node)

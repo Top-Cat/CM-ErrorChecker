@@ -301,7 +301,11 @@ class ExternalJS : Check
 
         var lookup = original.ToDictionary(x => x.wrapped, x => x);
 
-        var outputObjs = outputNotes.Select(it => it.wrapped).ToHashSet();
+        var outputObjs = outputNotes.Select(it =>
+        {
+            it.Reconcile();
+            return it.wrapped;
+        }).ToHashSet();
         var toRemove = notes.Where(it => !outputObjs.Contains(it));
 
         var collection = BeatmapObjectContainerCollection.GetCollectionForType(type);

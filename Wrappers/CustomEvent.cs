@@ -1,4 +1,5 @@
-﻿using Jint;
+﻿using System;
+using Jint;
 using Jint.Native.Object;
 
 class CustomEvent : Wrapper<BeatmapCustomEvent>
@@ -21,19 +22,23 @@ class CustomEvent : Wrapper<BeatmapCustomEvent>
         }
     }
 
+    private Lazy<JSONWraper> customData;
+    private Action reconcile;
     public object _data
     {
-        get => new JSONWraper(engine, wrapped._customData, DeleteObject);
+        get => wrapped._customData == null ? null : customData.Value;
         set
         {
             DeleteObject();
             wrapped._customData = JSONWraper.castObjToJSON(value);
+            InitWrapper();
         }
     }
 
     public CustomEvent(Engine engine, BeatmapCustomEvent customEvent) : base(engine, customEvent)
     {
         spawned = true;
+        InitWrapper();
     }
 
     public CustomEvent(Engine engine, ObjectInstance o) : base(engine, new BeatmapCustomEvent(
@@ -45,6 +50,7 @@ class CustomEvent : Wrapper<BeatmapCustomEvent>
         spawned = false;
 
         DeleteObject();
+        InitWrapper();
     }
 
     public override bool SpawnObject()
@@ -67,5 +73,18 @@ class CustomEvent : Wrapper<BeatmapCustomEvent>
 
         spawned = false;
         return true;
+    }
+
+    private void InitWrapper()
+    {
+        reconcile = null;
+        customData = new Lazy<JSONWraper>(() =>
+            new JSONWraper(engine, ref reconcile, wrapped._customData, DeleteObject)
+        );
+    }
+
+    internal override void Reconcile()
+    {
+        reconcile?.Invoke();
     }
 }

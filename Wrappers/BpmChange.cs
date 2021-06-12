@@ -80,4 +80,9 @@ class BpmChange : Wrapper<BeatmapBPMChange>
         spawned = false;
         return true;
     }
+
+    internal override void Reconcile()
+    {
+        // Nothing :)
+    }
 }

@@ -61,6 +61,8 @@ abstract class Wrapper<T> where T : BeatmapObject
 
     internal abstract bool DeleteObject();
 
+    internal abstract void Reconcile();
+
     public override string ToString()
     {
         return wrapped.ToString();

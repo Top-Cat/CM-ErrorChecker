@@ -11,14 +11,37 @@ using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using Esprima;
 using UnityEngine;
 
 class ExternalJS : Check
 {
-    private Engine engine = new Engine();
+    private Engine engine;
+    private readonly IConstraint timeConstraint = new TimeConstraint2(TimeSpan.FromSeconds(30L));
     private readonly string fileName;
     private bool valid;
+
+    private class TimeConstraint2 : IConstraint
+    {
+        private readonly TimeSpan _timeout;
+        private CancellationTokenSource cts;
+
+        public TimeConstraint2(TimeSpan timeout) => _timeout = timeout;
+
+        public void Check()
+        {
+            if (!cts.IsCancellationRequested)
+                return;
+            throw new TimeoutException();
+        }
+
+        public void Reset()
+        {
+            cts?.Dispose();
+            cts = new CancellationTokenSource(this._timeout);
+        }
+    }
 
     public Func<U, TResult> Bind<T, U, TResult>(Func<T, U, TResult> func, T arg)
     {
@@ -57,7 +80,7 @@ class ExternalJS : Check
         {
             var e = new Engine(options =>
                 {
-                    options.LimitRecursion(200).TimeoutInterval(TimeSpan.FromSeconds(30L));
+                    options.Constraint(timeConstraint).LimitRecursion(200);
                 })
                 .SetValue("log", new Action<object>(LogIt))
                 .SetValue("alert", new Action<string>(Alert))
@@ -91,15 +114,16 @@ class ExternalJS : Check
 
     public override void Reload()
     {
-        engine = new Engine(options =>
-        {
-            options.LimitRecursion(200).TimeoutInterval(TimeSpan.FromSeconds(30L));
-        });
         LoadJS();
     }
 
     private void LoadJS()
     {
+        engine = new Engine(options =>
+        {
+            options.Constraint(timeConstraint).LimitRecursion(200);
+        });
+
         var assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         var streamReader = new StreamReader(Path.Combine(assemblyFolder, fileName));
         var script = streamReader.ReadToEnd();

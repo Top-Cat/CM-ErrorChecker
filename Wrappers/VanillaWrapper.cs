@@ -1,6 +1,5 @@
 ﻿using System;
 using Jint;
-using UnityEngine;
 
 abstract class VanillaWrapper<T> : Wrapper<T> where T : BeatmapObject
 {

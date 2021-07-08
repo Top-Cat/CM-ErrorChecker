@@ -52,6 +52,11 @@ class Event : VanillaWrapper<MapEvent>
     {
         if (spawned) return false;
 
+        if (wrapped._customData["_lightGradient"] != null)
+        {
+            wrapped._lightGradient = new MapEvent.ChromaGradient(wrapped._customData["_lightGradient"]);
+        }
+
         var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.EVENT);
         collection.SpawnObject(wrapped, false, false);
 

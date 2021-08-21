@@ -14,6 +14,7 @@ class JSONWraper
     private readonly Func<bool> deleteObj;
 
     private readonly Dictionary<string, JsValue> observe = new Dictionary<string, JsValue>();
+    private readonly Dictionary<string, JSONWraper> children = new Dictionary<string, JSONWraper>();
     private Action checkObserved;
     private bool cleanObserved = true;
 
@@ -148,11 +149,10 @@ class JSONWraper
 
                 return ToObserve(aKey, wrapped[aIndex]);
             }
-            return wrapped.HasKey(aKey) ? (wrapped[aKey].IsObject ? (object) new JSONWraper(engine, ref checkObserved, wrapped[aKey], deleteObj) : ToObserve(aKey, wrapped[aKey])) : null;
+            return wrapped.HasKey(aKey) ? (wrapped[aKey].IsObject ? (object) GetChild(aKey) : ToObserve(aKey, wrapped[aKey])) : null;
         }
         set
         {
-            //Debug.Log("Set");
             deleteObj();
             if (cleanObserved) observe.Remove(aKey);
             if (wrapped.IsArray && int.TryParse(aKey, out var aIndex))
@@ -160,9 +160,17 @@ class JSONWraper
                 wrapped[aIndex] = castObjToJSON(value); 
                 return;
             }
-            //Debug.Log(castObjToJSON(value));
+            children.Remove(aKey);
             wrapped[aKey] = castObjToJSON(value);
         }
+    }
+
+    private JSONWraper GetChild(string key)
+    {
+        if (!children.ContainsKey(key))
+            children.Add(key, new JSONWraper(engine, ref checkObserved, wrapped[key], deleteObj));
+
+        return children[key];
     }
 
     private JsValue ToObserve(string key, JSONNode original)

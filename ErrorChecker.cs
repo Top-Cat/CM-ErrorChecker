@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 [Plugin("Error Checker")]
 public class ErrorChecker
@@ -58,17 +57,6 @@ public class ErrorChecker
             // Add button to UI
             ui.AddButton(mapEditorUI);
         }
-        else if (arg0.buildIndex == 2) // Song Info scene
-        {
-            var images = UnityEngine.Object.FindObjectOfType<SongInfoEditUI>().GetComponentsInChildren<Image>();
-            foreach (var i in images)
-            {
-                if (i.transform.parent.name != "Revert Button") continue;
-
-                ui.ReloadSprite = i.sprite;
-                break;
-            }
-        }
     }
 
     public void CheckErrors(Check check)
@@ -95,7 +83,7 @@ public class ErrorChecker
         try
         {
             float[] vals = ui.paramTexts.Select(it => {
-                float.TryParse(it.text, out float val);
+                float.TryParse(it.InputField.text, out float val);
                 return val;
             }).ToArray();
             errors = check.PerformCheck(allNotes, allEvents, allWalls, allCustomEvents, allBpmChanges, vals).Commit();

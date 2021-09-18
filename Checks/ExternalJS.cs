@@ -85,10 +85,9 @@ class ExternalJS : Check
                 .SetValue("log", new Action<object>(LogIt))
                 .SetValue("alert", new Action<string>(Alert))
                 .SetValue("require", new Func<string, JsValue>(Bind<string, string, JsValue>(require, newFolder)))
-                .Execute("exports = {}; module = {exports: exports}; console = {log: log};")
-                .Execute(jsSource);
+                .Execute("exports = {}; module = {exports: exports}; console = {log: log};");
 
-            var res = e.GetCompletionValue();
+            var res = e.Evaluate(jsSource);
 
             if (res.IsUndefined())
             {
@@ -267,6 +266,8 @@ class ExternalJS : Check
                 }
             });
 
+            var valsCombined = string.Join(",", valsToString);
+
             engine
             .SetValue("notes", originalNotes)
             .SetValue("walls", originalWalls)
@@ -296,8 +297,8 @@ class ExternalJS : Check
                 if (obj != null)
                     result.AddWarning(obj, str ?? "");
             }))
-            .Execute("global.params = [" + string.Join(",", valsToString) + "];" +
-            "var output = module.exports.run ? module.exports.run(cursor, notes, events, walls, {}, global, data, customEvents, bpmChanges) : module.exports.performCheck({notes: notes}" + (vals.Length > 0 ? ", " + string.Join(",", vals.Select(it => it.ToString())) : "") + ");" +
+            .Execute("global.params = [" + valsCombined + "];" +
+            "var output = module.exports.run ? module.exports.run(cursor, notes, events, walls, {}, global, data, customEvents, bpmChanges) : module.exports.performCheck({notes: notes}" + (vals.Length > 0 ? ", " + valsCombined : "") + ");" +
             "if (output && output.notes) { notes = output.notes; };" +
             "if (output && output.events) { events = output.events; };" +
             "if (output && output.customEvents) { customEvents = output.customEvents; };" +

@@ -46,8 +46,7 @@ abstract class Wrapper<T> where T : BeatmapObject
 
         var customData = engine
             .SetValue("data", o)
-            .Execute($"JSON.stringify(data.{key});")
-            .GetCompletionValue();
+            .Evaluate($"JSON.stringify(data.{key});");
 
         if (customData.IsUndefined())
         {

@@ -45,12 +45,12 @@
       <HintPath>packages\Costura.Fody.4.1.0\lib\net40\Costura.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Esprima, Version=2.0.0.0, Culture=neutral, PublicKeyToken=2e92ba9c8d81157f">
-      <HintPath>packages\Esprima.2.0.0-beta-1338\lib\net461\Esprima.dll</HintPath>
+    <Reference Include="Esprima, Version=2.0.3.0, Culture=neutral, PublicKeyToken=2e92ba9c8d81157f">
+      <HintPath>packages\Esprima.2.0.3\lib\net461\Esprima.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Jint, Version=3.0.0.0, Culture=neutral, PublicKeyToken=2e92ba9c8d81157f">
-      <HintPath>packages\Jint.3.0.0-beta-2002\lib\net461\Jint.dll</HintPath>
+      <HintPath>packages\Jint.3.0.0-beta-2034\lib\net461\Jint.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Main">

@@ -12,7 +12,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ErrorChecker</RootNamespace>
-    <AssemblyName>ErrorChecker</AssemblyName>
+    <AssemblyName>CM-JS</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -104,9 +104,10 @@
     <Compile Include="Checks\Check.cs" />
     <Compile Include="Checks\CheckResult.cs" />
     <Compile Include="Checks\ExternalJS.cs" />
+    <Compile Include="Checks\Params.cs" />
     <Compile Include="Checks\StackedNotes.cs" />
     <Compile Include="Checks\VisionBlocks.cs" />
-    <Compile Include="ErrorChecker.cs" />
+    <Compile Include="CMJS.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\UI.cs" />
     <Compile Include="Wrappers\BpmChange.cs" />
@@ -146,9 +147,9 @@
   <Import Project="..\ErrorChecker\packages\Microsoft.SourceLink.Common.1.0.0\build\Microsoft.SourceLink.Common.targets" Condition="Exists('..\ErrorChecker\packages\Microsoft.SourceLink.Common.1.0.0\build\Microsoft.SourceLink.Common.targets')" />
   <Import Project="..\ErrorChecker\packages\Microsoft.SourceLink.GitHub.1.0.0\build\Microsoft.SourceLink.GitHub.targets" Condition="Exists('..\ErrorChecker\packages\Microsoft.SourceLink.GitHub.1.0.0\build\Microsoft.SourceLink.GitHub.targets')" />
   <PropertyGroup>
-    <PostBuildEvent>"C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\SignTool" sign /t http://timestamp.digicert.com /fd sha256 /sha1 494ABC44B6FB828C0F185DB80A88C043C4DE77C4 ErrorChecker.dll
-      del "$(ChromapperDir)\Plugins\ErrorChecker\ErrorChecker.dll"
-      copy ErrorChecker.dll "$(ChromapperDir)\Plugins\ErrorChecker\"</PostBuildEvent>
+    <PostBuildEvent>"C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\SignTool" sign /t http://timestamp.digicert.com /fd sha256 /sha1 494ABC44B6FB828C0F185DB80A88C043C4DE77C4 CM-JS.dll
+      del "$(ChromapperDir)\Plugins\CM-JS\CM-JS.dll"
+      copy CM-JS.dll "$(ChromapperDir)\Plugins\CM-JS\"</PostBuildEvent>
   </PropertyGroup>
   <Import Project="packages\Fody.6.0.0\build\Fody.targets" Condition="Exists('packages\Fody.6.0.0\build\Fody.targets')" />
 </Project>

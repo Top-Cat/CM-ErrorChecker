@@ -4,37 +4,26 @@ using System.Collections.Generic;
 public abstract class Check
 {
     public string Name;
-    public List<Param> Params = new List<Param>();
-    protected CheckResult result = new CheckResult();
+    public readonly List<IParam> Params = new List<IParam>();
+    protected readonly CheckResult result = new CheckResult();
+    public bool errorCheck = true;
 
-    public class Param
-    {
-        public string name;
-        public float def;
-
-        public Param(string name, float def)
-        {
-            this.name = name;
-            this.def = def;
-        }
-    }
-
-    public Check(string name)
+    protected Check(string name)
     {
         Name = name;
     }
 
-    public Check() : this("")
+    protected Check() : this("")
     {
         
     }
 
-    public virtual CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, List<BeatmapCustomEvent> customEvents, List<BeatmapBPMChange> bpmChanges)
+    protected virtual CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, List<BeatmapCustomEvent> customEvents, List<BeatmapBPMChange> bpmChanges)
     {
         throw new ArgumentException("Wrong number of parameters");
     }
 
-    public virtual CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, List<BeatmapCustomEvent> customEvents, List<BeatmapBPMChange> bpmChanges, params float[] vals)
+    public virtual CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, List<BeatmapCustomEvent> customEvents, List<BeatmapBPMChange> bpmChanges, params IParamValue[] vals)
     {
         if (vals.Length == 0 && Params.Count == 0)
         {

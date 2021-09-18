@@ -140,6 +140,10 @@ class ExternalJS : Check
                 .Execute("module.exports.params = JSON.stringify(module.exports.params);");
 
             var exports = engine.GetValue(engine.GetValue("module"), "exports");
+
+            var isErrorCheck = engine.GetValue(exports, "errorCheck");
+            errorCheck = !isErrorCheck.IsBoolean() || isErrorCheck.AsBoolean();
+
             var @params = engine.GetValue(exports, "params");
             Params.Clear();
             if (@params.IsString())
@@ -147,8 +151,22 @@ class ExternalJS : Check
                 var ps = JSON.Parse(@params.AsString()).AsObject;
                 foreach (var p in ps)
                 {
-                    float.TryParse(p.Value.Value, out var def);
-                    Params.Add(new Param(p.Key, def));
+                    if (p.Value.IsBoolean)
+                    {
+                        Params.Add(new BoolParam(p.Key, p.Value.AsBool));
+                    }
+                    else if (p.Value.IsString)
+                    {
+                        Params.Add(new StringParam(p.Key, p.Value.Value));
+                    }
+                    else if (p.Value.IsNumber)
+                    {
+                        Params.Add(new FloatParam(p.Key, p.Value.AsFloat));
+                    }
+                    else if (p.Value.IsArray)
+                    {
+                        Params.Add(new ListParam(p.Key, p.Value.AsArray.Children.Select(it => it.Value).ToList()));
+                    }
                 }
             }
 
@@ -215,7 +233,7 @@ class ExternalJS : Check
         }
     }
 
-    public override CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, List<BeatmapCustomEvent> customEvents, List<BeatmapBPMChange> bpmChanges, params float[] vals)
+    public override CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, List<BeatmapCustomEvent> customEvents, List<BeatmapBPMChange> bpmChanges, params IParamValue[] vals)
     {
         result.Clear();
 
@@ -234,6 +252,21 @@ class ExternalJS : Check
 
         try
         {
+            var valsToString = vals.Select(paramValue =>
+            {
+                switch (paramValue)
+                {
+                    case ParamValue<float> pvf:
+                        return pvf.value.ToString();
+                    case ParamValue<string> pvs:
+                        return $"\"{pvs.value}\"";
+                    case ParamValue<bool> pvb:
+                        return pvb.value ? "true" : "false";
+                    default:
+                        return "null";
+                }
+            });
+
             engine
             .SetValue("notes", originalNotes)
             .SetValue("walls", originalWalls)
@@ -263,7 +296,7 @@ class ExternalJS : Check
                 if (obj != null)
                     result.AddWarning(obj, str ?? "");
             }))
-            .Execute("global.params = [" + string.Join(",", vals.Select(it => it.ToString())) + "];" +
+            .Execute("global.params = [" + string.Join(",", valsToString) + "];" +
             "var output = module.exports.run ? module.exports.run(cursor, notes, events, walls, {}, global, data, customEvents, bpmChanges) : module.exports.performCheck({notes: notes}" + (vals.Length > 0 ? ", " + string.Join(",", vals.Select(it => it.ToString())) : "") + ");" +
             "if (output && output.notes) { notes = output.notes; };" +
             "if (output && output.events) { events = output.events; };" +

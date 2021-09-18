@@ -5,9 +5,10 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
-[Plugin("Error Checker")]
-public class ErrorChecker
+[Plugin("CM JS")]
+public class CMJS
 {
     private NotesContainer notesContainer;
     private ObstaclesContainer wallsContainer;
@@ -24,8 +25,6 @@ public class ErrorChecker
     private AudioTimeSyncController atsc;
     private int index = 0;
     private bool movedAfterRun = false;
-
-    private static readonly int OutlineColor = Shader.PropertyToID("_OutlineColor");
 
     [Init]
     private void Init()
@@ -82,9 +81,19 @@ public class ErrorChecker
 
         try
         {
-            float[] vals = ui.paramTexts.Select(it => {
-                float.TryParse(it.InputField.text, out float val);
-                return val;
+            var vals = ui.paramTexts.Select((it, idx) =>
+            {
+                switch (it)
+                {
+                    case UITextInput textInput:
+                        return check.Params[idx].Parse(textInput.InputField.text);
+                    case UIDropdown dropdown:
+                        return check.Params[idx].Parse(dropdown.Dropdown.value.ToString());
+                    case Toggle toggle:
+                        return check.Params[idx].Parse(toggle.isOn.ToString());
+                    default:
+                        return new ParamValue<string>(null); // IDK
+                }
             }).ToArray();
             errors = check.PerformCheck(allNotes, allEvents, allWalls, allCustomEvents, allBpmChanges, vals).Commit();
 

@@ -11,18 +11,18 @@ public class UI
     private GameObject popup;
     private TMP_Dropdown dropdownComponent;
 
-    private readonly ErrorChecker plugin;
+    private readonly CMJS plugin;
     private readonly List<Check> checks;
 
     public TextMeshProUGUI problemInfoText;
 
     private GameObject paramContainer;
-    public readonly List<UITextInput> paramTexts = new List<UITextInput>();
+    public readonly List<MonoBehaviour> paramTexts = new List<MonoBehaviour>();
     private readonly List<UIButton> navigation = new List<UIButton>();
 
     private readonly ExtensionButton errorCheckerButton = new ExtensionButton();
 
-    public UI(ErrorChecker plugin, List<Check> checks)
+    public UI(CMJS plugin, List<Check> checks)
     {
         this.plugin = plugin;
         this.checks = checks;
@@ -109,6 +109,60 @@ public class UI
         paramTexts.Add(textInput);
     }
 
+    private void AddCheckboxEntry(string title, float y, bool def)
+    {
+        var parent = paramContainer.transform;
+
+        var entryLabel = new GameObject(title + " Label", typeof(TextMeshProUGUI));
+        var rectTransform = ((RectTransform) entryLabel.transform);
+        rectTransform.SetParent(parent);
+        MoveTo(rectTransform, 75, 17, 0.5f, 1, -52.5f, y);
+        var textComponent = entryLabel.GetComponent<TextMeshProUGUI>();
+
+        textComponent.font = PersistentUI.Instance.ButtonPrefab.Text.font;
+        textComponent.alignment = TextAlignmentOptions.Center;
+        textComponent.enableAutoSizing = true;
+        textComponent.fontSizeMin = 8;
+        textComponent.fontSizeMax = 16;
+        textComponent.text = title;
+
+        var original = GameObject.Find("Strobe Generator").GetComponentInChildren<Toggle>(true);
+        var toggleObject = Object.Instantiate(original, parent.transform);
+        MoveTo(toggleObject.transform, 18, 18, 0.5f, 1, 0, y);
+
+        var toggleComponent = toggleObject.GetComponent<Toggle>();
+        var colorBlock = toggleComponent.colors;
+        colorBlock.normalColor = Color.white;
+        toggleComponent.colors = colorBlock;
+        toggleComponent.isOn = def;
+
+        paramTexts.Add(toggleComponent);
+    }
+
+    private void AddDropdownEntry(string title, float y, List<string> def)
+    {
+        var parent = paramContainer.transform;
+
+        var entryLabel = new GameObject(title + " Label", typeof(TextMeshProUGUI));
+        var rectTransform = ((RectTransform) entryLabel.transform);
+        rectTransform.SetParent(parent);
+        MoveTo(rectTransform, 75, 17, 0.5f, 1, -52.5f, y);
+        var textComponent = entryLabel.GetComponent<TextMeshProUGUI>();
+
+        textComponent.font = PersistentUI.Instance.ButtonPrefab.Text.font;
+        textComponent.alignment = TextAlignmentOptions.Center;
+        textComponent.enableAutoSizing = true;
+        textComponent.fontSizeMin = 8;
+        textComponent.fontSizeMax = 16;
+        textComponent.text = title;
+
+        var dropdown = Object.Instantiate(PersistentUI.Instance.DropdownPrefab, parent.transform);
+        MoveTo(dropdown.transform, 80, 20, 0.5f, 1, 30, y);
+        dropdown.SetOptions(def);
+
+        paramTexts.Add(dropdown);
+    }
+
     public void AddPopup(MapEditorUI rootObj)
     {
         var parent = rootObj.mainUIGroup[5];
@@ -182,20 +236,45 @@ public class UI
         paramTexts.Clear();
 
         checks[i].OnSelected();
+        var isErrorCheck = checks[i].errorCheck;
         var vals = checks[i].Params;
         float y = -54;
         foreach (var v in vals)
         {
-            AddEntry(v.name, y, v.def.ToString());
+            if (v is ListParam lp)
+            {
+                AddDropdownEntry(v.name, y, lp.def);
+            }
+            else if (v is BoolParam bp)
+            {
+                AddCheckboxEntry(v.name, y, bp.def);
+            }
+            else
+            {
+                AddEntry(v.name, y, v.getDefString());
+            }
+
             y -= 23;
         }
 
-        paramContainer.GetComponent<RectTransform>().sizeDelta = popup.GetComponent<RectTransform>().sizeDelta = new Vector2(220, 51 - y);
+        float padding = isErrorCheck ? 51 : 25;
+        paramContainer.GetComponent<RectTransform>().sizeDelta = popup.GetComponent<RectTransform>().sizeDelta = new Vector2(220, padding - y);
+        var first = true;
         foreach (var rt2 in navigation)
         {
-            rt2.Transform.anchoredPosition = new Vector3(rt2.Transform.anchoredPosition.x, y - 5, 0);
+            var active = isErrorCheck || first;
+            first = false;
+            rt2.gameObject.SetActive(active);
+            if (active)
+            {
+                rt2.Transform.anchoredPosition = new Vector3(rt2.Transform.anchoredPosition.x, y - 5, 0);
+            }
         }
-        problemInfoText.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, y - 22, 0);
+        problemInfoText.gameObject.SetActive(isErrorCheck);
+        if (isErrorCheck)
+        {
+            problemInfoText.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, y - 22, 0);
+        }
 
         // Generates the caret in the text fields, who knows
         paramContainer.SetActive(true);

@@ -5,15 +5,15 @@ class VisionBlocks : Check
 {
     public VisionBlocks() : base("Vision Blocks")
     {
-        Params.Add(new Param("Min Time", 0.24f));
-        Params.Add(new Param("Max Time", 0.75f));
+        Params.Add(new FloatParam("Min Time", 0.24f));
+        Params.Add(new FloatParam("Max Time", 0.75f));
     }
 
-    public override CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, List<BeatmapCustomEvent> customEvents, List<BeatmapBPMChange> bpmChanges, params float[] vals)
+    public override CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, List<BeatmapCustomEvent> customEvents, List<BeatmapBPMChange> bpmChanges, params IParamValue[] vals)
     {
         if (vals.Length > 1)
         {
-            return PerformCheck(notes, vals[0], vals[1]);
+            return PerformCheck(notes, ((ParamValue<float>) vals[0]).value, ((ParamValue<float>) vals[1]).value);
         }
         throw new ArgumentException("Wrong number of parameters");
     }

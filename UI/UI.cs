@@ -170,7 +170,7 @@ public class UI
         popup = new GameObject("ErrorChecker Popup");
         popup.transform.parent = parent.transform;
 
-        AttachTransform(popup, 220, 151, 0.5f, 1, -434, -5, 0.5f, 1);
+        AttachTransform(popup, 220, 151, 0, 1, 5, -5, 0, 1);
         var image = popup.AddComponent<Image>();
 
         image.sprite = PersistentUI.Instance.Sprites.Background;

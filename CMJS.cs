@@ -51,7 +51,7 @@ public class CMJS
             bpmChangesContainer = UnityEngine.Object.FindObjectOfType<BPMChangesContainer>();
             var mapEditorUI = UnityEngine.Object.FindObjectOfType<MapEditorUI>();
 
-            atsc = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.NOTE).AudioTimeSyncController;
+            atsc = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Note).AudioTimeSyncController;
 
             // Add button to UI
             ui.AddButton(mapEditorUI);
@@ -60,20 +60,20 @@ public class CMJS
 
     public void CheckErrors(Check check)
     {
-        var allNotes = notesContainer.LoadedObjects.Cast<BeatmapNote>().OrderBy(it => it._time).ToList();
-        var allWalls = wallsContainer.LoadedObjects.Cast<BeatmapObstacle>().OrderBy(it => it._time).ToList();
-        var allEvents = eventsContainer.LoadedObjects.Cast<MapEvent>().OrderBy(it => it._time).ToList();
-        var allCustomEvents = customEventsContainer.LoadedObjects.Cast<BeatmapCustomEvent>().OrderBy(it => it._time).ToList();
-        var allBpmChanges = bpmChangesContainer.LoadedObjects.Cast<BeatmapBPMChange>().OrderBy(it => it._time).ToList();
+        var allNotes = notesContainer.LoadedObjects.Cast<BeatmapNote>().OrderBy(it => it.Time).ToList();
+        var allWalls = wallsContainer.LoadedObjects.Cast<BeatmapObstacle>().OrderBy(it => it.Time).ToList();
+        var allEvents = eventsContainer.LoadedObjects.Cast<MapEvent>().OrderBy(it => it.Time).ToList();
+        var allCustomEvents = customEventsContainer.LoadedObjects.Cast<BeatmapCustomEvent>().OrderBy(it => it.Time).ToList();
+        var allBpmChanges = bpmChangesContainer.LoadedObjects.Cast<BeatmapBPMChange>().OrderBy(it => it.Time).ToList();
 
         if (errors != null)
         {
             // Remove error outline from old errors
             foreach (var block in errors.all)
             {
-                if (BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.NOTE).LoadedContainers.TryGetValue(block.note, out BeatmapObjectContainer container))
+                if (BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Note).LoadedContainers.TryGetValue(block.note, out BeatmapObjectContainer container))
                 {
-                    container.OutlineVisible = SelectionController.IsObjectSelected(container.objectData);
+                    container.OutlineVisible = SelectionController.IsObjectSelected(container.ObjectData);
                     container.SetOutlineColor(SelectionController.SelectedColor, false);
                 }
             }
@@ -100,7 +100,7 @@ public class CMJS
             // Highlight blocks in loaded containers in case we don't scrub far enough with MoveToTimeInBeats to load them
             foreach (var block in errors.errors)
             {
-                if (BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.NOTE).LoadedContainers.TryGetValue(block.note, out BeatmapObjectContainer container))
+                if (BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Note).LoadedContainers.TryGetValue(block.note, out BeatmapObjectContainer container))
                 {
                     container.SetOutlineColor(Color.red);
                 }
@@ -108,7 +108,7 @@ public class CMJS
 
             foreach (var block in errors.warnings)
             {
-                if (BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.NOTE).LoadedContainers.TryGetValue(block.note, out BeatmapObjectContainer container))
+                if (BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Note).LoadedContainers.TryGetValue(block.note, out BeatmapObjectContainer container))
                 {
                     container.SetOutlineColor(Color.yellow);
                 }
@@ -152,7 +152,7 @@ public class CMJS
             index += errors.all.Count;
         }
 
-        float? time = errors.all[index]?.note._time;
+        float? time = errors.all[index]?.note.Time;
         if (time != null)
         {
             atsc.MoveToTimeInBeats(time ?? 0);
@@ -169,13 +169,13 @@ public class CMJS
     [ObjectLoaded]
     private void ObjectLoaded(BeatmapObjectContainer container)
     {
-        if (container.objectData == null || errors == null) return;
+        if (container.ObjectData == null || errors == null) return;
 
-        if (errors.errors.Any(it => it.note.Equals(container.objectData)))
+        if (errors.errors.Any(it => it.note.Equals(container.ObjectData)))
         {
             container.SetOutlineColor(Color.red);
         }
-        else if (errors.warnings.Any(it => it.note.Equals(container.objectData)))
+        else if (errors.warnings.Any(it => it.note.Equals(container.ObjectData)))
         {
             container.SetOutlineColor(Color.yellow);
         }

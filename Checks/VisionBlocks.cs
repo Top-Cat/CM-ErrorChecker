@@ -34,46 +34,46 @@ class VisionBlocks : Check
         }
 
         foreach (var note in notes) {
-            if (note._time - visionBlockLeft <= maxTime)
+            if (note.Time - visionBlockLeft <= maxTime)
             {
-                if (note._lineIndex < 2 && note._time - visionBlockLeft > minTime)
+                if (note.LineIndex < 2 && note.Time - visionBlockLeft > minTime)
                 {
                     result.Add(visionBlockLeftNote, "Blocks vision of upcoming note on the left");
                     result.AddWarning(note, "Is blocked");
                 }
 
-                if (note._lineLayer == 1 && note._lineIndex == 1)
+                if (note.LineLayer == 1 && note.LineIndex == 1)
                 {
                     result.Add(visionBlockLeftNote, "Blocks vision of upcoming note on the left");
                     result.AddWarning(note, "Is blocked");
                 }
             }
 
-            if (note._time - visionBlockRight <= maxTime)
+            if (note.Time - visionBlockRight <= maxTime)
             {
-                if (note._lineIndex > 1 && note._time - visionBlockRight > minTime)
+                if (note.LineIndex > 1 && note.Time - visionBlockRight > minTime)
                 {
                     result.Add(visionBlockRightNote, "Blocks vision of upcoming note on the right");
                     result.AddWarning(note, "Is blocked");
                 }
 
-                if (note._lineLayer == 1 && note._lineIndex == 2 && note._time - visionBlockLeft <= maxTime)
+                if (note.LineLayer == 1 && note.LineIndex == 2 && note.Time - visionBlockLeft <= maxTime)
                 {
                     result.Add(visionBlockRightNote, "Blocks vision of upcoming note on the right");
                     result.AddWarning(note, "Is blocked");
                 }
             }
 
-            if (note._type != 3 && note._lineLayer == 1)
+            if (note.Type != 3 && note.LineLayer == 1)
             {
-                if (note._lineIndex == 1)
+                if (note.LineIndex == 1)
                 {
-                    visionBlockLeft = note._time;
+                    visionBlockLeft = note.Time;
                     visionBlockLeftNote = note;
                 }
-                else if (note._lineIndex == 2)
+                else if (note.LineIndex == 2)
                 {
-                    visionBlockRight = note._time;
+                    visionBlockRight = note.Time;
                     visionBlockRightNote = note;
                 }
             }

@@ -4,50 +4,50 @@ using Jint.Native.Object;
 class Wall : VanillaWrapper<BeatmapObstacle>
 { 
     public float _time {
-        get => wrapped._time;
+        get => wrapped.Time;
         set {
             DeleteObject();
-            wrapped._time = value;
+            wrapped.Time = value;
         }
     }
 
     public int _lineIndex
     {
-        get => wrapped._lineIndex;
+        get => wrapped.LineIndex;
         set
         {
             DeleteObject();
-            wrapped._lineIndex = value;
+            wrapped.LineIndex = value;
         }
     }
 
     public int _type
     {
-        get => wrapped._type;
+        get => wrapped.Type;
         set
         {
             DeleteObject();
-            wrapped._type = value;
+            wrapped.Type = value;
         }
     }
 
     public float _duration
     {
-        get => wrapped._duration;
+        get => wrapped.Duration;
         set
         {
             DeleteObject();
-            wrapped._duration = value;
+            wrapped.Duration = value;
         }
     }
 
     public int _width
     {
-        get => wrapped._width;
+        get => wrapped.Width;
         set
         {
             DeleteObject();
-            wrapped._width = value;
+            wrapped.Width = value;
         }
     }
 
@@ -74,7 +74,7 @@ class Wall : VanillaWrapper<BeatmapObstacle>
     {
         if (spawned) return false;
 
-        var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.OBSTACLE);
+        var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Obstacle);
         collection.SpawnObject(wrapped, false, false);
 
         spawned = true;
@@ -85,7 +85,7 @@ class Wall : VanillaWrapper<BeatmapObstacle>
     {
         if (!spawned) return false;
 
-        var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.OBSTACLE);
+        var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Obstacle);
         collection.DeleteObject(wrapped, false);
 
         spawned = false;

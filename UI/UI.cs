@@ -49,7 +49,7 @@ public class UI
         AddPopup(rootObj);
         popup.SetActive(false);
 
-        errorCheckerButton.OnClick = () =>
+        errorCheckerButton.Click = () =>
         {
             popup.SetActive(!popup.activeSelf);
         };
@@ -165,7 +165,7 @@ public class UI
 
     public void AddPopup(MapEditorUI rootObj)
     {
-        var parent = rootObj.mainUIGroup[5];
+        var parent = rootObj.MainUIGroup[5];
 
         popup = new GameObject("ErrorChecker Popup");
         popup.transform.parent = parent.transform;

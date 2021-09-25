@@ -4,50 +4,50 @@ using Jint.Native.Object;
 class Note : VanillaWrapper<BeatmapNote>
 { 
     public float _time {
-        get => wrapped._time;
+        get => wrapped.Time;
         set {
             DeleteObject();
-            wrapped._time = value;
+            wrapped.Time = value;
         }
     }
 
     public int _lineIndex
     {
-        get => wrapped._lineIndex;
+        get => wrapped.LineIndex;
         set
         {
             DeleteObject();
-            wrapped._lineIndex = value;
+            wrapped.LineIndex = value;
         }
     }
 
     public int _lineLayer
     {
-        get => wrapped._lineLayer;
+        get => wrapped.LineLayer;
         set
         {
             DeleteObject();
-            wrapped._lineLayer = value;
+            wrapped.LineLayer = value;
         }
     }
 
     public int _cutDirection
     {
-        get => wrapped._cutDirection;
+        get => wrapped.CutDirection;
         set
         {
             DeleteObject();
-            wrapped._cutDirection = value;
+            wrapped.CutDirection = value;
         }
     }
 
     public int _type
     {
-        get => wrapped._type;
+        get => wrapped.Type;
         set
         {
             DeleteObject();
-            wrapped._type = value;
+            wrapped.Type = value;
         }
     }
 
@@ -74,7 +74,7 @@ class Note : VanillaWrapper<BeatmapNote>
     {
         if (spawned) return false;
 
-        var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.NOTE);
+        var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Note);
         collection.SpawnObject(wrapped, false, false);
 
         spawned = true;
@@ -85,7 +85,7 @@ class Note : VanillaWrapper<BeatmapNote>
     {
         if (!spawned) return false;
 
-        var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.NOTE);
+        var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Note);
         collection.DeleteObject(wrapped, false);
 
         spawned = false;

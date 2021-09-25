@@ -8,11 +8,11 @@ abstract class VanillaWrapper<T> : Wrapper<T> where T : BeatmapObject
 
     public object _customData
     {
-        get => wrapped._customData == null ? null : customData.Value;
+        get => wrapped.CustomData == null ? null : customData.Value;
         set
         {
             DeleteObject();
-            wrapped._customData = JSONWraper.castObjToJSON(value);
+            wrapped.CustomData = JSONWraper.castObjToJSON(value);
             InitWrapper();
         }
     }
@@ -26,7 +26,7 @@ abstract class VanillaWrapper<T> : Wrapper<T> where T : BeatmapObject
     {
         reconcile = null;
         customData = new Lazy<JSONWraper>(() =>
-            new JSONWraper(engine, ref reconcile, wrapped._customData, DeleteObject)
+            new JSONWraper(engine, ref reconcile, wrapped.CustomData, DeleteObject)
         );
     }
 

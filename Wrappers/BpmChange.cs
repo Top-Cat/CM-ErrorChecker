@@ -4,40 +4,40 @@ using Jint.Native.Object;
 class BpmChange : Wrapper<BeatmapBPMChange>
 {
     public float _time {
-        get => wrapped._time;
+        get => wrapped.Time;
         set {
             DeleteObject();
-            wrapped._time = value;
+            wrapped.Time = value;
         }
     }
 
     public float _BPM
     {
-        get => wrapped._BPM;
+        get => wrapped.Bpm;
         set
         {
             DeleteObject();
-            wrapped._BPM = value;
+            wrapped.Bpm = value;
         }
     }
 
     public float _beatsPerBar
     {
-        get => wrapped._beatsPerBar;
+        get => wrapped.BeatsPerBar;
         set
         {
             DeleteObject();
-            wrapped._beatsPerBar = value;
+            wrapped.BeatsPerBar = value;
         }
     }
 
     public float _metronomeOffset
     {
-        get => wrapped._metronomeOffset;
+        get => wrapped.MetronomeOffset;
         set
         {
             DeleteObject();
-            wrapped._metronomeOffset = value;
+            wrapped.MetronomeOffset = value;
         }
     }
 
@@ -50,8 +50,8 @@ class BpmChange : Wrapper<BeatmapBPMChange>
             (float) GetJsValue(o, "_BPM"),
             (float) GetJsValue(o, "_time")
     ) {
-        _beatsPerBar = (float) GetJsValue(o, "_beatsPerBar"),
-        _metronomeOffset = (float) GetJsValue(o, "_metronomeOffset")
+        BeatsPerBar = (float) GetJsValue(o, "_beatsPerBar"),
+        MetronomeOffset = (float) GetJsValue(o, "_metronomeOffset")
     }, false, GetJsBool(o, "selected"))
     {
         spawned = false;
@@ -63,7 +63,7 @@ class BpmChange : Wrapper<BeatmapBPMChange>
     {
         if (spawned) return false;
 
-        var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.BPM_CHANGE);
+        var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.BpmChange);
         collection.SpawnObject(wrapped, false, false);
 
         spawned = true;
@@ -74,7 +74,7 @@ class BpmChange : Wrapper<BeatmapBPMChange>
     {
         if (!spawned) return false;
 
-        var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.BPM_CHANGE);
+        var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.BpmChange);
         collection.DeleteObject(wrapped, false);
 
         spawned = false;

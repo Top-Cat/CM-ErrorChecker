@@ -209,11 +209,11 @@ class ExternalJS : Check
 
         return notes.Find(it =>
         {
-            return Mathf.Approximately(_time, it._time) &&
-                _lineIndex == it._lineIndex &&
-                _lineLayer == it._lineLayer &&
-                _type == it._type &&
-                _cutDirection == it._cutDirection;
+            return Mathf.Approximately(_time, it.Time) &&
+                _lineIndex == it.LineIndex &&
+                _lineLayer == it.LineLayer &&
+                _type == it.Type &&
+                _cutDirection == it.CutDirection;
         });
     }
 
@@ -236,12 +236,12 @@ class ExternalJS : Check
     {
         result.Clear();
 
-        var atsc = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.NOTE).AudioTimeSyncController;
+        var atsc = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Note).AudioTimeSyncController;
         var currentBeat = atsc.CurrentBeat;
 
-        var collection = BeatmapObjectContainerCollection.GetCollectionForType<BPMChangesContainer>(BeatmapObject.Type.BPM_CHANGE);
-        var lastBPMChange = collection.FindLastBPM(atsc.CurrentBeat);
-        var currentBPM = lastBPMChange?._BPM ?? atsc.song.beatsPerMinute;
+        var collection = BeatmapObjectContainerCollection.GetCollectionForType<BPMChangesContainer>(BeatmapObject.ObjectType.BpmChange);
+        var lastBPMChange = collection.FindLastBpm(atsc.CurrentBeat);
+        var currentBPM = lastBPMChange?.Bpm ?? atsc.Song.BeatsPerMinute;
 
         var originalNotes = notes.Select(it => new Note(engine, it)).ToArray();
         var originalWalls = walls.Select(it => new Wall(engine, it)).ToArray();
@@ -276,9 +276,9 @@ class ExternalJS : Check
             .SetValue("bpmChanges", originalBpmChanges)
             .SetValue("data", new MapData(
                 currentBPM,
-                atsc.song.beatsPerMinute,
-                BeatSaberSongContainer.Instance.difficultyData.noteJumpMovementSpeed,
-                BeatSaberSongContainer.Instance.difficultyData.noteJumpStartBeatOffset
+                atsc.Song.BeatsPerMinute,
+                BeatSaberSongContainer.Instance.DifficultyData.NoteJumpMovementSpeed,
+                BeatSaberSongContainer.Instance.DifficultyData.NoteJumpStartBeatOffset
             ))
             .SetValue("cursor", currentBeat)
             .SetValue("minTime", 0.24f)
@@ -312,11 +312,11 @@ class ExternalJS : Check
 
         SelectionController.DeselectAll();
         var actions = new List<BeatmapAction>();
-        actions.AddRange(Reconcile(originalNotes, engine.GetValue("notes").AsArray(), notes, i => new Note(engine, i), BeatmapObject.Type.NOTE));
-        actions.AddRange(Reconcile(originalWalls, engine.GetValue("walls").AsArray(), walls, i => new Wall(engine, i), BeatmapObject.Type.OBSTACLE));
-        actions.AddRange(Reconcile(originalEvents, engine.GetValue("events").AsArray(), events, i => new Event(engine, i), BeatmapObject.Type.EVENT));
-        actions.AddRange(Reconcile(originalCustomEvents, engine.GetValue("customEvents").AsArray(), customEvents, i => new CustomEvent(engine, i), BeatmapObject.Type.CUSTOM_EVENT));
-        actions.AddRange(Reconcile(originalBpmChanges, engine.GetValue("bpmChanges").AsArray(), bpmChanges, i => new BpmChange(engine, i), BeatmapObject.Type.BPM_CHANGE));
+        actions.AddRange(Reconcile(originalNotes, engine.GetValue("notes").AsArray(), notes, i => new Note(engine, i), BeatmapObject.ObjectType.Note));
+        actions.AddRange(Reconcile(originalWalls, engine.GetValue("walls").AsArray(), walls, i => new Wall(engine, i), BeatmapObject.ObjectType.Obstacle));
+        actions.AddRange(Reconcile(originalEvents, engine.GetValue("events").AsArray(), events, i => new Event(engine, i), BeatmapObject.ObjectType.Event));
+        actions.AddRange(Reconcile(originalCustomEvents, engine.GetValue("customEvents").AsArray(), customEvents, i => new CustomEvent(engine, i), BeatmapObject.ObjectType.CustomEvent));
+        actions.AddRange(Reconcile(originalBpmChanges, engine.GetValue("bpmChanges").AsArray(), bpmChanges, i => new BpmChange(engine, i), BeatmapObject.ObjectType.BpmChange));
 
         if (actions.Count > 0)
         {
@@ -327,7 +327,7 @@ class ExternalJS : Check
         return result;
     }
 
-    private List<BeatmapAction> Reconcile<T, U>(IEnumerable<U> original, ArrayInstance noteArr, List<T> notes, Func<ObjectInstance, U> inst, BeatmapObject.Type type) where U : Wrapper<T> where T : BeatmapObject
+    private List<BeatmapAction> Reconcile<T, U>(IEnumerable<U> original, ArrayInstance noteArr, List<T> notes, Func<ObjectInstance, U> inst, BeatmapObject.ObjectType type) where U : Wrapper<T> where T : BeatmapObject
     {
         var beatmapActions = new List<BeatmapAction>();
         var outputNotes = new List<U>();

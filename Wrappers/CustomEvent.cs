@@ -5,20 +5,20 @@ using Jint.Native.Object;
 class CustomEvent : Wrapper<BeatmapCustomEvent>
 {
     public float _time {
-        get => wrapped._time;
+        get => wrapped.Time;
         set {
             DeleteObject();
-            wrapped._time = value;
+            wrapped.Time = value;
         }
     }
 
     public string _type
     {
-        get => wrapped._type;
+        get => wrapped.Type;
         set
         {
             DeleteObject();
-            wrapped._type = value;
+            wrapped.Type = value;
         }
     }
 
@@ -26,11 +26,11 @@ class CustomEvent : Wrapper<BeatmapCustomEvent>
     private Action reconcile;
     public object _data
     {
-        get => wrapped._customData == null ? null : customData.Value;
+        get => wrapped.CustomData == null ? null : customData.Value;
         set
         {
             DeleteObject();
-            wrapped._customData = JSONWraper.castObjToJSON(value);
+            wrapped.CustomData = JSONWraper.castObjToJSON(value);
             InitWrapper();
         }
     }
@@ -57,7 +57,7 @@ class CustomEvent : Wrapper<BeatmapCustomEvent>
     {
         if (spawned) return false;
 
-        var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.EVENT);
+        var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Event);
         collection.SpawnObject(wrapped, false, false);
 
         spawned = true;
@@ -68,7 +68,7 @@ class CustomEvent : Wrapper<BeatmapCustomEvent>
     {
         if (!spawned) return false;
 
-        var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.EVENT);
+        var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Event);
         collection.DeleteObject(wrapped, false);
 
         spawned = false;
@@ -79,7 +79,7 @@ class CustomEvent : Wrapper<BeatmapCustomEvent>
     {
         reconcile = null;
         customData = new Lazy<JSONWraper>(() =>
-            new JSONWraper(engine, ref reconcile, wrapped._customData, DeleteObject)
+            new JSONWraper(engine, ref reconcile, wrapped.CustomData, DeleteObject)
         );
     }
 

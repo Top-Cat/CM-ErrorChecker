@@ -18,12 +18,12 @@ class StackedNotes : Check
                 var noteA = notes[i];
                 var noteB = notes[j];
 
-                if (noteB._time - noteA._time > 0.1)
+                if (noteB.Time - noteA.Time > 0.1)
                 {
                     break;
                 }
 
-                if (noteA._lineIndex == noteB._lineIndex && noteA._lineLayer == noteB._lineLayer)
+                if (noteA.LineIndex == noteB.LineIndex && noteA.LineLayer == noteB.LineLayer)
                 {
                     result.Add(noteA);
                     result.Add(noteB);

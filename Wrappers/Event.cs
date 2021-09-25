@@ -4,30 +4,30 @@ using Jint.Native.Object;
 class Event : VanillaWrapper<MapEvent>
 { 
     public float _time {
-        get => wrapped._time;
+        get => wrapped.Time;
         set {
             DeleteObject();
-            wrapped._time = value;
+            wrapped.Time = value;
         }
     }
 
     public int _type
     {
-        get => wrapped._type;
+        get => wrapped.Type;
         set
         {
             DeleteObject();
-            wrapped._type = value;
+            wrapped.Type = value;
         }
     }
 
     public int _value
     {
-        get => wrapped._value;
+        get => wrapped.Value;
         set
         {
             DeleteObject();
-            wrapped._value = value;
+            wrapped.Value = value;
         }
     }
 
@@ -52,12 +52,12 @@ class Event : VanillaWrapper<MapEvent>
     {
         if (spawned) return false;
 
-        if (wrapped._customData["_lightGradient"] != null)
+        if (wrapped.CustomData["_lightGradient"] != null)
         {
-            wrapped._lightGradient = new MapEvent.ChromaGradient(wrapped._customData["_lightGradient"]);
+            wrapped.LightGradient = new MapEvent.ChromaGradient(wrapped.CustomData["_lightGradient"]);
         }
 
-        var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.EVENT);
+        var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Event);
         collection.SpawnObject(wrapped, false, false);
 
         spawned = true;
@@ -68,7 +68,7 @@ class Event : VanillaWrapper<MapEvent>
     {
         if (!spawned) return false;
 
-        var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.Type.EVENT);
+        var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Event);
         collection.DeleteObject(wrapped, false);
 
         spawned = false;

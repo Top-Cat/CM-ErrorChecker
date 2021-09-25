@@ -33,5 +33,10 @@ abstract class VanillaWrapper<T> : Wrapper<T> where T : BeatmapObject
     internal override void Reconcile()
     {
         reconcile?.Invoke();
+
+        if (wrapped.CustomData != null && wrapped.CustomData.Count == 0)
+        {
+            wrapped.CustomData = null;
+        }
     }
 }

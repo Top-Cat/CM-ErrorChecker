@@ -27,7 +27,7 @@ public class UI
         this.plugin = plugin;
         this.checks = checks;
 
-        errorCheckerButton.Tooltip = "Check Errors";
+        errorCheckerButton.Tooltip = "CM-JS";
 
         using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ErrorChecker.Icon.png"))
         {

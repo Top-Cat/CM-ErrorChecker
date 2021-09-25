@@ -161,7 +161,14 @@ class JSONWraper
                 return;
             }
             children.Remove(aKey);
-            wrapped[aKey] = castObjToJSON(value);
+            if (value is JsUndefined)
+            {
+                wrapped[aKey] = castObjToJSON(value);
+            }
+            else
+            {
+                wrapped.Remove(aKey);
+            }
         }
     }
 

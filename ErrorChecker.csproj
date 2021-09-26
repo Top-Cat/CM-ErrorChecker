@@ -61,6 +61,10 @@
       <HintPath>$(ChromapperDir)\ChroMapper_Data\Managed\Plugins.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(ChromapperDir)\ChroMapper_Data\Managed\0Harmony.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -108,6 +112,7 @@
     <Compile Include="Checks\StackedNotes.cs" />
     <Compile Include="Checks\VisionBlocks.cs" />
     <Compile Include="CMJS.cs" />
+    <Compile Include="JintPatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\UI.cs" />
     <Compile Include="Wrappers\BpmChange.cs" />
@@ -120,7 +125,7 @@
     <Compile Include="Wrappers\Wrapper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="P:\CodeSigning.pfx">
+    <None Include="R:\CodeSigning.pfx">
       <Link>CodeSigning.pfx</Link>
     </None>
     <None Include="packages.config" />

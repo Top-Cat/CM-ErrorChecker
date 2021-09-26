@@ -6,6 +6,7 @@ using System.Linq;
 using Jint;
 using Jint.Native;
 using SimpleJSON;
+using UnityEngine;
 
 class JSONWraper
 {
@@ -161,14 +162,19 @@ class JSONWraper
                 return;
             }
             children.Remove(aKey);
-            if (value is JsUndefined)
-            {
-                wrapped[aKey] = castObjToJSON(value);
-            }
-            else
-            {
-                wrapped.Remove(aKey);
-            }
+            wrapped[aKey] = castObjToJSON(value);
+        }
+    }
+
+    public void DeleteProperty(JsValue key)
+    {
+        if (key.IsString())
+        {
+            var aKey = key.ToString();
+            deleteObj();
+            if (cleanObserved) observe.Remove(aKey);
+            children.Remove(aKey);
+            wrapped.Remove(aKey);
         }
     }
 

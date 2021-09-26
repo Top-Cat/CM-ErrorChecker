@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using HarmonyLib;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -38,6 +39,17 @@ public class CMJS
         }
 
         ui = new UI(this, checks);
+
+        try
+        {
+            JintPatch.DoPatching();
+        }
+        catch (HarmonyException e)
+        {
+            Debug.LogError("Failed to patch Jint during CM-JS init");
+            Debug.LogException(e);
+            Debug.LogException(e.InnerException);
+        }
     }
 
     private void SceneLoaded(Scene arg0, LoadSceneMode arg1)

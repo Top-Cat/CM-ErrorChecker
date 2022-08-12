@@ -48,16 +48,15 @@ class Event : VanillaWrapper<MapEvent>
         DeleteObject();
     }
 
-    public override bool SpawnObject()
+    public override bool SpawnObject(BeatmapObjectContainerCollection collection)
     {
         if (spawned) return false;
 
-        if (wrapped.CustomData["_lightGradient"] != null)
+        if (wrapped.CustomData != null && wrapped.CustomData["_lightGradient"] != null)
         {
             wrapped.LightGradient = new MapEvent.ChromaGradient(wrapped.CustomData["_lightGradient"]);
         }
 
-        var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Event);
         collection.SpawnObject(wrapped, false, false);
 
         spawned = true;

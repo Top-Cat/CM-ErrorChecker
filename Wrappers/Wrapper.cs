@@ -8,14 +8,22 @@ abstract class Wrapper<T> where T : BeatmapObject
     protected bool spawned;
     internal readonly T wrapped;
     internal readonly T original;
-    public bool selected;
+
+    private bool _selected;
+    public bool selected {
+        get => _selected;
+        set {
+            DeleteObject();
+            _selected = selected;
+        }
+    }
 
     public Wrapper(Engine engine, T wrapped, bool hasOriginal = true, bool? selected = null)
     {
         this.engine = engine;
         this.wrapped = wrapped;
         if (hasOriginal) original = BeatmapObject.GenerateCopy(wrapped);
-        this.selected = selected.GetValueOrDefault(SelectionController.IsObjectSelected(wrapped));
+        _selected = selected.GetValueOrDefault(SelectionController.IsObjectSelected(wrapped));
     }
 
     protected static double GetJsValue(ObjectInstance o, string key)
@@ -56,7 +64,7 @@ abstract class Wrapper<T> where T : BeatmapObject
         return JSON.Parse(customData.AsString());
     }
 
-    public abstract bool SpawnObject();
+    public abstract bool SpawnObject(BeatmapObjectContainerCollection collection);
 
     internal abstract bool DeleteObject();
 

@@ -22,6 +22,14 @@ class ExternalJS : Check
     private readonly string fileName;
     private bool valid;
 
+    private const bool DebugMode = false;
+    private static void TimeLog(string msg) {
+        if (!DebugMode) return;
+
+        var time = DateTime.Now;
+        Debug.Log($"[{time}.{time.Millisecond}] [CM-JS] {msg}");
+    }
+
     private class TimeConstraint2 : IConstraint
     {
         private readonly TimeSpan _timeout;
@@ -268,7 +276,9 @@ class ExternalJS : Check
 
             var valsCombined = string.Join(",", valsToString);
 
-            engine
+            TimeLog("Init");
+
+            var tmp = engine
             .SetValue("notes", originalNotes)
             .SetValue("walls", originalWalls)
             .SetValue("events", originalEvents)
@@ -296,8 +306,11 @@ class ExternalJS : Check
 
                 if (obj != null)
                     result.AddWarning(obj, str ?? "");
-            }))
-            .Execute("global.params = [" + valsCombined + "];" +
+            }));
+
+            TimeLog("Run");
+
+            tmp.Execute("global.params = [" + valsCombined + "];" +
             "var output = module.exports.run ? module.exports.run(cursor, notes, events, walls, {}, global, data, customEvents, bpmChanges) : module.exports.performCheck({notes: notes}" + (vals.Length > 0 ? ", " + valsCombined : "") + ");" +
             "if (output && output.notes) { notes = output.notes; };" +
             "if (output && output.events) { events = output.events; };" +
@@ -310,6 +323,8 @@ class ExternalJS : Check
             Debug.LogWarning($"Error running {fileName}\n{jse.Message}");
         }
 
+        TimeLog("Reconcile");
+
         SelectionController.DeselectAll();
         var actions = new List<BeatmapAction>();
         actions.AddRange(Reconcile(originalNotes, engine.GetValue("notes").AsArray(), notes, i => new Note(engine, i), BeatmapObject.ObjectType.Note));
@@ -318,17 +333,25 @@ class ExternalJS : Check
         actions.AddRange(Reconcile(originalCustomEvents, engine.GetValue("customEvents").AsArray(), customEvents, i => new CustomEvent(engine, i), BeatmapObject.ObjectType.CustomEvent));
         actions.AddRange(Reconcile(originalBpmChanges, engine.GetValue("bpmChanges").AsArray(), bpmChanges, i => new BpmChange(engine, i), BeatmapObject.ObjectType.BpmChange));
 
+        SelectionController.SelectionChangedEvent?.Invoke();
+
+        TimeLog("Registering undo actions");
+
         if (actions.Count > 0)
         {
             var allAction = new ActionCollectionAction(actions, true, true, "External Script");
             BeatmapActionContainer.AddAction(allAction);
         }
 
+        TimeLog("Fin");
+
         return result;
     }
 
     private List<BeatmapAction> Reconcile<T, U>(IEnumerable<U> original, ArrayInstance noteArr, List<T> notes, Func<ObjectInstance, U> inst, BeatmapObject.ObjectType type) where U : Wrapper<T> where T : BeatmapObject
     {
+        TimeLog("Reconcile " + original.GetType());
+
         var beatmapActions = new List<BeatmapAction>();
         var outputNotes = new List<U>();
         foreach (var test in noteArr)
@@ -359,11 +382,14 @@ class ExternalJS : Check
 
         var lookup = original.ToDictionary(x => x.wrapped, x => x);
 
+        TimeLog("Call reconcile on output");
+
         var outputObjs = outputNotes.Select(it =>
         {
             it.Reconcile();
             return it.wrapped;
         }).ToHashSet();
+        TimeLog("Remove objects");
         var toRemove = notes.Where(it => !outputObjs.Contains(it));
 
         var collection = BeatmapObjectContainerCollection.GetCollectionForType(type);
@@ -376,11 +402,26 @@ class ExternalJS : Check
             wrapper.DeleteObject();
         }
 
+        TimeLog("Spawn objects");
+
+        var toAction = new List<U>();
         foreach (var note in outputNotes)
         {
-            if (!note.SpawnObject()) continue;
-            if (note.selected) SelectionController.Select(note.wrapped, true);
+            if (!note.SpawnObject(collection)) continue;
 
+            toAction.Add(note);
+        }
+
+        TimeLog("Update selection");
+
+        foreach (var note in outputNotes.Where(note => note.selected))
+        {
+            SelectionController.Select(note.wrapped, true, false, false);
+        }
+
+        TimeLog("Create actions");
+
+        foreach (var note in toAction) {
             if (note.original != null)
             {
                 beatmapActions.Add(new BeatmapObjectModifiedAction(note.wrapped, note.wrapped, note.original, "Script edited object"));

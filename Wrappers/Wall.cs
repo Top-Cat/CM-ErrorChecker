@@ -70,11 +70,10 @@ class Wall : VanillaWrapper<BeatmapObstacle>
         DeleteObject();
     }
 
-    public override bool SpawnObject()
+    public override bool SpawnObject(BeatmapObjectContainerCollection collection)
     {
         if (spawned) return false;
 
-        var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Obstacle);
         collection.SpawnObject(wrapped, false, false);
 
         spawned = true;

@@ -70,11 +70,10 @@ class Note : VanillaWrapper<BeatmapNote>
         DeleteObject();
     }
 
-    public override bool SpawnObject()
+    public override bool SpawnObject(BeatmapObjectContainerCollection collection)
     {
         if (spawned) return false;
 
-        var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Note);
         collection.SpawnObject(wrapped, false, false);
 
         spawned = true;

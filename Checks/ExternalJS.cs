@@ -249,11 +249,11 @@ class ExternalJS : Check
         var lastBPMChange = collection.FindLastBpm(atsc.CurrentBeat);
         var currentBPM = lastBPMChange?.Bpm ?? atsc.Song.BeatsPerMinute;
 
-        var originalNotes = notes.Select(it => new Note(engine, it)).ToArray();
-        var originalWalls = walls.Select(it => new Wall(engine, it)).ToArray();
-        var originalEvents = events.Select(it => new Event(engine, it)).ToArray();
-        var originalCustomEvents = customEvents.Select(it => new CustomEvent(engine, it)).ToArray();
-        var originalBpmChanges = bpmChanges.Select(it => new BpmChange(engine, it)).ToArray();
+        var originalNotes = notes.Select(it => new V2.Note(engine, it)).ToArray();
+        var originalWalls = walls.Select(it => new V2.Wall(engine, it)).ToArray();
+        var originalEvents = events.Select(it => new V2.Event(engine, it)).ToArray();
+        var originalCustomEvents = customEvents.Select(it => new V2.CustomEvent(engine, it)).ToArray();
+        var originalBpmChanges = bpmChanges.Select(it => new V2.BpmChange(engine, it)).ToArray();
 
         try
         {
@@ -325,11 +325,11 @@ class ExternalJS : Check
 
         SelectionController.DeselectAll();
         var actions = new List<BeatmapAction>();
-        actions.AddRange(Reconcile(originalNotes, engine.GetValue("notes").AsArray(), notes, i => new Note(engine, i), BeatmapObject.ObjectType.Note));
-        actions.AddRange(Reconcile(originalWalls, engine.GetValue("walls").AsArray(), walls, i => new Wall(engine, i), BeatmapObject.ObjectType.Obstacle));
-        actions.AddRange(Reconcile(originalEvents, engine.GetValue("events").AsArray(), events, i => new Event(engine, i), BeatmapObject.ObjectType.Event));
-        actions.AddRange(Reconcile(originalCustomEvents, engine.GetValue("customEvents").AsArray(), customEvents, i => new CustomEvent(engine, i), BeatmapObject.ObjectType.CustomEvent));
-        actions.AddRange(Reconcile(originalBpmChanges, engine.GetValue("bpmChanges").AsArray(), bpmChanges, i => new BpmChange(engine, i), BeatmapObject.ObjectType.BpmChange));
+        actions.AddRange(Reconcile(originalNotes, engine.GetValue("notes").AsArray(), notes, i => new V2.Note(engine, i), BeatmapObject.ObjectType.Note));
+        actions.AddRange(Reconcile(originalWalls, engine.GetValue("walls").AsArray(), walls, i => new V2.Wall(engine, i), BeatmapObject.ObjectType.Obstacle));
+        actions.AddRange(Reconcile(originalEvents, engine.GetValue("events").AsArray(), events, i => new V2.Event(engine, i), BeatmapObject.ObjectType.Event));
+        actions.AddRange(Reconcile(originalCustomEvents, engine.GetValue("customEvents").AsArray(), customEvents, i => new V2.CustomEvent(engine, i), BeatmapObject.ObjectType.CustomEvent));
+        actions.AddRange(Reconcile(originalBpmChanges, engine.GetValue("bpmChanges").AsArray(), bpmChanges, i => new V2.BpmChange(engine, i), BeatmapObject.ObjectType.BpmChange));
 
         SelectionController.SelectionChangedEvent?.Invoke();
 

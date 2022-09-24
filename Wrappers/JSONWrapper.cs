@@ -139,6 +139,18 @@ class JSONWrapper
         return node;
     }
 
+    public static JSONNode dictToJSON(Dictionary<string, dynamic> dict)
+    {
+        var node = new JSONObject();
+
+        foreach (var x in dict)
+        {
+            node[x.Key] = castObjToJSON(x.Value);
+        }
+
+        return node;
+    }
+
     public object this[string aKey]
     {
         get

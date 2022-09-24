@@ -1,5 +1,6 @@
 ﻿using Jint;
 using Jint.Native.Object;
+using System.Collections.Generic;
 
 namespace V3
 {
@@ -70,14 +71,15 @@ namespace V3
             spawned = true;
         }
 
-        public Wall(Engine engine, ObjectInstance o) : base(engine, new BeatmapObstacleV3(JSONWrapper.castObjToJSON(new {
-                b = (float)GetJsValue(o, "b"),
-                x = (int)GetJsValue(o, "x"),
-                y = (int)GetJsValue(o, "y"),
-                d = (float)GetJsValue(o, "d"),
-                w = (int)GetJsValue(o, "w"),
-                h = (int)GetJsValue(o, "h"),
-                customData = GetCustomData(o, "customData")
+        public Wall(Engine engine, ObjectInstance o) : base(engine, new BeatmapObstacleV3(JSONWrapper.castObjToJSON(new Dictionary<string, dynamic>()
+            {
+                { "b", (float)GetJsValue(o, "b") },
+                { "x", (int)GetJsValue(o, "x") },
+                { "y", (int)GetJsValue(o, "y") },
+                { "d", (float)GetJsValue(o, "d") },
+                { "w", (int)GetJsValue(o, "w") },
+                { "h", (int)GetJsValue(o, "h") },
+                { "customData", GetCustomData(o, "customData") }
             })), false, GetJsBool(o, "selected"))
         {
             spawned = false;

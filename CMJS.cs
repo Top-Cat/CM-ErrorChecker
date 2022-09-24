@@ -12,6 +12,9 @@ using UnityEngine.UI;
 public class CMJS
 {
     private NotesContainer notesContainer;
+    private NotesContainer bombsContainer;
+    private ChainsContainer chainsContainer;
+    private ArcsContainer arcsContainer;
     private ObstaclesContainer wallsContainer;
     private EventsContainer eventsContainer;
     private CustomEventsContainer customEventsContainer;
@@ -57,6 +60,9 @@ public class CMJS
         if (arg0.buildIndex == 3) // Mapper scene
         {
             notesContainer = UnityEngine.Object.FindObjectOfType<NotesContainer>();
+            bombsContainer = UnityEngine.Object.FindObjectOfType<NotesContainer>();
+            arcsContainer = UnityEngine.Object.FindObjectOfType<ArcsContainer>();
+            chainsContainer = UnityEngine.Object.FindObjectOfType<ChainsContainer>();
             wallsContainer = UnityEngine.Object.FindObjectOfType<ObstaclesContainer>();
             eventsContainer = UnityEngine.Object.FindObjectOfType<EventsContainer>();
             customEventsContainer = UnityEngine.Object.FindObjectOfType<CustomEventsContainer>();
@@ -72,11 +78,7 @@ public class CMJS
 
     public void CheckErrors(Check check)
     {
-        var allNotes = notesContainer.LoadedObjects.Cast<BeatmapNote>().OrderBy(it => it.Time).ToList();
-        var allWalls = wallsContainer.LoadedObjects.Cast<BeatmapObstacle>().OrderBy(it => it.Time).ToList();
-        var allEvents = eventsContainer.LoadedObjects.Cast<MapEvent>().OrderBy(it => it.Time).ToList();
-        var allCustomEvents = customEventsContainer.LoadedObjects.Cast<BeatmapCustomEvent>().OrderBy(it => it.Time).ToList();
-        var allBpmChanges = bpmChangesContainer.LoadedObjects.Cast<BeatmapBPMChange>().OrderBy(it => it.Time).ToList();
+        bool isV3 = BeatSaberSongContainer.Instance.Map.Version.StartsWith("3");
 
         if (errors != null)
         {
@@ -107,7 +109,30 @@ public class CMJS
                         return new ParamValue<string>(null); // IDK
                 }
             }).ToArray();
-            errors = check.PerformCheck(allNotes, allEvents, allWalls, allCustomEvents, allBpmChanges, vals).Commit();
+
+            if (isV3)
+            {
+                var allNotes = notesContainer.LoadedObjects.Cast<BeatmapColorNote>().Where(it => it.Type != 3).OrderBy(it => it.Time).ToList();
+                // var allBombs = notesContainer.LoadedObjects.Cast<BeatmapBombNote>().Where(it => it.Type == 3).OrderBy(it => it.Time).ToList();
+                var allBombs = new List<BeatmapBombNote> {};
+                var allArcs = arcsContainer.LoadedObjects.Cast<BeatmapArc>().OrderBy(it => it.Time).ToList();
+                var allChains = chainsContainer.LoadedObjects.Cast<BeatmapChain>().OrderBy(it => it.Time).ToList();
+                //var allWalls = wallsContainer.LoadedObjects.Cast<BeatmapObstacleV3>().OrderBy(it => it.Time).ToList
+                var allWalls = new List<BeatmapObstacleV3> { };
+                // var allEvents = eventsContainer.LoadedObjects.Cast<MapEventV3>().OrderBy(it => it.Time).ToList();
+                var allEvents = new List<MapEventV3> { };
+                var allCustomEvents = customEventsContainer.LoadedObjects.Cast<BeatmapCustomEvent>().OrderBy(it => it.Time).ToList();
+                var allBpmChanges = bpmChangesContainer.LoadedObjects.Cast<BeatmapBPMChange>().OrderBy(it => it.Time).ToList();
+                errors = check.PerformCheck(allNotes, allBombs, allArcs, allChains, allEvents, allWalls, allCustomEvents, allBpmChanges, vals).Commit();
+            } else
+            {
+                var allNotes = notesContainer.LoadedObjects.Cast<BeatmapNote>().OrderBy(it => it.Time).ToList();
+                var allWalls = wallsContainer.LoadedObjects.Cast<BeatmapObstacle>().OrderBy(it => it.Time).ToList();
+                var allEvents = eventsContainer.LoadedObjects.Cast<MapEvent>().OrderBy(it => it.Time).ToList();
+                var allCustomEvents = customEventsContainer.LoadedObjects.Cast<BeatmapCustomEvent>().OrderBy(it => it.Time).ToList();
+                var allBpmChanges = bpmChangesContainer.LoadedObjects.Cast<BeatmapBPMChange>().OrderBy(it => it.Time).ToList();
+                errors = check.PerformCheck(allNotes, allEvents, allWalls, allCustomEvents, allBpmChanges, vals).Commit();
+            }
 
             // Highlight blocks in loaded containers in case we don't scrub far enough with MoveToTimeInBeats to load them
             foreach (var block in errors.errors)

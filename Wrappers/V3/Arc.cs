@@ -1,5 +1,7 @@
 ﻿using Jint;
 using Jint.Native.Object;
+using SimpleJSON;
+using System.Collections.Generic;
 
 namespace V3
 {
@@ -130,21 +132,21 @@ namespace V3
             spawned = true;
         }
 
-        public Arc(Engine engine, ObjectInstance o) : base(engine, new BeatmapArc(JSONWrapper.castObjToJSON(new
+        public Arc(Engine engine, ObjectInstance o) : base(engine, new BeatmapArc(JSONWrapper.dictToJSON(new Dictionary<string, dynamic>()
         {
-            b = (float)GetJsValue(o, "b"),
-            c = (int)GetJsValue(o, "c"),
-            x = (int)GetJsValue(o, "x"),
-            y = (int)GetJsValue(o, "y"),
-            d = (int)GetJsValue(o, "d"),
-            mu = (float)GetJsValue(o, "mu"),
-            tb = (float)GetJsValue(o, "tb"),
-            tx = (int)GetJsValue(o, "tx"),
-            ty = (int)GetJsValue(o, "ty"),
-            tc = (int)GetJsValue(o, "tc"),
-            tmu = (float)GetJsValue(o, "tmu"),
-            m = (int)GetJsValue(o, "m"),
-            customData = GetCustomData(o, "customData")
+            { "b", (float)GetJsValue(o, "b") },
+            { "c", (int)GetJsValue(o, "c")},
+            { "x", (int) GetJsValue(o, "x")},
+            { "y", (int)GetJsValue(o, "y")},
+            { "d", (int)GetJsValue(o, "d")},
+            { "mu", (float)GetJsValue(o, "mu")},
+            { "tb", (float)GetJsValue(o, "tb")},
+            { "tx", (int)GetJsValue(o, "tx")},
+            { "ty", (int)GetJsValue(o, "ty")},
+            { "tc", (int)GetJsValue(o, "tc")},
+            { "tmu", (float)GetJsValue(o, "tmu")},
+            { "m", (int)GetJsValue(o, "m")},
+            { "customData", GetCustomData(o, "customData")}
         })), false, GetJsBool(o, "selected"))
         {
             spawned = false;

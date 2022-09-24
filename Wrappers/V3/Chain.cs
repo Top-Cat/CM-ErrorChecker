@@ -1,5 +1,6 @@
 ﻿using Jint;
 using Jint.Native.Object;
+using System.Collections.Generic;
 
 namespace V3
 {
@@ -110,20 +111,20 @@ namespace V3
             spawned = true;
         }
 
-        public Chain(Engine engine, ObjectInstance o) : base(engine, new BeatmapChain(JSONWrapper.castObjToJSON(new
+        public Chain(Engine engine, ObjectInstance o) : base(engine, new BeatmapChain(JSONWrapper.dictToJSON(new Dictionary<string, dynamic>()
         {
-            b = (float)GetJsValue(o, "b"),
-            c = (int)GetJsValue(o, "c"),
-            x = (int)GetJsValue(o, "x"),
-            y = (int)GetJsValue(o, "y"),
-            d = (int)GetJsValue(o, "d"),
-            tb = (float)GetJsValue(o, "tb"),
-            tx = (int)GetJsValue(o, "tx"),
-            ty = (int)GetJsValue(o, "ty"),
-            tc = (int)GetJsValue(o, "tc"),
-            sc = (int)GetJsValue(o, "sc"),
-            s = (float)GetJsValue(o, "s"),
-            customData = GetCustomData(o, "customData")
+            { "b", (float)GetJsValue(o, "b") },
+            { "c", (int)GetJsValue(o, "c") },
+            { "x", (int) GetJsValue(o, "x") },
+            { "y", (int)GetJsValue(o, "y") },
+            { "d", (int)GetJsValue(o, "d") },
+            { "tb", (float)GetJsValue(o, "tb") },
+            { "tx", (int)GetJsValue(o, "tx") },
+            { "ty", (int)GetJsValue(o, "ty") },
+            { "tc", (int)GetJsValue(o, "tc") },
+            { "sc", (int)GetJsValue(o, "sc") },
+            { "s", (float)GetJsValue(o, "s") },
+            { "customData", GetCustomData(o, "customData") }
         })), false, GetJsBool(o, "selected"))
         {
             spawned = false;

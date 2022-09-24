@@ -1,5 +1,6 @@
 ﻿using Jint;
 using Jint.Native.Object;
+using System.Collections.Generic;
 
 namespace V3
 {
@@ -50,13 +51,13 @@ namespace V3
             spawned = true;
         }
 
-        public Event(Engine engine, ObjectInstance o) : base(engine, new MapEventV3(JSONWrapper.castObjToJSON(new
+        public Event(Engine engine, ObjectInstance o) : base(engine, new MapEventV3(JSONWrapper.dictToJSON(new Dictionary<string, dynamic>()
         {
-            b = (float)GetJsValue(o, "b"),
-            et = (int)GetJsValue(o, "et"),
-            i = (int)GetJsValue(o, "i"),
-            f = (float)GetJsValue(o, "f"),
-            customData = GetCustomData(o, "customData")
+            { "b", (float)GetJsValue(o, "b") },
+            { "et", (int)GetJsValue(o, "et") },
+            { "i", (int)GetJsValue(o, "i") },
+            { "f", (float)GetJsValue(o, "f") },
+            { "customData", GetCustomData(o, "customData") }
         })
             ), false, GetJsBool(o, "selected"))
         {

@@ -222,6 +222,25 @@ class ExternalJS : Check
                 _cutDirection == it.CutDirection;
         });
     }
+    private BeatmapColorNote FromDynamic(dynamic note, List<BeatmapColorNote> notes)
+    {
+        float b = Convert.ChangeType(note.b, typeof(float));
+        int x = Convert.ChangeType(note.x, typeof(int));
+        int y = Convert.ChangeType(note.y, typeof(int));
+        int c = Convert.ChangeType(note.c, typeof(int));
+        int d = Convert.ChangeType(note.d, typeof(int));
+        int a = Convert.ChangeType(note.a, typeof(int));
+
+        return notes.Find(it =>
+        {
+            return Mathf.Approximately(b, it.Time) &&
+                x == it.LineIndex &&
+                y == it.LineLayer &&
+                c == it.Type &&
+                d == it.CutDirection &&
+                a == it.AngleOffset;
+        });
+    }
 
     class MapData {
         public float currentBPM { get; private set; }
@@ -340,6 +359,129 @@ class ExternalJS : Check
         actions.AddRange(Reconcile(originalEvents, engine.GetValue("events").AsArray(), events, i => new V2.Event(engine, i), BeatmapObject.ObjectType.Event));
         actions.AddRange(Reconcile(originalCustomEvents, engine.GetValue("customEvents").AsArray(), customEvents, i => new V2.CustomEvent(engine, i), BeatmapObject.ObjectType.CustomEvent));
         actions.AddRange(Reconcile(originalBpmChanges, engine.GetValue("bpmChanges").AsArray(), bpmChanges, i => new V2.BpmChange(engine, i), BeatmapObject.ObjectType.BpmChange));
+
+        SelectionController.SelectionChangedEvent?.Invoke();
+
+        TimeLog("Registering undo actions");
+
+        if (actions.Count > 0)
+        {
+            var allAction = new ActionCollectionAction(actions, true, true, "External Script");
+            BeatmapActionContainer.AddAction(allAction);
+        }
+
+        TimeLog("Fin");
+
+        return result;
+    }
+    public override CheckResult PerformCheck(List<BeatmapColorNote> notes, List<BeatmapBombNote> bombs, List<BeatmapArc> arcs, List<BeatmapChain> chains, List<MapEventV3> events, List<BeatmapObstacleV3> walls, List<BeatmapCustomEvent> customEvents, List<BeatmapBPMChange> bpmChanges, params IParamValue[] vals)
+    {
+        result.Clear();
+
+        var atsc = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Note).AudioTimeSyncController;
+        var currentBeat = atsc.CurrentBeat;
+
+        var collection = BeatmapObjectContainerCollection.GetCollectionForType<BPMChangesContainer>(BeatmapObject.ObjectType.BpmChange);
+        var lastBPMChange = collection.FindLastBpm(atsc.CurrentBeat);
+        var currentBPM = lastBPMChange?.Bpm ?? atsc.Song.BeatsPerMinute;
+
+        var originalNotes = notes.Select(it => new V3.ColorNote(engine, it)).ToArray();
+        var originalBombs = bombs.Select(it => new V3.BombNote(engine, it)).ToArray();
+        var originalArcs = arcs.Select(it => new V3.Arc(engine, it)).ToArray();
+        var originalChains = chains.Select(it => new V3.Chain(engine, it)).ToArray();
+        var originalWalls = walls.Select(it => new V3.Wall(engine, it)).ToArray();
+        var originalEvents = events.Select(it => new V3.Event(engine, it)).ToArray();
+        var originalCustomEvents = customEvents.Select(it => new V3.CustomEvent(engine, it)).ToArray();
+        var originalBpmChanges = bpmChanges.Select(it => new V3.BpmChange(engine, it)).ToArray();
+
+        try
+        {
+            var valsToString = vals.Select(paramValue =>
+            {
+                switch (paramValue)
+                {
+                    case ParamValue<float> pvf:
+                        return pvf.value.ToString();
+                    case ParamValue<string> pvs:
+                        return $"\"{pvs.value}\"";
+                    case ParamValue<bool> pvb:
+                        return pvb.value ? "true" : "false";
+                    default:
+                        return "null";
+                }
+            });
+
+            var valsCombined = string.Join(",", valsToString);
+
+            TimeLog("Init");
+
+            var tmp = engine
+            .SetValue("notes", originalNotes)
+            .SetValue("bombs", originalBombs)
+            .SetValue("arcs", originalArcs)
+            .SetValue("chains", originalChains)
+            .SetValue("walls", originalWalls)
+            .SetValue("events", originalEvents)
+            .SetValue("customEvents", originalCustomEvents)
+            .SetValue("bpmChanges", originalBpmChanges)
+            .SetValue("data", new MapData(
+                currentBPM,
+                atsc.Song.BeatsPerMinute,
+                BeatSaberSongContainer.Instance.DifficultyData.NoteJumpMovementSpeed,
+                BeatSaberSongContainer.Instance.DifficultyData.NoteJumpStartBeatOffset,
+                BeatSaberSongContainer.Instance.DifficultyData.ParentBeatmapSet.BeatmapCharacteristicName,
+                BeatSaberSongContainer.Instance.DifficultyData.Difficulty,
+                (BeatSaberSongContainer.Instance.DifficultyData.ParentBeatmapSet.BeatmapCharacteristicName == "360Degree" || BeatSaberSongContainer.Instance.DifficultyData.ParentBeatmapSet.BeatmapCharacteristicName == "90Degree") ? BeatSaberSongContainer.Instance.Song.AllDirectionsEnvironmentName : BeatSaberSongContainer.Instance.Song.EnvironmentName
+
+            ))
+            .SetValue("cursor", currentBeat)
+            .SetValue("minTime", 0.24f)
+            .SetValue("maxTime", 0.75f)
+            .SetValue("addError", new Action<object, string>((dynamic note, string str) =>
+            {
+                var obj = FromDynamic(note, notes);
+
+                if (obj != null)
+                    result.Add(obj, str ?? "");
+            }))
+            .SetValue("addWarning", new Action<object, string>((dynamic note, string str) =>
+            {
+                var obj = FromDynamic(note, notes);
+
+                if (obj != null)
+                    result.AddWarning(obj, str ?? "");
+            }));
+
+            TimeLog("Run");
+
+            tmp.Execute("global.params = [" + valsCombined + "];" +
+            "var output = module.exports.run ? module.exports.run(cursor, notes, bombs, arcs, chains, events, walls, {}, global, data, customEvents, bpmChanges) : module.exports.performCheck({notes: notes}" + (vals.Length > 0 ? ", " + valsCombined : "") + ");" +
+            "if (output && output.notes) { notes = output.notes; };" +
+            "if (output && output.bombs) { bombs = output.bombs; };" +
+            "if (output && output.arcs) { arcs = output.arcs; };" +
+            "if (output && output.chains) { chains = output.chains; };" +
+            "if (output && output.events) { events = output.events; };" +
+            "if (output && output.customEvents) { customEvents = output.customEvents; };" +
+            "if (output && output.bpmChanges) { bpmChanges = output.bpmChanges; };" +
+            "if (output && output.walls) { walls = output.walls; };");
+        }
+        catch (JavaScriptException jse)
+        {
+            Debug.LogWarning($"Error running {fileName}\n{jse.Message}");
+        }
+
+        TimeLog("Reconcile");
+
+        SelectionController.DeselectAll();
+        var actions = new List<BeatmapAction>();
+        actions.AddRange(Reconcile(originalNotes, engine.GetValue("notes").AsArray(), notes, i => new V3.ColorNote(engine, i), BeatmapObject.ObjectType.Note));
+        //actions.AddRange(Reconcile(originalBombs, engine.GetValue("bombs").AsArray(), bombs, i => new V3.BombNote(engine, i), BeatmapObject.ObjectType.Note));
+        actions.AddRange(Reconcile(originalArcs, engine.GetValue("arcs").AsArray(), arcs, i => new V3.Arc(engine, i), BeatmapObject.ObjectType.Arc));
+        actions.AddRange(Reconcile(originalChains, engine.GetValue("chains").AsArray(), chains, i => new V3.Chain(engine, i), BeatmapObject.ObjectType.Chain));
+        //actions.AddRange(Reconcile(originalWalls, engine.GetValue("walls").AsArray(), walls, i => new V3.Wall(engine, i), BeatmapObject.ObjectType.Obstacle));
+        //actions.AddRange(Reconcile(originalEvents, engine.GetValue("events").AsArray(), events, i => new V3.Event(engine, i), BeatmapObject.ObjectType.Event));
+        actions.AddRange(Reconcile(originalCustomEvents, engine.GetValue("customEvents").AsArray(), customEvents, i => new V3.CustomEvent(engine, i), BeatmapObject.ObjectType.CustomEvent));
+        actions.AddRange(Reconcile(originalBpmChanges, engine.GetValue("bpmChanges").AsArray(), bpmChanges, i => new V3.BpmChange(engine, i), BeatmapObject.ObjectType.BpmChange));
 
         SelectionController.SelectionChangedEvent?.Invoke();
 

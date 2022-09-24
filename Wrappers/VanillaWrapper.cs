@@ -3,7 +3,7 @@ using Jint;
 
 abstract class VanillaWrapper<T> : Wrapper<T> where T : BeatmapObject
 {
-    private Lazy<JSONWraper> customData;
+    private Lazy<JSONWrapper> customData;
     private Action reconcile;
 
     public object _customData
@@ -12,7 +12,7 @@ abstract class VanillaWrapper<T> : Wrapper<T> where T : BeatmapObject
         set
         {
             DeleteObject();
-            wrapped.CustomData = JSONWraper.castObjToJSON(value);
+            wrapped.CustomData = JSONWrapper.castObjToJSON(value);
             InitWrapper();
         }
     }
@@ -25,8 +25,8 @@ abstract class VanillaWrapper<T> : Wrapper<T> where T : BeatmapObject
     private void InitWrapper()
     {
         reconcile = null;
-        customData = new Lazy<JSONWraper>(() =>
-            new JSONWraper(engine, ref reconcile, wrapped.CustomData, DeleteObject)
+        customData = new Lazy<JSONWrapper>(() =>
+            new JSONWrapper(engine, ref reconcile, wrapped.CustomData, DeleteObject)
         );
     }
 

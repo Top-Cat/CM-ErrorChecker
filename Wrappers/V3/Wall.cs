@@ -70,7 +70,7 @@ namespace V3
             spawned = true;
         }
 
-        public Wall(Engine engine, ObjectInstance o) : base(engine, new BeatmapObstacleV3(JSONWraper.castObjToJSON(new {
+        public Wall(Engine engine, ObjectInstance o) : base(engine, new BeatmapObstacleV3(JSONWrapper.castObjToJSON(new {
                 b = (float)GetJsValue(o, "b"),
                 x = (int)GetJsValue(o, "x"),
                 y = (int)GetJsValue(o, "y"),

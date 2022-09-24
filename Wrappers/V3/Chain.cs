@@ -110,7 +110,7 @@ namespace V3
             spawned = true;
         }
 
-        public Chain(Engine engine, ObjectInstance o) : base(engine, new BeatmapChain(JSONWraper.castObjToJSON(new
+        public Chain(Engine engine, ObjectInstance o) : base(engine, new BeatmapChain(JSONWrapper.castObjToJSON(new
         {
             b = (float)GetJsValue(o, "b"),
             c = (int)GetJsValue(o, "c"),

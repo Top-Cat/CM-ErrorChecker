@@ -50,7 +50,7 @@ namespace V3
             spawned = true;
         }
 
-        public Event(Engine engine, ObjectInstance o) : base(engine, new MapEventV3(JSONWraper.castObjToJSON(new
+        public Event(Engine engine, ObjectInstance o) : base(engine, new MapEventV3(JSONWrapper.castObjToJSON(new
         {
             b = (float)GetJsValue(o, "b"),
             et = (int)GetJsValue(o, "et"),

@@ -22,7 +22,7 @@ class DeleteProperty
     {
         if (__instance is ObjectWrapper wrapper)
         {
-            if (wrapper.Target is JSONWraper jsonWraper)
+            if (wrapper.Target is JSONWrapper jsonWraper)
             {
                 jsonWraper.DeleteProperty(property);
                 __result = true;
@@ -42,7 +42,7 @@ class GetOwnPropertyKeys
     {
         if (__instance is ObjectWrapper wrapper)
         {
-            if (wrapper.Target is JSONWraper jsonWraper)
+            if (wrapper.Target is JSONWrapper jsonWraper)
             {
                 __result = new List<JsValue>();
                 foreach (var wrappedKey in jsonWraper.wrapped.Keys)

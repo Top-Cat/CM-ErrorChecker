@@ -130,7 +130,7 @@ namespace V3
             spawned = true;
         }
 
-        public Arc(Engine engine, ObjectInstance o) : base(engine, new BeatmapArc(JSONWraper.castObjToJSON(new
+        public Arc(Engine engine, ObjectInstance o) : base(engine, new BeatmapArc(JSONWrapper.castObjToJSON(new
         {
             b = (float)GetJsValue(o, "b"),
             c = (int)GetJsValue(o, "c"),

@@ -26,7 +26,7 @@ namespace V2
             }
         }
 
-        private Lazy<JSONWraper> customData;
+        private Lazy<JSONWrapper> customData;
         private Action reconcile;
         public object _data
         {
@@ -34,7 +34,7 @@ namespace V2
             set
             {
                 DeleteObject();
-                wrapped.CustomData = JSONWraper.castObjToJSON(value);
+                wrapped.CustomData = JSONWrapper.castObjToJSON(value);
                 InitWrapper();
             }
         }
@@ -81,8 +81,8 @@ namespace V2
         private void InitWrapper()
         {
             reconcile = null;
-            customData = new Lazy<JSONWraper>(() =>
-                new JSONWraper(engine, ref reconcile, wrapped.CustomData, DeleteObject)
+            customData = new Lazy<JSONWrapper>(() =>
+                new JSONWrapper(engine, ref reconcile, wrapped.CustomData, DeleteObject)
             );
         }
 

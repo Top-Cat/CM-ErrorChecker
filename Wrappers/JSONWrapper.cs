@@ -8,18 +8,18 @@ using Jint.Native;
 using SimpleJSON;
 using UnityEngine;
 
-class JSONWraper
+class JSONWrapper
 {
     private readonly Engine engine;
     internal readonly JSONNode wrapped;
     private readonly Func<bool> deleteObj;
 
     private readonly Dictionary<string, JsValue> observe = new Dictionary<string, JsValue>();
-    private readonly Dictionary<string, JSONWraper> children = new Dictionary<string, JSONWraper>();
+    private readonly Dictionary<string, JSONWrapper> children = new Dictionary<string, JSONWrapper>();
     private Action checkObserved;
     private bool cleanObserved = true;
 
-    public JSONWraper(Engine engine, ref Action parent, JSONNode wrapped, Func<bool> deleteObj)
+    public JSONWrapper(Engine engine, ref Action parent, JSONNode wrapped, Func<bool> deleteObj)
     {
         this.engine = engine;
         this.wrapped = wrapped;
@@ -103,7 +103,7 @@ class JSONWraper
     {
         switch (o)
         {
-            case JSONWraper w:
+            case JSONWrapper w:
                 return w.wrapped;
             case JsValue v:
                 return castJSToJSON(v);
@@ -178,10 +178,10 @@ class JSONWraper
         }
     }
 
-    private JSONWraper GetChild(string key)
+    private JSONWrapper GetChild(string key)
     {
         if (!children.ContainsKey(key))
-            children.Add(key, new JSONWraper(engine, ref checkObserved, wrapped[key], deleteObj));
+            children.Add(key, new JSONWrapper(engine, ref checkObserved, wrapped[key], deleteObj));
 
         return children[key];
     }

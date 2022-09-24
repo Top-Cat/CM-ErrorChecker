@@ -60,7 +60,7 @@ class ExternalJS : Check
     {
         if (o is ExpandoObject ex)
         {
-            Debug.Log(JSONWraper.dictToJSON(ex));
+            Debug.Log(JSONWrapper.dictToJSON(ex));
         }
         else
         {

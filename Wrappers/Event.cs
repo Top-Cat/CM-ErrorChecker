@@ -31,6 +31,16 @@ class Event : VanillaWrapper<MapEvent>
         }
     }
 
+    public float _floatValue
+    {
+        get => wrapped.FloatValue;
+        set
+        {
+            DeleteObject();
+            wrapped.FloatValue = value;
+        }
+    }
+
     public Event(Engine engine, MapEvent mapEvent) : base(engine, mapEvent)
     {
         spawned = true;

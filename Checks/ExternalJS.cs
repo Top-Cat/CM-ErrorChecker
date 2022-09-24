@@ -18,7 +18,7 @@ using UnityEngine;
 class ExternalJS : Check
 {
     private Engine engine;
-    private readonly IConstraint timeConstraint = new TimeConstraint2(TimeSpan.FromSeconds(30L));
+    private readonly Constraint timeConstraint = new TimeConstraint2(TimeSpan.FromSeconds(30L));
     private readonly string fileName;
     private bool valid;
 
@@ -30,21 +30,21 @@ class ExternalJS : Check
         Debug.Log($"[{time}.{time.Millisecond}] [CM-JS] {msg}");
     }
 
-    private class TimeConstraint2 : IConstraint
+    private class TimeConstraint2 : Constraint
     {
         private readonly TimeSpan _timeout;
         private CancellationTokenSource cts;
 
         public TimeConstraint2(TimeSpan timeout) => _timeout = timeout;
 
-        public void Check()
+        public override void Check()
         {
             if (!cts.IsCancellationRequested)
                 return;
             throw new TimeoutException();
         }
 
-        public void Reset()
+        public override void Reset()
         {
             cts?.Dispose();
             cts = new CancellationTokenSource(this._timeout);
@@ -107,8 +107,6 @@ class ExternalJS : Check
         catch (JavaScriptException jse)
         {
             Debug.Log(jse);
-            Debug.Log("LINE: " + jse.LineNumber);
-            Debug.Log("COLUMN: " + jse.Column);
         }
         return null;
     }

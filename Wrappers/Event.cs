@@ -40,7 +40,8 @@ class Event : VanillaWrapper<MapEvent>
             (float) GetJsValue(o, "_time"),
             (int) GetJsValue(o, "_type"),
             (int) GetJsValue(o, "_value"),
-            GetCustomData(o)
+            GetCustomData(o),
+            (float) GetJsValueOptional(o, "_floatValue")
         ), false, GetJsBool(o, "selected"))
     {
         spawned = false;

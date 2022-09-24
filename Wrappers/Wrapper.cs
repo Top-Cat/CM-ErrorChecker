@@ -32,6 +32,16 @@ abstract class Wrapper<T> where T : BeatmapObject
         return (double)value.ToObject();
     }
 
+    protected static double? GetJsValueOptional(ObjectInstance o, string key)
+    {
+        if (o.TryGetValue(key, out var value))
+        {
+            return (double)value.ToObject();
+        }
+
+        return null;
+    }
+
     protected static string GetJsString(ObjectInstance o, string key)
     {
         o.TryGetValue(key, out var value);
@@ -42,7 +52,7 @@ abstract class Wrapper<T> where T : BeatmapObject
     {
         if (o.TryGetValue(key, out var value))
         {
-            return (bool) value.ToObject();
+            return (bool)value.ToObject();
         }
 
         return null;

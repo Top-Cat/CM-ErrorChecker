@@ -121,7 +121,6 @@ namespace V3
             { "tb", (float)GetJsValue(o, "tb") },
             { "tx", (int)GetJsValue(o, "tx") },
             { "ty", (int)GetJsValue(o, "ty") },
-            { "tc", (int)GetJsValue(o, "tc") },
             { "sc", (int)GetJsValue(o, "sc") },
             { "s", (float)GetJsValue(o, "s") },
             { "customData", GetCustomData(o, "customData") }

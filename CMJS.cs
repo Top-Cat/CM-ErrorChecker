@@ -12,7 +12,6 @@ using UnityEngine.UI;
 public class CMJS
 {
     private NotesContainer notesContainer;
-    private NotesContainer bombsContainer;
     private ChainsContainer chainsContainer;
     private ArcsContainer arcsContainer;
     private ObstaclesContainer wallsContainer;
@@ -60,7 +59,6 @@ public class CMJS
         if (arg0.buildIndex == 3) // Mapper scene
         {
             notesContainer = UnityEngine.Object.FindObjectOfType<NotesContainer>();
-            bombsContainer = UnityEngine.Object.FindObjectOfType<NotesContainer>();
             arcsContainer = UnityEngine.Object.FindObjectOfType<ArcsContainer>();
             chainsContainer = UnityEngine.Object.FindObjectOfType<ChainsContainer>();
             wallsContainer = UnityEngine.Object.FindObjectOfType<ObstaclesContainer>();
@@ -112,15 +110,12 @@ public class CMJS
 
             if (isV3)
             {
-                var allNotes = notesContainer.LoadedObjects.Cast<BeatmapColorNote>().Where(it => it.Type != 3).OrderBy(it => it.Time).ToList();
-                // var allBombs = notesContainer.LoadedObjects.Cast<BeatmapBombNote>().Where(it => it.Type == 3).OrderBy(it => it.Time).ToList();
-                var allBombs = new List<BeatmapBombNote> {};
+                var allNotes = notesContainer.LoadedObjects.Where(it => it is BeatmapColorNote).Cast<BeatmapColorNote>().OrderBy(it => it.Time).ToList();
+                var allBombs = notesContainer.LoadedObjects.Where(it => it is BeatmapBombNote).Cast<BeatmapBombNote>().OrderBy(it => it.Time).ToList();
                 var allArcs = arcsContainer.LoadedObjects.Cast<BeatmapArc>().OrderBy(it => it.Time).ToList();
                 var allChains = chainsContainer.LoadedObjects.Cast<BeatmapChain>().OrderBy(it => it.Time).ToList();
-                //var allWalls = wallsContainer.LoadedObjects.Cast<BeatmapObstacleV3>().OrderBy(it => it.Time).ToList
-                var allWalls = new List<BeatmapObstacleV3> { };
-                // var allEvents = eventsContainer.LoadedObjects.Cast<MapEventV3>().OrderBy(it => it.Time).ToList();
-                var allEvents = new List<MapEventV3> { };
+                var allWalls = wallsContainer.LoadedObjects.Where(it => it is BeatmapObstacleV3).Cast<BeatmapObstacleV3>().OrderBy(it => it.Time).ToList();
+                var allEvents = eventsContainer.LoadedObjects.Where(it => it is MapEventV3).Cast<MapEventV3>().OrderBy(it => it.Time).ToList();
                 var allCustomEvents = customEventsContainer.LoadedObjects.Cast<BeatmapCustomEvent>().OrderBy(it => it.Time).ToList();
                 var allBpmChanges = bpmChangesContainer.LoadedObjects.Cast<BeatmapBPMChange>().OrderBy(it => it.Time).ToList();
                 errors = check.PerformCheck(allNotes, allBombs, allArcs, allChains, allEvents, allWalls, allCustomEvents, allBpmChanges, vals).Commit();

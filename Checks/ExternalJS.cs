@@ -179,23 +179,23 @@ class ExternalJS : Check
             if (nameObj.IsString())
             {
                 var name = nameObj.AsString();
-                Name = "ExternalJS: " + name;
+                Name = "extJS: " + name;
             }
             else
             {
-                Name = $"ExternalJS: {fileName}";
+                Name = $"extJS: {fileName}";
             }
 
             valid = true;
         }
         catch (JavaScriptException jse)
         {
-            Name = $"ExternalJS: [{fileName}]";
+            Name = $"extJS: [{fileName}]";
             Debug.LogWarning($"Error loading {fileName}\n{jse.Message}");
         }
         catch (ParserException jse)
         {
-            Name = $"ExternalJS: [{fileName}]";
+            Name = $"extJS: [{fileName}]";
             Debug.LogWarning($"Error loading {fileName}\n{jse.Message}");
         }
     }
@@ -250,8 +250,9 @@ class ExternalJS : Check
         public string characteristic { get; private set; }
         public string difficulty { get; private set; }
         public string environment { get; private set; }
+        public string version { get; private set; }
 
-        public MapData(float currentBPM, float songBPM, float NJS, float offset, string characteristic, string difficulty, string environment)
+        public MapData(float currentBPM, float songBPM, float NJS, float offset, string characteristic, string difficulty, string environment, string version)
         {
             this.currentBPM = currentBPM;
             this.songBPM = songBPM;
@@ -260,6 +261,7 @@ class ExternalJS : Check
             this.characteristic = characteristic;
             this.difficulty = difficulty;
             this.environment = environment;
+            this.version = version;
         }
     }
 
@@ -314,8 +316,8 @@ class ExternalJS : Check
                 BeatSaberSongContainer.Instance.DifficultyData.NoteJumpStartBeatOffset,
                 BeatSaberSongContainer.Instance.DifficultyData.ParentBeatmapSet.BeatmapCharacteristicName,
                 BeatSaberSongContainer.Instance.DifficultyData.Difficulty,
-                (BeatSaberSongContainer.Instance.DifficultyData.ParentBeatmapSet.BeatmapCharacteristicName == "360Degree" || BeatSaberSongContainer.Instance.DifficultyData.ParentBeatmapSet.BeatmapCharacteristicName == "90Degree") ? BeatSaberSongContainer.Instance.Song.AllDirectionsEnvironmentName : BeatSaberSongContainer.Instance.Song.EnvironmentName
-
+                (BeatSaberSongContainer.Instance.DifficultyData.ParentBeatmapSet.BeatmapCharacteristicName == "360Degree" || BeatSaberSongContainer.Instance.DifficultyData.ParentBeatmapSet.BeatmapCharacteristicName == "90Degree") ? BeatSaberSongContainer.Instance.Song.AllDirectionsEnvironmentName : BeatSaberSongContainer.Instance.Song.EnvironmentName,
+                BeatSaberSongContainer.Instance.Map.Version
             ))
             .SetValue("cursor", currentBeat)
             .SetValue("minTime", 0.24f)
@@ -431,8 +433,8 @@ class ExternalJS : Check
                 BeatSaberSongContainer.Instance.DifficultyData.NoteJumpStartBeatOffset,
                 BeatSaberSongContainer.Instance.DifficultyData.ParentBeatmapSet.BeatmapCharacteristicName,
                 BeatSaberSongContainer.Instance.DifficultyData.Difficulty,
-                (BeatSaberSongContainer.Instance.DifficultyData.ParentBeatmapSet.BeatmapCharacteristicName == "360Degree" || BeatSaberSongContainer.Instance.DifficultyData.ParentBeatmapSet.BeatmapCharacteristicName == "90Degree") ? BeatSaberSongContainer.Instance.Song.AllDirectionsEnvironmentName : BeatSaberSongContainer.Instance.Song.EnvironmentName
-
+                (BeatSaberSongContainer.Instance.DifficultyData.ParentBeatmapSet.BeatmapCharacteristicName == "360Degree" || BeatSaberSongContainer.Instance.DifficultyData.ParentBeatmapSet.BeatmapCharacteristicName == "90Degree") ? BeatSaberSongContainer.Instance.Song.AllDirectionsEnvironmentName : BeatSaberSongContainer.Instance.Song.EnvironmentName,
+                BeatSaberSongContainer.Instance.Map.Version
             ))
             .SetValue("cursor", currentBeat)
             .SetValue("minTime", 0.24f)
@@ -455,7 +457,7 @@ class ExternalJS : Check
             TimeLog("Run");
 
             tmp.Execute("global.params = [" + valsCombined + "];" +
-            "var output = module.exports.run ? module.exports.run(cursor, notes, bombs, arcs, chains, events, walls, {}, global, data, customEvents, bpmChanges) : module.exports.performCheck({notes: notes}" + (vals.Length > 0 ? ", " + valsCombined : "") + ");" +
+            "var output = module.exports.run ? module.exports.run(cursor, notes, events, walls, {}, global, data, customEvents, bpmChanges, bombs, arcs, chains) : module.exports.performCheck({notes: notes}" + (vals.Length > 0 ? ", " + valsCombined : "") + ");" +
             "if (output && output.notes) { notes = output.notes; };" +
             "if (output && output.bombs) { bombs = output.bombs; };" +
             "if (output && output.arcs) { arcs = output.arcs; };" +
@@ -475,11 +477,11 @@ class ExternalJS : Check
         SelectionController.DeselectAll();
         var actions = new List<BeatmapAction>();
         actions.AddRange(Reconcile(originalNotes, engine.GetValue("notes").AsArray(), notes, i => new V3.ColorNote(engine, i), BeatmapObject.ObjectType.Note));
-        //actions.AddRange(Reconcile(originalBombs, engine.GetValue("bombs").AsArray(), bombs, i => new V3.BombNote(engine, i), BeatmapObject.ObjectType.Note));
+        actions.AddRange(Reconcile(originalBombs, engine.GetValue("bombs").AsArray(), bombs, i => new V3.BombNote(engine, i), BeatmapObject.ObjectType.Note));
         actions.AddRange(Reconcile(originalArcs, engine.GetValue("arcs").AsArray(), arcs, i => new V3.Arc(engine, i), BeatmapObject.ObjectType.Arc));
         actions.AddRange(Reconcile(originalChains, engine.GetValue("chains").AsArray(), chains, i => new V3.Chain(engine, i), BeatmapObject.ObjectType.Chain));
-        //actions.AddRange(Reconcile(originalWalls, engine.GetValue("walls").AsArray(), walls, i => new V3.Wall(engine, i), BeatmapObject.ObjectType.Obstacle));
-        //actions.AddRange(Reconcile(originalEvents, engine.GetValue("events").AsArray(), events, i => new V3.Event(engine, i), BeatmapObject.ObjectType.Event));
+        actions.AddRange(Reconcile(originalWalls, engine.GetValue("walls").AsArray(), walls, i => new V3.Wall(engine, i), BeatmapObject.ObjectType.Obstacle));
+        actions.AddRange(Reconcile(originalEvents, engine.GetValue("events").AsArray(), events, i => new V3.Event(engine, i), BeatmapObject.ObjectType.Event));
         actions.AddRange(Reconcile(originalCustomEvents, engine.GetValue("customEvents").AsArray(), customEvents, i => new V3.CustomEvent(engine, i), BeatmapObject.ObjectType.CustomEvent));
         actions.AddRange(Reconcile(originalBpmChanges, engine.GetValue("bpmChanges").AsArray(), bpmChanges, i => new V3.BpmChange(engine, i), BeatmapObject.ObjectType.BpmChange));
 

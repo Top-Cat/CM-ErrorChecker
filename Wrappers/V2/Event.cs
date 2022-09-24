@@ -45,17 +45,57 @@ namespace V2
             }
         }
 
+        public float b
+        {
+            get => wrapped.Time;
+            set
+            {
+                DeleteObject();
+                wrapped.Time = value;
+            }
+        }
+
+        public int et
+        {
+            get => wrapped.Type;
+            set
+            {
+                DeleteObject();
+                wrapped.Type = value;
+            }
+        }
+
+        public int i
+        {
+            get => wrapped.Value;
+            set
+            {
+                DeleteObject();
+                wrapped.Value = value;
+            }
+        }
+
+        public float f
+        {
+            get => wrapped.FloatValue;
+            set
+            {
+                DeleteObject();
+                wrapped.FloatValue = value;
+            }
+        }
+
         public Event(Engine engine, MapEvent mapEvent) : base(engine, mapEvent)
         {
             spawned = true;
         }
 
         public Event(Engine engine, ObjectInstance o) : base(engine, new MapEvent(
-                (float)GetJsValue(o, "_time"),
-                (int)GetJsValue(o, "_type"),
-                (int)GetJsValue(o, "_value"),
-                GetCustomData(o),
-                (float)GetJsValueOptional(o, "_floatValue")
+                (float)GetJsValue(o, new string[] { "_time", "b" }),
+                (int)GetJsValue(o, new string[] { "_type", "et" }),
+                (int)GetJsValue(o, new string[] { "_value", "i" }),
+                GetCustomData(o, new string[] { "_customData", "customData" }),
+                (float)GetJsValue(o, new string[] { "_floatValue", "f" })
             ), false, GetJsBool(o, "selected"))
         {
             spawned = false;

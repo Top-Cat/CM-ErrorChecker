@@ -32,6 +32,19 @@ abstract class Wrapper<T> where T : BeatmapObject
         return (double)value.ToObject();
     }
 
+    protected static double? GetJsValue(ObjectInstance o, string[] key)
+    {
+        foreach (string k in key)
+        {
+            if (o.TryGetValue(k, out var value))
+            {
+                return (double)value.ToObject();
+            }
+        }
+
+        return null;
+    }
+
     protected static double? GetJsValueOptional(ObjectInstance o, string key)
     {
         if (o.TryGetValue(key, out var value))
@@ -40,6 +53,11 @@ abstract class Wrapper<T> where T : BeatmapObject
         }
 
         return null;
+    }
+
+    protected static bool GetJsExist(ObjectInstance o, string key)
+    {
+        return o.IsPrimitive();
     }
 
     protected static string GetJsString(ObjectInstance o, string key)
@@ -72,6 +90,27 @@ abstract class Wrapper<T> where T : BeatmapObject
         }
 
         return JSON.Parse(customData.AsString());
+    }
+
+    protected static JSONNode GetCustomData(ObjectInstance o, string[] key)
+    {
+        foreach(var k in key)
+        {
+            var engine = new Engine();
+
+            var customData = engine
+                .SetValue("data", o)
+                .Evaluate($"JSON.stringify(data.{k});");
+
+            if (customData.IsUndefined())
+            {
+                continue;
+            }
+
+            return JSON.Parse(customData.AsString());
+        }
+
+        return null;
     }
 
     public abstract bool SpawnObject(BeatmapObjectContainerCollection collection);

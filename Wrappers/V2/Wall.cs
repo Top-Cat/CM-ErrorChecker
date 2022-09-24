@@ -55,18 +55,74 @@ namespace V2
             }
         }
 
+        public float b
+        {
+            get => wrapped.Time;
+            set
+            {
+                DeleteObject();
+                wrapped.Time = value;
+            }
+        }
+
+        public int x
+        {
+            get => wrapped.LineIndex;
+            set
+            {
+                DeleteObject();
+                wrapped.LineIndex = value;
+            }
+        }
+
+        public int y
+        {
+            get => 0;
+            set
+            {
+            }
+        }
+
+        public float d
+        {
+            get => wrapped.Duration;
+            set
+            {
+                DeleteObject();
+                wrapped.Duration = value;
+            }
+        }
+
+        public int w
+        {
+            get => wrapped.Width;
+            set
+            {
+                DeleteObject();
+                wrapped.Width = value;
+            }
+        }
+
+        public int h
+        {
+            get => 0;
+            set
+            {
+            }
+        }
+
         public Wall(Engine engine, BeatmapObstacle wall) : base(engine, wall)
         {
             spawned = true;
         }
 
         public Wall(Engine engine, ObjectInstance o) : base(engine, new BeatmapObstacle(
-                (float)GetJsValue(o, "_time"),
-                (int)GetJsValue(o, "_lineIndex"),
-                (int)GetJsValue(o, "_type"),
-                (float)GetJsValue(o, "_duration"),
-                (int)GetJsValue(o, "_width"),
-                GetCustomData(o)
+                (float)GetJsValue(o, new string[] { "_time", "b" }),
+                (int)GetJsValue(o, new string[] { "_lineIndex", "x" }),
+                (int)(GetJsValueOptional(o, "_type") ?? (GetJsValue(o, "y") < 2 ? 0 : 1)),
+                (float)GetJsValue(o, new string[] { "_duration", "d" }),
+                (int)GetJsValue(o, new string[] { "_width", "w" }),
+                GetCustomData(o, new string[] { "_customData", "customData" })
             ), false, GetJsBool(o, "selected"))
         {
             spawned = false;

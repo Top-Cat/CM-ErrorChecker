@@ -55,18 +55,76 @@ namespace V2
             }
         }
 
+        public float b
+        {
+            get => wrapped.Time;
+            set
+            {
+                DeleteObject();
+                wrapped.Time = value;
+            }
+        }
+
+        public int x
+        {
+            get => wrapped.LineIndex;
+            set
+            {
+                DeleteObject();
+                wrapped.LineIndex = value;
+            }
+        }
+
+        public int y
+        {
+            get => wrapped.LineLayer;
+            set
+            {
+                DeleteObject();
+                wrapped.LineLayer = value;
+            }
+        }
+
+        public int a
+        {
+            get => 0;
+            set
+            {
+            }
+        }
+
+        public int c
+        {
+            get => wrapped.Type;
+            set
+            {
+                DeleteObject();
+                wrapped.Type = value;
+            }
+        }
+
+        public int d
+        {
+            get => wrapped.CutDirection;
+            set
+            {
+                DeleteObject();
+                wrapped.CutDirection = value;
+            }
+        }
+
         public Note(Engine engine, BeatmapNote note) : base(engine, note)
         {
             spawned = true;
         }
 
         public Note(Engine engine, ObjectInstance o) : base(engine, new BeatmapNote(
-            (float)GetJsValue(o, "_time"),
-            (int)GetJsValue(o, "_lineIndex"),
-            (int)GetJsValue(o, "_lineLayer"),
-            (int)GetJsValue(o, "_type"),
-            (int)GetJsValue(o, "_cutDirection"),
-            GetCustomData(o)
+            (float)GetJsValue(o, new string[] { "_time", "b" }),
+            (int)GetJsValue(o, new string[] { "_lineIndex", "x" }),
+            (int)GetJsValue(o, new string[] { "_lineLayer", "y" }),
+            (int)GetJsValue(o, new string[] { "_type", "c" }),
+            (int)GetJsValue(o, new string[] { "_cutDirection", "d" }),
+            GetCustomData(o, new string[] { "_customData", "customData" })
         ), false, GetJsBool(o, "selected"))
         {
             spawned = false;

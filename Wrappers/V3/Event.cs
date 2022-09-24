@@ -6,6 +6,46 @@ namespace V3
 {
     class Event : VanillaWrapper<MapEventV3>
     {
+        public float _time
+        {
+            get => wrapped.Time;
+            set
+            {
+                DeleteObject();
+                wrapped.Time = value;
+            }
+        }
+
+        public int _type
+        {
+            get => wrapped.Type;
+            set
+            {
+                DeleteObject();
+                wrapped.Type = value;
+            }
+        }
+
+        public int _value
+        {
+            get => wrapped.Value;
+            set
+            {
+                DeleteObject();
+                wrapped.Value = value;
+            }
+        }
+
+        public float _floatValue
+        {
+            get => wrapped.FloatValue;
+            set
+            {
+                DeleteObject();
+                wrapped.FloatValue = value;
+            }
+        }
+
         public float b
         {
             get => wrapped.Time;
@@ -51,15 +91,13 @@ namespace V3
             spawned = true;
         }
 
-        public Event(Engine engine, ObjectInstance o) : base(engine, new MapEventV3(JSONWrapper.dictToJSON(new Dictionary<string, dynamic>()
-        {
-            { "b", (float)GetJsValue(o, "b") },
-            { "et", (int)GetJsValue(o, "et") },
-            { "i", (int)GetJsValue(o, "i") },
-            { "f", (float)GetJsValue(o, "f") },
-            { "customData", GetCustomData(o, "customData") }
-        })
-            ), false, GetJsBool(o, "selected"))
+        public Event(Engine engine, ObjectInstance o) : base(engine, new MapEventV3(new MapEvent(
+                (float)GetJsValue(o, new string[] { "b", "_time" }),
+                (int)GetJsValue(o, new string[] { "et", "_type" }),
+                (int)GetJsValue(o, new string[] { "i", "_value" }),
+                GetCustomData(o, new string[] { "customData", "_customData" }),
+                (float)GetJsValue(o, new string[] { "f", "_floatValue" })
+            )), false, GetJsBool(o, "selected"))
         {
             spawned = false;
 

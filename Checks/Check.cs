@@ -32,7 +32,7 @@ public abstract class Check
         throw new ArgumentException("Wrong number of parameters");
     }
 
-    protected virtual CheckResult PerformCheck(List<BeatmapColorNote> notes, List<BeatmapBombNote> bombs, List<BeatmapArc> arcs, List<BeatmapChain> chains, List<MapEvent> events, List<BeatmapObstacle> walls, List<BeatmapCustomEvent> customEvents, List<BeatmapBPMChange> bpmChanges)
+    protected virtual CheckResult PerformCheck(List<BeatmapColorNote> notes, List<BeatmapBombNote> bombs, List<BeatmapArc> arcs, List<BeatmapChain> chains, List<MapEventV3> events, List<BeatmapObstacleV3> walls, List<BeatmapCustomEvent> customEvents, List<BeatmapBPMChange> bpmChanges)
     {
         throw new ArgumentException("Wrong number of parameters");
     }

@@ -5,6 +5,56 @@ namespace V3
 {
     class ColorNote : VanillaWrapper<BeatmapColorNote>
     {
+        public float _time
+        {
+            get => wrapped.Time;
+            set
+            {
+                DeleteObject();
+                wrapped.Time = value;
+            }
+        }
+
+        public int _lineIndex
+        {
+            get => wrapped.LineIndex;
+            set
+            {
+                DeleteObject();
+                wrapped.LineIndex = value;
+            }
+        }
+
+        public int _lineLayer
+        {
+            get => wrapped.LineLayer;
+            set
+            {
+                DeleteObject();
+                wrapped.LineLayer = value;
+            }
+        }
+
+        public int _cutDirection
+        {
+            get => wrapped.CutDirection;
+            set
+            {
+                DeleteObject();
+                wrapped.CutDirection = value;
+            }
+        }
+
+        public int _type
+        {
+            get => wrapped.Color;
+            set
+            {
+                DeleteObject();
+                wrapped.Color = value;
+            }
+        }
+
         public float b
         {
             get => wrapped.Time;
@@ -71,13 +121,13 @@ namespace V3
         }
 
         public ColorNote(Engine engine, ObjectInstance o) : base(engine, new BeatmapColorNote(
-            (float)GetJsValue(o, "b"),
-            (int)GetJsValue(o, "x"),
-            (int)GetJsValue(o, "y"),
-            (int)GetJsValue(o, "c"),
-            (int)GetJsValue(o, "d"),
-            (int)GetJsValue(o, "a"),
-            GetCustomData(o, "customData")
+            (float)GetJsValue(o, new string[] { "b", "_time" }),
+            (int)GetJsValue(o, new string[] { "x", "_lineIndex" }),
+            (int)GetJsValue(o, new string[] { "y", "_lineLayer" }),
+            (int)GetJsValue(o, new string[] { "c", "_type" }),
+            (int)GetJsValue(o, new string[] { "d", "_cutDirection" }),
+            (int)(GetJsValueOptional(o, "a") ?? 0),
+            GetCustomData(o, new string[] { "customData", "_customData" })
         ), false, GetJsBool(o, "selected"))
         {
             spawned = false;

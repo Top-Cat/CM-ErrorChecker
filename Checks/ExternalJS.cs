@@ -228,13 +228,19 @@ class ExternalJS : Check
         public float songBPM { get; private set; }
         public float NJS { get; private set; }
         public float offset { get; private set; }
+        public string characteristic { get; private set; }
+        public string difficulty { get; private set; }
+        public string environment { get; private set; }
 
-        public MapData(float currentBPM, float songBPM, float NJS, float offset)
+        public MapData(float currentBPM, float songBPM, float NJS, float offset, string characteristic, string difficulty, string environment)
         {
             this.currentBPM = currentBPM;
             this.songBPM = songBPM;
             this.NJS = NJS;
             this.offset = offset;
+            this.characteristic = characteristic;
+            this.difficulty = difficulty;
+            this.environment = environment;
         }
     }
 
@@ -286,7 +292,11 @@ class ExternalJS : Check
                 currentBPM,
                 atsc.Song.BeatsPerMinute,
                 BeatSaberSongContainer.Instance.DifficultyData.NoteJumpMovementSpeed,
-                BeatSaberSongContainer.Instance.DifficultyData.NoteJumpStartBeatOffset
+                BeatSaberSongContainer.Instance.DifficultyData.NoteJumpStartBeatOffset,
+                BeatSaberSongContainer.Instance.DifficultyData.ParentBeatmapSet.BeatmapCharacteristicName,
+                BeatSaberSongContainer.Instance.DifficultyData.Difficulty,
+                (BeatSaberSongContainer.Instance.DifficultyData.ParentBeatmapSet.BeatmapCharacteristicName == "360Degree" || BeatSaberSongContainer.Instance.DifficultyData.ParentBeatmapSet.BeatmapCharacteristicName == "90Degree") ? BeatSaberSongContainer.Instance.Song.AllDirectionsEnvironmentName : BeatSaberSongContainer.Instance.Song.EnvironmentName
+
             ))
             .SetValue("cursor", currentBeat)
             .SetValue("minTime", 0.24f)

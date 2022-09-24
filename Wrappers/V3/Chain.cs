@@ -111,7 +111,7 @@ namespace V3
             spawned = true;
         }
 
-        public Chain(Engine engine, ObjectInstance o) : base(engine, new BeatmapChain(JSONWrapper.dictToJSON(new Dictionary<string, dynamic>()
+        public Chain(Engine engine, ObjectInstance o) : base(engine, new BeatmapChain(JSONWrapper.dictToJSON(new Dictionary<string, object>()
         {
             { "b", (float)GetJsValue(o, "b") },
             { "c", (int)GetJsValue(o, "c") },
@@ -127,6 +127,7 @@ namespace V3
         })), false, GetJsBool(o, "selected"))
         {
             spawned = false;
+            wrapped.CustomData = GetCustomData(o, new string[] { "customData", "_customData" });
 
             DeleteObject();
         }

@@ -139,7 +139,7 @@ class JSONWrapper
         return node;
     }
 
-    public static JSONNode dictToJSON(Dictionary<string, dynamic> dict)
+    public static JSONNode dictToJSON(Dictionary<string, object> dict)
     {
         var node = new JSONObject();
 

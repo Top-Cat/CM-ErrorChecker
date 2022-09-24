@@ -1,6 +1,7 @@
 ﻿using Jint;
 using Jint.Native.Object;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace V3
 {
@@ -121,7 +122,7 @@ namespace V3
             spawned = true;
         }
 
-        public Wall(Engine engine, ObjectInstance o) : base(engine, new BeatmapObstacleV3(JSONWrapper.dictToJSON(new Dictionary<string, dynamic>()
+        public Wall(Engine engine, ObjectInstance o) : base(engine, new BeatmapObstacleV3(JSONWrapper.dictToJSON(new Dictionary<string, object>()
             {
                 { "b", (float)GetJsValue(o, new string[] { "b", "_time" }) },
                 { "x", (int)GetJsValue(o, new string[] { "x", "_lineIndex" }) },
@@ -133,6 +134,7 @@ namespace V3
             })), false, GetJsBool(o, "selected"))
         {
             spawned = false;
+            wrapped.CustomData =  GetCustomData(o, new string[] { "customData", "_customData" });
 
             DeleteObject();
         }

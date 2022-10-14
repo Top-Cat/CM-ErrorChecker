@@ -1,9 +1,12 @@
-﻿using Jint;
+﻿using Beatmap.Base;
+using Beatmap.Enums;
+using Beatmap.V3;
+using Jint;
 using Jint.Native.Object;
 
 namespace V3
 {
-    class BombNote : VanillaWrapper<BeatmapBombNote>
+    class BombNote : VanillaWrapper<BaseBombNote>
     {
         public float b
         {
@@ -17,30 +20,30 @@ namespace V3
 
         public int x
         {
-            get => wrapped.LineIndex;
+            get => wrapped.PosX;
             set
             {
                 DeleteObject();
-                wrapped.LineIndex = value;
+                wrapped.PosX = value;
             }
         }
 
         public int y
         {
-            get => wrapped.LineLayer;
+            get => wrapped.PosY;
             set
             {
                 DeleteObject();
-                wrapped.LineLayer = value;
+                wrapped.PosY = value;
             }
         }
 
-        public BombNote(Engine engine, BeatmapBombNote bomb) : base(engine, bomb)
+        public BombNote(Engine engine, BaseBombNote bomb) : base(engine, bomb)
         {
             spawned = true;
         }
 
-        public BombNote(Engine engine, ObjectInstance o) : base(engine, new BeatmapBombNote(
+        public BombNote(Engine engine, ObjectInstance o) : base(engine, new V3BombNote(
             (float)GetJsValue(o, "b"),
             (int)GetJsValue(o, "x"),
             (int)GetJsValue(o, "y"),
@@ -66,7 +69,7 @@ namespace V3
         {
             if (!spawned) return false;
 
-            var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Note);
+            var collection = BeatmapObjectContainerCollection.GetCollectionForType(ObjectType.Note);
             collection.DeleteObject(wrapped, false);
 
             spawned = false;

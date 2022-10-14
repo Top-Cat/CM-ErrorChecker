@@ -2,10 +2,13 @@
 using Jint.Native.Object;
 using SimpleJSON;
 using System.Collections.Generic;
+using Beatmap.Base;
+using Beatmap.Enums;
+using Beatmap.V3;
 
 namespace V3
 {
-    class Arc : VanillaWrapper<BeatmapArc>
+    class Arc : VanillaWrapper<BaseArc>
     {
         public float b
         {
@@ -29,41 +32,41 @@ namespace V3
 
         public int x
         {
-            get => wrapped.X;
+            get => wrapped.PosX;
             set
             {
                 DeleteObject();
-                wrapped.X = value;
+                wrapped.PosX = value;
             }
         }
 
         public int y
         {
-            get => wrapped.Y;
+            get => wrapped.PosY;
             set
             {
                 DeleteObject();
-                wrapped.Y = value;
+                wrapped.PosY = value;
             }
         }
 
         public int d
         {
-            get => wrapped.Direction;
+            get => wrapped.CutDirection;
             set
             {
                 DeleteObject();
-                wrapped.Direction = value;
+                wrapped.CutDirection = value;
             }
         }
 
         public float mu
         {
-            get => wrapped.HeadControlPointLengthMultiplier;
+            get => wrapped.ControlPointLengthMultiplier;
             set
             {
                 DeleteObject();
-                wrapped.HeadControlPointLengthMultiplier = value;
+                wrapped.ControlPointLengthMultiplier = value;
             }
         }
 
@@ -79,21 +82,21 @@ namespace V3
 
         public int tx
         {
-            get => wrapped.TailX;
+            get => wrapped.TailPosX;
             set
             {
                 DeleteObject();
-                wrapped.TailX = value;
+                wrapped.TailPosX = value;
             }
         }
 
         public int ty
         {
-            get => wrapped.TailX;
+            get => wrapped.TailPosY;
             set
             {
                 DeleteObject();
-                wrapped.TailX = value;
+                wrapped.TailPosY = value;
             }
         }
 
@@ -119,20 +122,20 @@ namespace V3
 
         public int m
         {
-            get => wrapped.ArcMidAnchorMode;
+            get => wrapped.MidAnchorMode;
             set
             {
                 DeleteObject();
-                wrapped.ArcMidAnchorMode = value;
+                wrapped.MidAnchorMode = value;
             }
         }
 
-        public Arc(Engine engine, BeatmapArc arc) : base(engine, arc)
+        public Arc(Engine engine, BaseArc arc) : base(engine, arc)
         {
             spawned = true;
         }
 
-        public Arc(Engine engine, ObjectInstance o) : base(engine, new BeatmapArc(JSONWrapper.dictToJSON(new Dictionary<string, object>()
+        public Arc(Engine engine, ObjectInstance o) : base(engine, new V3Arc(JSONWrapper.dictToJSON(new Dictionary<string, object>()
         {
             { "b", (float)GetJsValue(o, "b") },
             { "c", (int)GetJsValue(o, "c") },
@@ -169,7 +172,7 @@ namespace V3
         {
             if (!spawned) return false;
 
-            var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Note);
+            var collection = BeatmapObjectContainerCollection.GetCollectionForType(ObjectType.Arc);
             collection.DeleteObject(wrapped, false);
 
             spawned = false;

@@ -1,9 +1,12 @@
-﻿using Jint;
+﻿using Beatmap.Base;
+using Beatmap.Enums;
+using Beatmap.V2;
+using Jint;
 using Jint.Native.Object;
 
 namespace V2
 {
-    class Wall : VanillaWrapper<BeatmapObstacle>
+    class Wall : VanillaWrapper<BaseObstacle>
     {
         public float _time
         {
@@ -17,11 +20,21 @@ namespace V2
 
         public int _lineIndex
         {
-            get => wrapped.LineIndex;
+            get => wrapped.PosX;
             set
             {
                 DeleteObject();
-                wrapped.LineIndex = value;
+                wrapped.PosX = value;
+            }
+        }
+
+        public int _lineLayer
+        {
+            get => wrapped.PosY;
+            set
+            {
+                DeleteObject();
+                wrapped.PosY = value;
             }
         }
 
@@ -55,6 +68,16 @@ namespace V2
             }
         }
 
+        public int _height
+        {
+            get => wrapped.Height;
+            set
+            {
+                DeleteObject();
+                wrapped.Height = value;
+            }
+        }
+
         public float b
         {
             get => wrapped.Time;
@@ -67,11 +90,11 @@ namespace V2
 
         public int x
         {
-            get => wrapped.LineIndex;
+            get => wrapped.PosX;
             set
             {
                 DeleteObject();
-                wrapped.LineIndex = value;
+                wrapped.PosX = value;
             }
         }
 
@@ -111,12 +134,12 @@ namespace V2
             }
         }
 
-        public Wall(Engine engine, BeatmapObstacle wall) : base(engine, wall)
+        public Wall(Engine engine, BaseObstacle wall) : base(engine, wall)
         {
             spawned = true;
         }
 
-        public Wall(Engine engine, ObjectInstance o) : base(engine, new BeatmapObstacle(
+        public Wall(Engine engine, ObjectInstance o) : base(engine, new V2Obstacle(
                 (float)GetJsValue(o, new string[] { "_time", "b" }),
                 (int)GetJsValue(o, new string[] { "_lineIndex", "x" }),
                 (int)(GetJsValueOptional(o, "_type") ?? (GetJsValue(o, "y") < 2 ? 0 : 1)),
@@ -144,7 +167,7 @@ namespace V2
         {
             if (!spawned) return false;
 
-            var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Obstacle);
+            var collection = BeatmapObjectContainerCollection.GetCollectionForType(ObjectType.Obstacle);
             collection.DeleteObject(wrapped, false);
 
             spawned = false;

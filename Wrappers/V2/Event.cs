@@ -1,9 +1,13 @@
-﻿using Jint;
+﻿using Beatmap.Base;
+using Beatmap.Enums;
+using Beatmap.Shared;
+using Beatmap.V2;
+using Jint;
 using Jint.Native.Object;
 
 namespace V2
 {
-    class Event : VanillaWrapper<MapEvent>
+    class Event : VanillaWrapper<BaseEvent>
     {
         public float _time
         {
@@ -85,12 +89,12 @@ namespace V2
             }
         }
 
-        public Event(Engine engine, MapEvent mapEvent) : base(engine, mapEvent)
+        public Event(Engine engine, BaseEvent mapEvent) : base(engine, mapEvent)
         {
             spawned = true;
         }
 
-        public Event(Engine engine, ObjectInstance o) : base(engine, new MapEvent(
+        public Event(Engine engine, ObjectInstance o) : base(engine, new V2Event(
                 (float)GetJsValue(o, new string[] { "_time", "b" }),
                 (int)GetJsValue(o, new string[] { "_type", "et" }),
                 (int)GetJsValue(o, new string[] { "_value", "i" }),
@@ -109,7 +113,7 @@ namespace V2
 
             if (wrapped.CustomData != null && wrapped.CustomData["_lightGradient"] != null)
             {
-                wrapped.LightGradient = new MapEvent.ChromaGradient(wrapped.CustomData["_lightGradient"]);
+                wrapped.CustomLightGradient = new ChromaLightGradient(wrapped.CustomData["_lightGradient"]);
             }
 
             collection.SpawnObject(wrapped, false, false);
@@ -122,7 +126,7 @@ namespace V2
         {
             if (!spawned) return false;
 
-            var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Event);
+            var collection = BeatmapObjectContainerCollection.GetCollectionForType(ObjectType.Event);
             collection.DeleteObject(wrapped, false);
 
             spawned = false;

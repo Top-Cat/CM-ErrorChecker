@@ -1,11 +1,14 @@
 ﻿using Jint;
 using Jint.Native.Object;
 using System.Collections.Generic;
+using Beatmap.Base;
+using Beatmap.Enums;
+using Beatmap.V3;
 using UnityEngine;
 
 namespace V3
 {
-    class Wall : VanillaWrapper<BeatmapObstacleV3>
+    class Wall : VanillaWrapper<BaseObstacle>
     {
         public float _time
         {
@@ -19,11 +22,21 @@ namespace V3
 
         public int _lineIndex
         {
-            get => wrapped.LineIndex;
+            get => wrapped.PosX;
             set
             {
                 DeleteObject();
-                wrapped.LineIndex = value;
+                wrapped.PosX = value;
+            }
+        }
+
+        public int _lineLayer
+        {
+            get => wrapped.PosY;
+            set
+            {
+                DeleteObject();
+                wrapped.PosY = value;
             }
         }
 
@@ -57,6 +70,16 @@ namespace V3
             }
         }
 
+        public int _height
+        {
+            get => wrapped.Height;
+            set
+            {
+                DeleteObject();
+                wrapped.Height = value;
+            }
+        }
+
         public float b
         {
             get => wrapped.Time;
@@ -69,21 +92,21 @@ namespace V3
 
         public int x
         {
-            get => wrapped.LineIndex;
+            get => wrapped.PosX;
             set
             {
                 DeleteObject();
-                wrapped.LineIndex = value;
+                wrapped.PosX = value;
             }
         }
 
         public int y
         {
-            get => wrapped.LineLayer;
+            get => wrapped.PosY;
             set
             {
                 DeleteObject();
-                wrapped.LineLayer = value;
+                wrapped.PosY = value;
             }
         }
 
@@ -117,12 +140,12 @@ namespace V3
             }
         }
 
-        public Wall(Engine engine, BeatmapObstacleV3 wall) : base(engine, wall)
+        public Wall(Engine engine, BaseObstacle wall) : base(engine, wall)
         {
             spawned = true;
         }
 
-        public Wall(Engine engine, ObjectInstance o) : base(engine, new BeatmapObstacleV3(JSONWrapper.dictToJSON(new Dictionary<string, object>()
+        public Wall(Engine engine, ObjectInstance o) : base(engine, new V3Obstacle(JSONWrapper.dictToJSON(new Dictionary<string, object>()
             {
                 { "b", (float)GetJsValue(o, new string[] { "b", "_time" }) },
                 { "x", (int)GetJsValue(o, new string[] { "x", "_lineIndex" }) },
@@ -153,7 +176,7 @@ namespace V3
         {
             if (!spawned) return false;
 
-            var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Obstacle);
+            var collection = BeatmapObjectContainerCollection.GetCollectionForType(ObjectType.Obstacle);
             collection.DeleteObject(wrapped, false);
 
             spawned = false;

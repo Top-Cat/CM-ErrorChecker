@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Beatmap.Base;
+using Beatmap.Base.Customs;
 
 public abstract class Check
 {
@@ -18,12 +20,12 @@ public abstract class Check
         
     }
 
-    protected virtual CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, List<BeatmapCustomEvent> customEvents, List<BeatmapBPMChange> bpmChanges)
+    protected virtual CheckResult PerformCheck(List<BaseNote> notes, List<BaseEvent> events, List<BaseObstacle> walls, List<BaseCustomEvent> customEvents, List<BaseBpmChange> bpmChanges)
     {
         throw new ArgumentException("Wrong number of parameters");
     }
 
-    public virtual CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, List<BeatmapCustomEvent> customEvents, List<BeatmapBPMChange> bpmChanges, params IParamValue[] vals)
+    public virtual CheckResult PerformCheck(List<BaseNote> notes, List<BaseEvent> events, List<BaseObstacle> walls, List<BaseCustomEvent> customEvents, List<BaseBpmChange> bpmChanges, params IParamValue[] vals)
     {
         if (vals.Length == 0 && Params.Count == 0)
         {
@@ -32,12 +34,12 @@ public abstract class Check
         throw new ArgumentException("Wrong number of parameters");
     }
 
-    protected virtual CheckResult PerformCheck(List<BeatmapColorNote> notes, List<BeatmapBombNote> bombs, List<BeatmapArc> arcs, List<BeatmapChain> chains, List<MapEventV3> events, List<BeatmapObstacleV3> walls, List<BeatmapCustomEvent> customEvents, List<BeatmapBPMChange> bpmChanges)
+    protected virtual CheckResult PerformCheck(List<BaseNote> notes, List<BaseBombNote> bombs, List<BaseArc> arcs, List<BaseChain> chains, List<BaseEvent> events, List<BaseObstacle> walls, List<BaseCustomEvent> customEvents, List<BaseBpmChange> bpmChanges)
     {
         throw new ArgumentException("Wrong number of parameters");
     }
 
-    public virtual CheckResult PerformCheck(List<BeatmapColorNote> notes, List<BeatmapBombNote> bombs, List<BeatmapArc> arcs, List<BeatmapChain> chains, List<MapEventV3> events, List<BeatmapObstacleV3> walls, List<BeatmapCustomEvent> customEvents, List<BeatmapBPMChange> bpmChanges, params IParamValue[] vals)
+    public virtual CheckResult PerformCheck(List<BaseNote> notes, List<BaseBombNote> bombs, List<BaseArc> arcs, List<BaseChain> chains, List<BaseEvent> events, List<BaseObstacle> walls, List<BaseCustomEvent> customEvents, List<BaseBpmChange> bpmChanges, params IParamValue[] vals)
     {
         if (vals.Length == 0 && Params.Count == 0)
         {

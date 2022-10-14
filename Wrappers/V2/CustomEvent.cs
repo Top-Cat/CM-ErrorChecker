@@ -1,10 +1,13 @@
 ﻿using System;
+using Beatmap.Base.Customs;
+using Beatmap.Enums;
+using Beatmap.V2.Customs;
 using Jint;
 using Jint.Native.Object;
 
 namespace V2
 {
-    class CustomEvent : Wrapper<BeatmapCustomEvent>
+    class CustomEvent : Wrapper<BaseCustomEvent>
     {
         public float _time
         {
@@ -39,13 +42,13 @@ namespace V2
             }
         }
 
-        public CustomEvent(Engine engine, BeatmapCustomEvent customEvent) : base(engine, customEvent)
+        public CustomEvent(Engine engine, BaseCustomEvent customEvent) : base(engine, customEvent)
         {
             spawned = true;
             InitWrapper();
         }
 
-        public CustomEvent(Engine engine, ObjectInstance o) : base(engine, new BeatmapCustomEvent(
+        public CustomEvent(Engine engine, ObjectInstance o) : base(engine, new V2CustomEvent(
                 (float)GetJsValue(o, "_time"),
                 GetJsString(o, "_type"),
                 GetCustomData(o, "_data")
@@ -71,7 +74,7 @@ namespace V2
         {
             if (!spawned) return false;
 
-            var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Event);
+            var collection = BeatmapObjectContainerCollection.GetCollectionForType(ObjectType.CustomEvent);
             collection.DeleteObject(wrapped, false);
 
             spawned = false;

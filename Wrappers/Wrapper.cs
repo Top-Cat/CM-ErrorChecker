@@ -1,8 +1,10 @@
-﻿using Jint;
+﻿using Beatmap.Base;
+using Beatmap.Helper;
+using Jint;
 using Jint.Native.Object;
 using SimpleJSON;
 
-abstract class Wrapper<T> where T : BeatmapObject
+abstract class Wrapper<T> where T : BaseObject
 {
     protected readonly Engine engine;
     protected bool spawned;
@@ -22,7 +24,7 @@ abstract class Wrapper<T> where T : BeatmapObject
     {
         this.engine = engine;
         this.wrapped = wrapped;
-        if (hasOriginal) original = BeatmapObject.GenerateCopy(wrapped);
+        if (hasOriginal) original = BeatmapFactory.Clone(wrapped);
         _selected = selected.GetValueOrDefault(SelectionController.IsObjectSelected(wrapped));
     }
 

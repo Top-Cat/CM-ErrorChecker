@@ -1,7 +1,8 @@
 ﻿using System;
+using Beatmap.Base;
 using Jint;
 
-abstract class VanillaWrapper<T> : Wrapper<T> where T : BeatmapObject
+abstract class VanillaWrapper<T> : Wrapper<T> where T : BaseObject
 {
     private Lazy<JSONWrapper> customData;
     private Action reconcile;

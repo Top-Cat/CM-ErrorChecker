@@ -1,9 +1,12 @@
-﻿using Jint;
+﻿using Beatmap.Base.Customs;
+using Beatmap.Enums;
+using Beatmap.V2.Customs;
+using Jint;
 using Jint.Native.Object;
 
 namespace V2
 {
-    class BpmChange : Wrapper<BeatmapBPMChange>
+    class BpmChange : Wrapper<BaseBpmChange>
     {
         public float _time
         {
@@ -45,12 +48,12 @@ namespace V2
             }
         }
 
-        public BpmChange(Engine engine, BeatmapBPMChange bpmChange) : base(engine, bpmChange)
+        public BpmChange(Engine engine, BaseBpmChange bpmChange) : base(engine, bpmChange)
         {
             spawned = true;
         }
 
-        public BpmChange(Engine engine, ObjectInstance o) : base(engine, new BeatmapBPMChange(
+        public BpmChange(Engine engine, ObjectInstance o) : base(engine, new V2BpmChange(
                 (float)GetJsValue(o, "_BPM"),
                 (float)GetJsValue(o, "_time")
         )
@@ -78,7 +81,7 @@ namespace V2
         {
             if (!spawned) return false;
 
-            var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.BpmChange);
+            var collection = BeatmapObjectContainerCollection.GetCollectionForType(ObjectType.BpmChange);
             collection.DeleteObject(wrapped, false);
 
             spawned = false;

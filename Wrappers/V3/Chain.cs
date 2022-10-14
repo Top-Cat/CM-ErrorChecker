@@ -1,10 +1,13 @@
 ﻿using Jint;
 using Jint.Native.Object;
 using System.Collections.Generic;
+using Beatmap.Base;
+using Beatmap.Enums;
+using Beatmap.V3;
 
 namespace V3
 {
-    class Chain : VanillaWrapper<BeatmapChain>
+    class Chain : VanillaWrapper<BaseChain>
     {
         public float b
         {
@@ -28,31 +31,31 @@ namespace V3
 
         public int x
         {
-            get => wrapped.X;
+            get => wrapped.PosX;
             set
             {
                 DeleteObject();
-                wrapped.X = value;
+                wrapped.PosX = value;
             }
         }
 
         public int y
         {
-            get => wrapped.Y;
+            get => wrapped.PosY;
             set
             {
                 DeleteObject();
-                wrapped.Y = value;
+                wrapped.PosY = value;
             }
         }
 
         public int d
         {
-            get => wrapped.Direction;
+            get => wrapped.CutDirection;
             set
             {
                 DeleteObject();
-                wrapped.Direction = value;
+                wrapped.CutDirection = value;
             }
         }
 
@@ -68,21 +71,21 @@ namespace V3
 
         public int tx
         {
-            get => wrapped.TailX;
+            get => wrapped.TailPosX;
             set
             {
                 DeleteObject();
-                wrapped.TailX = value;
+                wrapped.TailPosX = value;
             }
         }
 
         public int ty
         {
-            get => wrapped.TailX;
+            get => wrapped.TailPosY;
             set
             {
                 DeleteObject();
-                wrapped.TailX = value;
+                wrapped.TailPosY = value;
             }
         }
 
@@ -98,20 +101,20 @@ namespace V3
 
         public float s
         {
-            get => wrapped.SquishAmount;
+            get => wrapped.Squish;
             set
             {
                 DeleteObject();
-                wrapped.SquishAmount = value;
+                wrapped.Squish = value;
             }
         }
 
-        public Chain(Engine engine, BeatmapChain chain) : base(engine, chain)
+        public Chain(Engine engine, BaseChain chain) : base(engine, chain)
         {
             spawned = true;
         }
 
-        public Chain(Engine engine, ObjectInstance o) : base(engine, new BeatmapChain(JSONWrapper.dictToJSON(new Dictionary<string, object>()
+        public Chain(Engine engine, ObjectInstance o) : base(engine, new V3Chain(JSONWrapper.dictToJSON(new Dictionary<string, object>()
         {
             { "b", (float)GetJsValue(o, "b") },
             { "c", (int)GetJsValue(o, "c") },
@@ -146,7 +149,7 @@ namespace V3
         {
             if (!spawned) return false;
 
-            var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Note);
+            var collection = BeatmapObjectContainerCollection.GetCollectionForType(ObjectType.Chain);
             collection.DeleteObject(wrapped, false);
 
             spawned = false;

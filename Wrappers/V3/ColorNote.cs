@@ -1,9 +1,12 @@
-﻿using Jint;
+﻿using Beatmap.Base;
+using Beatmap.Enums;
+using Beatmap.V3;
+using Jint;
 using Jint.Native.Object;
 
 namespace V3
 {
-    class ColorNote : VanillaWrapper<BeatmapColorNote>
+    class ColorNote : VanillaWrapper<BaseNote>
     {
         public float _time
         {
@@ -17,21 +20,21 @@ namespace V3
 
         public int _lineIndex
         {
-            get => wrapped.LineIndex;
+            get => wrapped.PosX;
             set
             {
                 DeleteObject();
-                wrapped.LineIndex = value;
+                wrapped.PosX = value;
             }
         }
 
         public int _lineLayer
         {
-            get => wrapped.LineLayer;
+            get => wrapped.PosY;
             set
             {
                 DeleteObject();
-                wrapped.LineLayer = value;
+                wrapped.PosY = value;
             }
         }
 
@@ -67,21 +70,21 @@ namespace V3
 
         public int x
         {
-            get => wrapped.LineIndex;
+            get => wrapped.PosX;
             set
             {
                 DeleteObject();
-                wrapped.LineIndex = value;
+                wrapped.PosX = value;
             }
         }
 
         public int y
         {
-            get => wrapped.LineLayer;
+            get => wrapped.PosY;
             set
             {
                 DeleteObject();
-                wrapped.LineLayer = value;
+                wrapped.PosY = value;
             }
         }
 
@@ -115,12 +118,12 @@ namespace V3
             }
         }
 
-        public ColorNote(Engine engine, BeatmapColorNote note) : base(engine, note)
+        public ColorNote(Engine engine, BaseNote note) : base(engine, note)
         {
             spawned = true;
         }
 
-        public ColorNote(Engine engine, ObjectInstance o) : base(engine, new BeatmapColorNote(
+        public ColorNote(Engine engine, ObjectInstance o) : base(engine, new V3ColorNote(
             (float)GetJsValue(o, new string[] { "b", "_time" }),
             (int)GetJsValue(o, new string[] { "x", "_lineIndex" }),
             (int)GetJsValue(o, new string[] { "y", "_lineLayer" }),
@@ -149,7 +152,7 @@ namespace V3
         {
             if (!spawned) return false;
 
-            var collection = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Note);
+            var collection = BeatmapObjectContainerCollection.GetCollectionForType(ObjectType.Note);
             collection.DeleteObject(wrapped, false);
 
             spawned = false;

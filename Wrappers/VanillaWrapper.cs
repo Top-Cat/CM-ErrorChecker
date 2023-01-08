@@ -4,16 +4,29 @@ using Jint;
 
 abstract class VanillaWrapper<T> : Wrapper<T> where T : BaseObject
 {
-    private Lazy<JSONWrapper> customData;
+    private Lazy<JSONWrapper> pCustomData;
     private Action reconcile;
 
-    public object _customData
+    public object customData
     {
-        get => wrapped.CustomData == null ? null : customData.Value;
+        get => wrapped.CustomData == null ? null : pCustomData.Value;
         set
         {
             DeleteObject();
             wrapped.CustomData = JSONWrapper.castObjToJSON(value);
+            wrapped.RefreshCustom();
+            InitWrapper();
+        }
+    }
+
+    public object _customData
+    {
+        get => wrapped.CustomData == null ? null : pCustomData.Value;
+        set
+        {
+            DeleteObject();
+            wrapped.CustomData = JSONWrapper.castObjToJSON(value);
+            wrapped.RefreshCustom();
             InitWrapper();
         }
     }
@@ -26,7 +39,7 @@ abstract class VanillaWrapper<T> : Wrapper<T> where T : BaseObject
     private void InitWrapper()
     {
         reconcile = null;
-        customData = new Lazy<JSONWrapper>(() =>
+        pCustomData = new Lazy<JSONWrapper>(() =>
             new JSONWrapper(engine, ref reconcile, wrapped.CustomData, DeleteObject)
         );
     }
@@ -39,5 +52,7 @@ abstract class VanillaWrapper<T> : Wrapper<T> where T : BaseObject
         {
             wrapped.CustomData = null;
         }
+        
+        wrapped.RefreshCustom();
     }
 }

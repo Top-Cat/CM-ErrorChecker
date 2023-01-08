@@ -1,6 +1,5 @@
 ﻿using Jint;
 using Jint.Native.Object;
-using SimpleJSON;
 using System.Collections.Generic;
 using Beatmap.Base;
 using Beatmap.Enums;
@@ -62,11 +61,11 @@ namespace V3
 
         public float mu
         {
-            get => wrapped.ControlPointLengthMultiplier;
+            get => wrapped.HeadControlPointLengthMultiplier;
             set
             {
                 DeleteObject();
-                wrapped.ControlPointLengthMultiplier = value;
+                wrapped.HeadControlPointLengthMultiplier = value;
             }
         }
 
@@ -149,11 +148,10 @@ namespace V3
             { "tc", (int)GetJsValue(o, "tc") },
             { "tmu", (float)GetJsValue(o, "tmu") },
             { "m", (int)GetJsValue(o, "m") },
-            { "customData", GetCustomData(o, "customData") }
+            { "customData", GetCustomData(o, new string[] { "customData", "_customData" }) }
         })), false, GetJsBool(o, "selected"))
         {
             spawned = false;
-            wrapped.CustomData = GetCustomData(o, new string[] { "customData", "_customData" });
 
             DeleteObject();
         }

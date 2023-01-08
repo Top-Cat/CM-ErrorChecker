@@ -1,6 +1,5 @@
 ﻿using Jint;
 using Jint.Native.Object;
-using System.Collections.Generic;
 using Beatmap.Base;
 using Beatmap.Enums;
 using Beatmap.V3;
@@ -89,6 +88,7 @@ namespace V3
             }
         }
 
+
         public Event(Engine engine, BaseEvent mapEvent) : base(engine, mapEvent)
         {
             spawned = true;
@@ -98,8 +98,8 @@ namespace V3
                 (float)GetJsValue(o, new string[] { "b", "_time" }),
                 (int)GetJsValue(o, new string[] { "et", "_type" }),
                 (int)GetJsValue(o, new string[] { "i", "_value" }),
-                GetCustomData(o, new string[] { "customData", "_customData" }),
-                (float)GetJsValue(o, new string[] { "f", "_floatValue" })
+                (float)GetJsValue(o, new string[] { "f", "_floatValue" }),
+                GetCustomData(o, new string[] { "customData", "_customData" })
             ), false, GetJsBool(o, "selected"))
         {
             spawned = false;

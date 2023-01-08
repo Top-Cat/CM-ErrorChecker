@@ -47,7 +47,7 @@ namespace V3
             (float)GetJsValue(o, "b"),
             (int)GetJsValue(o, "x"),
             (int)GetJsValue(o, "y"),
-            GetCustomData(o, "customData")
+            GetCustomData(o, new string[] { "customData", "_customData" })
         ), false, GetJsBool(o, "selected"))
         {
             spawned = false;

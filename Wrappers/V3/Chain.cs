@@ -126,7 +126,7 @@ namespace V3
             { "ty", (int)GetJsValue(o, "ty") },
             { "sc", (int)GetJsValue(o, "sc") },
             { "s", (float)GetJsValue(o, "s") },
-            { "customData", GetCustomData(o, "customData") }
+            { "customData", GetCustomData(o, new string[] { "customData", "_customData" }) }
         })), false, GetJsBool(o, "selected"))
         {
             spawned = false;

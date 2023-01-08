@@ -98,8 +98,8 @@ namespace V2
                 (float)GetJsValue(o, new string[] { "_time", "b" }),
                 (int)GetJsValue(o, new string[] { "_type", "et" }),
                 (int)GetJsValue(o, new string[] { "_value", "i" }),
-                GetCustomData(o, new string[] { "_customData", "customData" }),
-                (float)GetJsValue(o, new string[] { "_floatValue", "f" })
+                (float)GetJsValue(o, new string[] { "_floatValue", "f" }),
+                GetCustomData(o, new string[] { "_customData", "customData" })
             ), false, GetJsBool(o, "selected"))
         {
             spawned = false;

@@ -1,4 +1,5 @@
-﻿using Beatmap.Base;
+﻿using System.Collections.Generic;
+using Beatmap.Base;
 using Beatmap.Helper;
 using Jint;
 using Jint.Native.Object;
@@ -34,7 +35,7 @@ abstract class Wrapper<T> where T : BaseObject
         return (double)value.ToObject();
     }
 
-    protected static double? GetJsValue(ObjectInstance o, string[] key)
+    protected static double? GetJsValue(ObjectInstance o, IEnumerable<string> key)
     {
         foreach (string k in key)
         {
@@ -94,7 +95,7 @@ abstract class Wrapper<T> where T : BaseObject
         return JSON.Parse(customData.AsString());
     }
 
-    protected static JSONNode GetCustomData(ObjectInstance o, string[] key)
+    protected static JSONNode GetCustomData(ObjectInstance o, IEnumerable<string> key)
     {
         foreach(var k in key)
         {

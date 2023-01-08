@@ -6,7 +6,7 @@
   <Import Project="packages\Microsoft.Build.Tasks.Git.1.1.1\build\Microsoft.Build.Tasks.Git.props" Condition="Exists('packages\Microsoft.Build.Tasks.Git.1.1.1\build\Microsoft.Build.Tasks.Git.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <ChromapperDir>C:\Users\mnaba\Build\CM Dev</ChromapperDir>
+    <ChromapperDir>F:\Programs\CM Dev</ChromapperDir>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{600D3953-D125-4C0F-A5CF-0E3906D6B6F6}</ProjectGuid>
@@ -46,10 +46,10 @@
       <HintPath>packages\Costura.Fody.5.8.0-alpha0098\lib\netstandard1.0\Costura.dll</HintPath>
     </Reference>
     <Reference Include="Esprima, Version=3.0.0.0, Culture=neutral, PublicKeyToken=2e92ba9c8d81157f, processorArchitecture=MSIL">
-      <HintPath>packages\Esprima.3.0.0-beta-7\lib\net462\Esprima.dll</HintPath>
+      <HintPath>packages\Esprima.3.0.0-beta-9\lib\net462\Esprima.dll</HintPath>
     </Reference>
     <Reference Include="Jint, Version=3.0.0.0, Culture=neutral, PublicKeyToken=2e92ba9c8d81157f, processorArchitecture=MSIL">
-      <HintPath>packages\Jint.3.0.0-beta-2041\lib\net462\Jint.dll</HintPath>
+      <HintPath>packages\Jint.3.0.0-beta-2044\lib\net462\Jint.dll</HintPath>
     </Reference>
     <Reference Include="Main">
       <HintPath>$(ChromapperDir)\ChroMapper_Data\Managed\Main.dll</HintPath>

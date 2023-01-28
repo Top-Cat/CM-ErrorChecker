@@ -1,14 +1,38 @@
-﻿using Jint;
-using Jint.Native.Object;
-using System.Collections.Generic;
-using Beatmap.Base;
+﻿using Beatmap.Base;
 using Beatmap.Enums;
-using Beatmap.V3;
+using Beatmap.Helper;
+using Jint;
+using Jint.Native.Object;
 
-namespace V3
-{
-    class Chain : VanillaWrapper<BaseChain>
+    internal class Arc : VanillaWrapper<BaseArc>
     {
+        public Arc(Engine engine, BaseArc arc) : base(engine, arc)
+        {
+            spawned = true;
+        }
+
+        public Arc(Engine engine, ObjectInstance o) : base(engine, BeatmapFactory.Arc(
+            (float)GetJsValue(o, "b"),
+            (int)GetJsValue(o, "c"),
+            (int)GetJsValue(o, "x"),
+            (int)GetJsValue(o, "y"),
+            (int)GetJsValue(o, "d"),
+            0,
+            (float)GetJsValue(o, "mu"),
+            (float)GetJsValue(o, "tb"),
+            (int)GetJsValue(o, "tx"),
+            (int)GetJsValue(o, "ty"),
+            (int)GetJsValue(o, "tc"),
+            (float)GetJsValue(o, "tmu"),
+            (int)GetJsValue(o, "m"),
+            GetCustomData(o, new[] { "customData", "_customData" })
+        ), false, GetJsBool(o, "selected"))
+        {
+            spawned = false;
+
+            DeleteObject();
+        }
+
         public float b
         {
             get => wrapped.Time;
@@ -59,6 +83,16 @@ namespace V3
             }
         }
 
+        public float mu
+        {
+            get => wrapped.HeadControlPointLengthMultiplier;
+            set
+            {
+                DeleteObject();
+                wrapped.HeadControlPointLengthMultiplier = value;
+            }
+        }
+
         public float tb
         {
             get => wrapped.TailTime;
@@ -89,50 +123,34 @@ namespace V3
             }
         }
 
-        public int sc
+        public int tc
         {
-            get => wrapped.SliceCount;
+            get => wrapped.TailCutDirection;
             set
             {
                 DeleteObject();
-                wrapped.SliceCount = value;
+                wrapped.TailCutDirection = value;
             }
         }
 
-        public float s
+        public float tmu
         {
-            get => wrapped.Squish;
+            get => wrapped.TailControlPointLengthMultiplier;
             set
             {
                 DeleteObject();
-                wrapped.Squish = value;
+                wrapped.TailControlPointLengthMultiplier = value;
             }
         }
 
-        public Chain(Engine engine, BaseChain chain) : base(engine, chain)
+        public int m
         {
-            spawned = true;
-        }
-
-        public Chain(Engine engine, ObjectInstance o) : base(engine, new V3Chain(JSONWrapper.dictToJSON(new Dictionary<string, object>()
-        {
-            { "b", (float)GetJsValue(o, "b") },
-            { "c", (int)GetJsValue(o, "c") },
-            { "x", (int) GetJsValue(o, "x") },
-            { "y", (int)GetJsValue(o, "y") },
-            { "d", (int)GetJsValue(o, "d") },
-            { "tb", (float)GetJsValue(o, "tb") },
-            { "tx", (int)GetJsValue(o, "tx") },
-            { "ty", (int)GetJsValue(o, "ty") },
-            { "sc", (int)GetJsValue(o, "sc") },
-            { "s", (float)GetJsValue(o, "s") },
-            { "customData", GetCustomData(o, new string[] { "customData", "_customData" }) }
-        })), false, GetJsBool(o, "selected"))
-        {
-            spawned = false;
-            wrapped.CustomData = GetCustomData(o, new string[] { "customData", "_customData" });
-
-            DeleteObject();
+            get => wrapped.MidAnchorMode;
+            set
+            {
+                DeleteObject();
+                wrapped.MidAnchorMode = value;
+            }
         }
 
         public override bool SpawnObject(BeatmapObjectContainerCollection collection)
@@ -149,11 +167,10 @@ namespace V3
         {
             if (!spawned) return false;
 
-            var collection = BeatmapObjectContainerCollection.GetCollectionForType(ObjectType.Chain);
+            var collection = BeatmapObjectContainerCollection.GetCollectionForType(ObjectType.Arc);
             collection.DeleteObject(wrapped, false);
 
             spawned = false;
             return true;
         }
     }
-}

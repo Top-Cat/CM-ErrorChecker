@@ -1,13 +1,31 @@
 ﻿using Beatmap.Base;
 using Beatmap.Enums;
-using Beatmap.V2;
+using Beatmap.Helper;
 using Jint;
 using Jint.Native.Object;
 
-namespace V2
-{
-    class Note : VanillaWrapper<BaseNote>
+    internal class Wall : VanillaWrapper<BaseObstacle>
     {
+        public Wall(Engine engine, BaseObstacle wall) : base(engine, wall)
+        {
+            spawned = true;
+        }
+
+        public Wall(Engine engine, ObjectInstance o) : base(engine, BeatmapFactory.Obstacle(
+            (float)GetJsValue(o, new[] { "b", "_time" }),
+            (int)GetJsValue(o, new[] { "x", "_lineIndex" }),
+            (int)(GetJsExist(o, "y") ? GetJsValue(o, "y") : GetJsValue(o, "_type") == 0 ? 0 : 2),
+            (int)GetJsValue(o, "_type"),
+            (float)GetJsValue(o, new[] { "d", "_duration" }),
+            (int)GetJsValue(o, new[] { "w", "_width" }),
+            (int)(GetJsExist(o, "h") ? GetJsValue(o, "h") : GetJsValue(o, "_type") == 0 ? 5 : 3),
+            GetCustomData(o, new[] { "customData", "_customData" })), false, GetJsBool(o, "selected"))
+        {
+            spawned = false;
+
+            DeleteObject();
+        }
+
         public float _time
         {
             get => wrapped.Time;
@@ -28,26 +46,6 @@ namespace V2
             }
         }
 
-        public int _lineLayer
-        {
-            get => wrapped.PosY;
-            set
-            {
-                DeleteObject();
-                wrapped.PosY = value;
-            }
-        }
-
-        public int _cutDirection
-        {
-            get => wrapped.CutDirection;
-            set
-            {
-                DeleteObject();
-                wrapped.CutDirection = value;
-            }
-        }
-
         public int _type
         {
             get => wrapped.Type;
@@ -55,6 +53,26 @@ namespace V2
             {
                 DeleteObject();
                 wrapped.Type = value;
+            }
+        }
+
+        public float _duration
+        {
+            get => wrapped.Duration;
+            set
+            {
+                DeleteObject();
+                wrapped.Duration = value;
+            }
+        }
+
+        public int _width
+        {
+            get => wrapped.Width;
+            set
+            {
+                DeleteObject();
+                wrapped.Width = value;
             }
         }
 
@@ -88,51 +106,34 @@ namespace V2
             }
         }
 
-        public int a
+        public float d
         {
-            get => 0;
-            set
-            {
-            }
-        }
-
-        public int c
-        {
-            get => wrapped.Type;
+            get => wrapped.Duration;
             set
             {
                 DeleteObject();
-                wrapped.Type = value;
+                wrapped.Duration = value;
             }
         }
 
-        public int d
+        public int w
         {
-            get => wrapped.CutDirection;
+            get => wrapped.Width;
             set
             {
                 DeleteObject();
-                wrapped.CutDirection = value;
+                wrapped.Width = value;
             }
         }
 
-        public Note(Engine engine, BaseNote note) : base(engine, note)
+        public int h
         {
-            spawned = true;
-        }
-
-        public Note(Engine engine, ObjectInstance o) : base(engine, new V2Note(
-            (float)GetJsValue(o, new string[] { "_time", "b" }),
-            (int)GetJsValue(o, new string[] { "_lineIndex", "x" }),
-            (int)GetJsValue(o, new string[] { "_lineLayer", "y" }),
-            (int)GetJsValue(o, new string[] { "_type", "c" }),
-            (int)GetJsValue(o, new string[] { "_cutDirection", "d" }),
-            GetCustomData(o, new string[] { "_customData", "customData" })
-        ), false, GetJsBool(o, "selected"))
-        {
-            spawned = false;
-
-            DeleteObject();
+            get => wrapped.Height;
+            set
+            {
+                DeleteObject();
+                wrapped.Height = value;
+            }
         }
 
         public override bool SpawnObject(BeatmapObjectContainerCollection collection)
@@ -149,11 +150,10 @@ namespace V2
         {
             if (!spawned) return false;
 
-            var collection = BeatmapObjectContainerCollection.GetCollectionForType(ObjectType.Note);
+            var collection = BeatmapObjectContainerCollection.GetCollectionForType(ObjectType.Obstacle);
             collection.DeleteObject(wrapped, false);
 
             spawned = false;
             return true;
         }
     }
-}

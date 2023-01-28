@@ -1,13 +1,29 @@
 ﻿using Beatmap.Base.Customs;
 using Beatmap.Enums;
-using Beatmap.V2.Customs;
+using Beatmap.Helper;
+using Beatmap.V3.Customs;
 using Jint;
 using Jint.Native.Object;
 
-namespace V2
-{
-    class BpmChange : Wrapper<BaseBpmChange>
+    internal class BpmChange : Wrapper<BaseBpmChange>
     {
+        public BpmChange(Engine engine, BaseBpmChange bpmChange) : base(engine, bpmChange)
+        {
+            spawned = true;
+        }
+
+        public BpmChange(Engine engine, ObjectInstance o) : base(engine, BeatmapFactory.BpmChange(
+            (float)GetJsValue(o, new [] { "b", "_time" }),
+            (float)GetJsValue(o, new [] { "m", "_BPM" })
+        ), false, GetJsBool(o, "selected"))
+        {
+            spawned = false;
+            wrapped.BeatsPerBar = (float)(GetJsValue(o, new[] { "p", "_beatsPerBar" }) ?? 4f);
+            wrapped.MetronomeOffset = (float)(GetJsValue(o, new[] { "o", "_metronomeOffset" }) ?? 4f);
+
+            DeleteObject();
+        }
+
         public float _time
         {
             get => wrapped.Time;
@@ -48,23 +64,44 @@ namespace V2
             }
         }
 
-        public BpmChange(Engine engine, BaseBpmChange bpmChange) : base(engine, bpmChange)
+        public float b
         {
-            spawned = true;
+            get => wrapped.Time;
+            set
+            {
+                DeleteObject();
+                wrapped.Time = value;
+            }
         }
 
-        public BpmChange(Engine engine, ObjectInstance o) : base(engine, new V2BpmChange(
-                (float)GetJsValue(o, "_BPM"),
-                (float)GetJsValue(o, "_time")
-        )
+        public float m
         {
-            BeatsPerBar = (float)GetJsValue(o, "_beatsPerBar"),
-            MetronomeOffset = (float)GetJsValue(o, "_metronomeOffset")
-        }, false, GetJsBool(o, "selected"))
-        {
-            spawned = false;
+            get => wrapped.Bpm;
+            set
+            {
+                DeleteObject();
+                wrapped.Bpm = value;
+            }
+        }
 
-            DeleteObject();
+        public float p
+        {
+            get => wrapped.BeatsPerBar;
+            set
+            {
+                DeleteObject();
+                wrapped.BeatsPerBar = value;
+            }
+        }
+
+        public float o
+        {
+            get => wrapped.MetronomeOffset;
+            set
+            {
+                DeleteObject();
+                wrapped.MetronomeOffset = value;
+            }
         }
 
         public override bool SpawnObject(BeatmapObjectContainerCollection collection)
@@ -93,4 +130,3 @@ namespace V2
             // Nothing :)
         }
     }
-}

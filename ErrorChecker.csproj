@@ -255,21 +255,16 @@
     <Compile Include="JintPatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\UI.cs" />
-    <Compile Include="Wrappers\V2\BpmChange.cs" />
-    <Compile Include="Wrappers\V2\CustomEvent.cs" />
-    <Compile Include="Wrappers\V2\Event.cs" />
     <Compile Include="Wrappers\JSONWrapper.cs" />
-    <Compile Include="Wrappers\V3\BpmChange.cs" />
-    <Compile Include="Wrappers\V3\BombNote.cs" />
-    <Compile Include="Wrappers\V3\Arc.cs" />
-    <Compile Include="Wrappers\V3\Chain.cs" />
-    <Compile Include="Wrappers\V3\CustomEvent.cs" />
-    <Compile Include="Wrappers\V3\Event.cs" />
-    <Compile Include="Wrappers\V3\ColorNote.cs" />
-    <Compile Include="Wrappers\V3\Wall.cs" />
+    <Compile Include="Wrappers\Beatmap\BpmChange.cs" />
+    <Compile Include="Wrappers\Beatmap\BombNote.cs" />
+    <Compile Include="Wrappers\Beatmap\Arc.cs" />
+    <Compile Include="Wrappers\Beatmap\Chain.cs" />
+    <Compile Include="Wrappers\Beatmap\CustomEvent.cs" />
+    <Compile Include="Wrappers\Beatmap\Event.cs" />
+    <Compile Include="Wrappers\Beatmap\Note.cs" />
+    <Compile Include="Wrappers\Beatmap\Wall.cs" />
     <Compile Include="Wrappers\VanillaWrapper.cs" />
-    <Compile Include="Wrappers\V2\Wall.cs" />
-    <Compile Include="Wrappers\V2\Note.cs" />
     <Compile Include="Wrappers\Wrapper.cs" />
   </ItemGroup>
   <ItemGroup>

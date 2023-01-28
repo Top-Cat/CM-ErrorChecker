@@ -37,7 +37,7 @@ abstract class Wrapper<T> where T : BaseObject
 
     protected static double? GetJsValue(ObjectInstance o, IEnumerable<string> key)
     {
-        foreach (string k in key)
+        foreach (var k in key)
         {
             if (o.TryGetValue(k, out var value))
             {
@@ -67,6 +67,19 @@ abstract class Wrapper<T> where T : BaseObject
     {
         o.TryGetValue(key, out var value);
         return (string)value.ToObject();
+    }
+
+    protected static string GetJsString(ObjectInstance o, IEnumerable<string> key)
+    {
+        foreach (var k in key)
+        {
+            if (o.TryGetValue(k, out var value))
+            {
+                return (string)value.ToObject();
+            }
+        }
+
+        return null;
     }
 
     protected static bool? GetJsBool(ObjectInstance o, string key)

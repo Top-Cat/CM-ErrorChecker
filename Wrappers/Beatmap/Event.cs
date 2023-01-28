@@ -1,13 +1,29 @@
-﻿using Jint;
-using Jint.Native.Object;
-using Beatmap.Base;
+﻿using Beatmap.Base;
 using Beatmap.Enums;
-using Beatmap.V3;
+using Beatmap.Helper;
+using Jint;
+using Jint.Native.Object;
 
-namespace V3
-{
-    class Event : VanillaWrapper<BaseEvent>
+    internal class Event : VanillaWrapper<BaseEvent>
     {
+        public Event(Engine engine, BaseEvent mapEvent) : base(engine, mapEvent)
+        {
+            spawned = true;
+        }
+
+        public Event(Engine engine, ObjectInstance o) : base(engine, BeatmapFactory.Event(
+            (float)GetJsValue(o, new[] { "b", "_time" }),
+            (int)GetJsValue(o, new[] { "et", "_type" }),
+            (int)GetJsValue(o, new[] { "i", "_value" }),
+            (float)GetJsValue(o, new[] { "f", "_floatValue" }),
+            GetCustomData(o, new[] { "customData", "_customData" })
+        ), false, GetJsBool(o, "selected"))
+        {
+            spawned = false;
+
+            DeleteObject();
+        }
+
         public float _time
         {
             get => wrapped.Time;
@@ -88,25 +104,6 @@ namespace V3
             }
         }
 
-
-        public Event(Engine engine, BaseEvent mapEvent) : base(engine, mapEvent)
-        {
-            spawned = true;
-        }
-
-        public Event(Engine engine, ObjectInstance o) : base(engine, new V3BasicEvent(
-                (float)GetJsValue(o, new string[] { "b", "_time" }),
-                (int)GetJsValue(o, new string[] { "et", "_type" }),
-                (int)GetJsValue(o, new string[] { "i", "_value" }),
-                (float)GetJsValue(o, new string[] { "f", "_floatValue" }),
-                GetCustomData(o, new string[] { "customData", "_customData" })
-            ), false, GetJsBool(o, "selected"))
-        {
-            spawned = false;
-
-            DeleteObject();
-        }
-
         public override bool SpawnObject(BeatmapObjectContainerCollection collection)
         {
             if (spawned) return false;
@@ -128,4 +125,3 @@ namespace V3
             return true;
         }
     }
-}

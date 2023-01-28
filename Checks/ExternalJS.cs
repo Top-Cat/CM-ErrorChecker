@@ -261,11 +261,11 @@ class ExternalJS : Check
         var lastBPMChange = collection.FindLastBpm(atsc.CurrentBeat);
         var currentBPM = lastBPMChange?.Bpm ?? atsc.Song.BeatsPerMinute;
 
-        var originalNotes = notes.Select(it => new V2.Note(engine, it)).ToArray();
-        var originalWalls = walls.Select(it => new V2.Wall(engine, it)).ToArray();
-        var originalEvents = events.Select(it => new V2.Event(engine, it)).ToArray();
-        var originalCustomEvents = customEvents.Select(it => new V2.CustomEvent(engine, it)).ToArray();
-        var originalBpmChanges = bpmChanges.Select(it => new V2.BpmChange(engine, it)).ToArray();
+        var originalNotes = notes.Select(it => new Note(engine, it)).ToArray();
+        var originalWalls = walls.Select(it => new Wall(engine, it)).ToArray();
+        var originalEvents = events.Select(it => new Event(engine, it)).ToArray();
+        var originalCustomEvents = customEvents.Select(it => new CustomEvent(engine, it)).ToArray();
+        var originalBpmChanges = bpmChanges.Select(it => new BpmChange(engine, it)).ToArray();
 
         try
         {
@@ -341,11 +341,11 @@ class ExternalJS : Check
 
         SelectionController.DeselectAll();
         var actions = new List<BeatmapAction>();
-        actions.AddRange(Reconcile(originalNotes, engine.GetValue("notes").AsArray(), notes, i => new V2.Note(engine, i), ObjectType.Note));
-        actions.AddRange(Reconcile(originalWalls, engine.GetValue("walls").AsArray(), walls, i => new V2.Wall(engine, i), ObjectType.Obstacle));
-        actions.AddRange(Reconcile(originalEvents, engine.GetValue("events").AsArray(), events, i => new V2.Event(engine, i), ObjectType.Event));
-        actions.AddRange(Reconcile(originalCustomEvents, engine.GetValue("customEvents").AsArray(), customEvents, i => new V2.CustomEvent(engine, i), ObjectType.CustomEvent));
-        actions.AddRange(Reconcile(originalBpmChanges, engine.GetValue("bpmChanges").AsArray(), bpmChanges, i => new V2.BpmChange(engine, i), ObjectType.BpmChange));
+        actions.AddRange(Reconcile(originalNotes, engine.GetValue("notes").AsArray(), notes, i => new Note(engine, i), ObjectType.Note));
+        actions.AddRange(Reconcile(originalWalls, engine.GetValue("walls").AsArray(), walls, i => new Wall(engine, i), ObjectType.Obstacle));
+        actions.AddRange(Reconcile(originalEvents, engine.GetValue("events").AsArray(), events, i => new Event(engine, i), ObjectType.Event));
+        actions.AddRange(Reconcile(originalCustomEvents, engine.GetValue("customEvents").AsArray(), customEvents, i => new CustomEvent(engine, i), ObjectType.CustomEvent));
+        actions.AddRange(Reconcile(originalBpmChanges, engine.GetValue("bpmChanges").AsArray(), bpmChanges, i => new BpmChange(engine, i), ObjectType.BpmChange));
 
         SelectionController.SelectionChangedEvent?.Invoke();
 
@@ -361,7 +361,7 @@ class ExternalJS : Check
 
         return result;
     }
-    public override CheckResult PerformCheck(List<BaseNote> notes, List<BaseBombNote> bombs, List<BaseArc> arcs, List<BaseChain> chains, List<BaseEvent> events, List<BaseObstacle> walls, List<BaseCustomEvent> customEvents, List<BaseBpmChange> bpmChanges, params IParamValue[] vals)
+    public override CheckResult PerformCheck(List<BaseNote> notes, List<BaseNote> bombs, List<BaseArc> arcs, List<BaseChain> chains, List<BaseEvent> events, List<BaseObstacle> walls, List<BaseCustomEvent> customEvents, List<BaseBpmChange> bpmChanges, params IParamValue[] vals)
     {
         result.Clear();
 
@@ -372,14 +372,14 @@ class ExternalJS : Check
         var lastBPMChange = collection.FindLastBpm(atsc.CurrentBeat);
         var currentBPM = lastBPMChange?.Bpm ?? atsc.Song.BeatsPerMinute;
 
-        var originalNotes = notes.Select(it => new V3.ColorNote(engine, it)).ToArray();
-        var originalBombs = bombs.Select(it => new V3.BombNote(engine, it)).ToArray();
-        var originalArcs = arcs.Select(it => new V3.Arc(engine, it)).ToArray();
-        var originalChains = chains.Select(it => new V3.Chain(engine, it)).ToArray();
-        var originalWalls = walls.Select(it => new V3.Wall(engine, it)).ToArray();
-        var originalEvents = events.Select(it => new V3.Event(engine, it)).ToArray();
-        var originalCustomEvents = customEvents.Select(it => new V3.CustomEvent(engine, it)).ToArray();
-        var originalBpmChanges = bpmChanges.Select(it => new V3.BpmChange(engine, it)).ToArray();
+        var originalNotes = notes.Select(it => new Note(engine, it)).ToArray();
+        var originalBombs = bombs.Select(it => new BombNote(engine, it)).ToArray();
+        var originalArcs = arcs.Select(it => new Arc(engine, it)).ToArray();
+        var originalChains = chains.Select(it => new Chain(engine, it)).ToArray();
+        var originalWalls = walls.Select(it => new Wall(engine, it)).ToArray();
+        var originalEvents = events.Select(it => new Event(engine, it)).ToArray();
+        var originalCustomEvents = customEvents.Select(it => new CustomEvent(engine, it)).ToArray();
+        var originalBpmChanges = bpmChanges.Select(it => new BpmChange(engine, it)).ToArray();
 
         try
         {
@@ -461,14 +461,14 @@ class ExternalJS : Check
 
         SelectionController.DeselectAll();
         var actions = new List<BeatmapAction>();
-        actions.AddRange(Reconcile(originalNotes, engine.GetValue("notes").AsArray(), notes, i => new V3.ColorNote(engine, i), ObjectType.Note));
-        actions.AddRange(Reconcile(originalBombs, engine.GetValue("bombs").AsArray(), bombs, i => new V3.BombNote(engine, i), ObjectType.Note));
-        actions.AddRange(Reconcile(originalArcs, engine.GetValue("arcs").AsArray(), arcs, i => new V3.Arc(engine, i), ObjectType.Arc));
-        actions.AddRange(Reconcile(originalChains, engine.GetValue("chains").AsArray(), chains, i => new V3.Chain(engine, i), ObjectType.Chain));
-        actions.AddRange(Reconcile(originalWalls, engine.GetValue("walls").AsArray(), walls, i => new V3.Wall(engine, i), ObjectType.Obstacle));
-        actions.AddRange(Reconcile(originalEvents, engine.GetValue("events").AsArray(), events, i => new V3.Event(engine, i), ObjectType.Event));
-        actions.AddRange(Reconcile(originalCustomEvents, engine.GetValue("customEvents").AsArray(), customEvents, i => new V3.CustomEvent(engine, i), ObjectType.CustomEvent));
-        actions.AddRange(Reconcile(originalBpmChanges, engine.GetValue("bpmChanges").AsArray(), bpmChanges, i => new V3.BpmChange(engine, i), ObjectType.BpmChange));
+        actions.AddRange(Reconcile(originalNotes, engine.GetValue("notes").AsArray(), notes, i => new Note(engine, i), ObjectType.Note));
+        actions.AddRange(Reconcile(originalBombs, engine.GetValue("bombs").AsArray(), bombs, i => new BombNote(engine, i), ObjectType.Note));
+        actions.AddRange(Reconcile(originalArcs, engine.GetValue("arcs").AsArray(), arcs, i => new Arc(engine, i), ObjectType.Arc));
+        actions.AddRange(Reconcile(originalChains, engine.GetValue("chains").AsArray(), chains, i => new Chain(engine, i), ObjectType.Chain));
+        actions.AddRange(Reconcile(originalWalls, engine.GetValue("walls").AsArray(), walls, i => new Wall(engine, i), ObjectType.Obstacle));
+        actions.AddRange(Reconcile(originalEvents, engine.GetValue("events").AsArray(), events, i => new Event(engine, i), ObjectType.Event));
+        actions.AddRange(Reconcile(originalCustomEvents, engine.GetValue("customEvents").AsArray(), customEvents, i => new CustomEvent(engine, i), ObjectType.CustomEvent));
+        actions.AddRange(Reconcile(originalBpmChanges, engine.GetValue("bpmChanges").AsArray(), bpmChanges, i => new BpmChange(engine, i), ObjectType.BpmChange));
 
         SelectionController.SelectionChangedEvent?.Invoke();
 

@@ -1,14 +1,33 @@
 ﻿using System;
 using Beatmap.Base.Customs;
 using Beatmap.Enums;
-using Beatmap.V2.Customs;
+using Beatmap.Helper;
 using Jint;
 using Jint.Native.Object;
 
-namespace V2
-{
-    class CustomEvent : Wrapper<BaseCustomEvent>
+    internal class CustomEvent : Wrapper<BaseCustomEvent>
     {
+        private Lazy<JSONWrapper> customData;
+        private Action reconcile;
+
+        public CustomEvent(Engine engine, BaseCustomEvent customEvent) : base(engine, customEvent)
+        {
+            spawned = true;
+            InitWrapper();
+        }
+
+        public CustomEvent(Engine engine, ObjectInstance o) : base(engine, BeatmapFactory.CustomEvent(
+            (float)GetJsValue(o, new [] { "b", "_time" }),
+            GetJsString(o, new [] { "t", "_type" }),
+            GetCustomData(o, new [] { "d", "_data" })
+        ), false, GetJsBool(o, "selected"))
+        {
+            spawned = false;
+
+            DeleteObject();
+            InitWrapper();
+        }
+
         public float _time
         {
             get => wrapped.Time;
@@ -29,8 +48,6 @@ namespace V2
             }
         }
 
-        private Lazy<JSONWrapper> customData;
-        private Action reconcile;
         public object _data
         {
             get => wrapped.CustomData == null ? null : customData.Value;
@@ -42,22 +59,35 @@ namespace V2
             }
         }
 
-        public CustomEvent(Engine engine, BaseCustomEvent customEvent) : base(engine, customEvent)
+        public float b
         {
-            spawned = true;
-            InitWrapper();
+            get => wrapped.Time;
+            set
+            {
+                DeleteObject();
+                wrapped.Time = value;
+            }
         }
 
-        public CustomEvent(Engine engine, ObjectInstance o) : base(engine, new V2CustomEvent(
-                (float)GetJsValue(o, "_time"),
-                GetJsString(o, "_type"),
-                GetCustomData(o, "_data")
-        ), false, GetJsBool(o, "selected"))
+        public string t
         {
-            spawned = false;
+            get => wrapped.Type;
+            set
+            {
+                DeleteObject();
+                wrapped.Type = value;
+            }
+        }
 
-            DeleteObject();
-            InitWrapper();
+        public object d
+        {
+            get => wrapped.CustomData == null ? null : customData.Value;
+            set
+            {
+                DeleteObject();
+                wrapped.CustomData = JSONWrapper.castObjToJSON(value);
+                InitWrapper();
+            }
         }
 
         public override bool SpawnObject(BeatmapObjectContainerCollection collection)
@@ -94,4 +124,3 @@ namespace V2
             reconcile?.Invoke();
         }
     }
-}

@@ -1,13 +1,28 @@
 ﻿using Beatmap.Base;
 using Beatmap.Enums;
-using Beatmap.V3;
+using Beatmap.Helper;
 using Jint;
 using Jint.Native.Object;
 
-namespace V3
-{
-    class BombNote : VanillaWrapper<BaseBombNote>
+    internal class BombNote : VanillaWrapper<BaseNote>
     {
+        public BombNote(Engine engine, BaseNote bomb) : base(engine, bomb)
+        {
+            spawned = true;
+        }
+
+        public BombNote(Engine engine, ObjectInstance o) : base(engine, BeatmapFactory.Bomb(
+            (float)GetJsValue(o, "b"),
+            (int)GetJsValue(o, "x"),
+            (int)GetJsValue(o, "y"),
+            GetCustomData(o, new[] { "customData", "_customData" })
+        ), false, GetJsBool(o, "selected"))
+        {
+            spawned = false;
+
+            DeleteObject();
+        }
+
         public float b
         {
             get => wrapped.Time;
@@ -38,23 +53,6 @@ namespace V3
             }
         }
 
-        public BombNote(Engine engine, BaseBombNote bomb) : base(engine, bomb)
-        {
-            spawned = true;
-        }
-
-        public BombNote(Engine engine, ObjectInstance o) : base(engine, new V3BombNote(
-            (float)GetJsValue(o, "b"),
-            (int)GetJsValue(o, "x"),
-            (int)GetJsValue(o, "y"),
-            GetCustomData(o, new string[] { "customData", "_customData" })
-        ), false, GetJsBool(o, "selected"))
-        {
-            spawned = false;
-
-            DeleteObject();
-        }
-
         public override bool SpawnObject(BeatmapObjectContainerCollection collection)
         {
             if (spawned) return false;
@@ -76,4 +74,3 @@ namespace V3
             return true;
         }
     }
-}

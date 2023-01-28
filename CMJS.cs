@@ -120,7 +120,7 @@ public class CMJS
             {
                 // TODO: since containers has multiple different object, check events and notes
                 var allNotes = notesContainer.LoadedObjects.Where(it => it is V3ColorNote).Cast<BaseNote>().OrderBy(it => it.Time).ToList();
-                var allBombs = notesContainer.LoadedObjects.Where(it => it is V3BombNote).Cast<BaseBombNote>().OrderBy(it => it.Time).ToList();
+                var allBombs = notesContainer.LoadedObjects.Where(it => it is V3BombNote).Cast<BaseNote>().OrderBy(it => it.Time).ToList();
                 var allArcs = arcsContainer.LoadedObjects.Cast<BaseArc>().OrderBy(it => it.Time).ToList();
                 var allChains = chainsContainer.LoadedObjects.Cast<BaseChain>().OrderBy(it => it.Time).ToList();
                 var allWalls = wallsContainer.LoadedObjects.Cast<BaseObstacle>().OrderBy(it => it.Time).ToList();

@@ -11,11 +11,13 @@ class VisionBlocks : Check
         Params.Add(new FloatParam("Max Time", 0.75f));
     }
 
-    public override CheckResult PerformCheck(List<BaseNote> notes, List<BaseNote> bombs, List<BaseArc> arcs, List<BaseChain> chains, List<BaseEvent> events, List<BaseObstacle> walls, List<BaseCustomEvent> customEvents, List<BaseBpmChange> bpmChanges, params IParamValue[] vals)
+    public override CheckResult PerformCheck(List<BaseNote> notes, List<BaseNote> bombs, List<BaseArc> arcs,
+        List<BaseChain> chains, List<BaseEvent> events, List<BaseObstacle> walls, List<BaseCustomEvent> customEvents,
+        List<BaseBpmChange> bpmChanges, params KeyValuePair<string, IParamValue>[] vals)
     {
         if (vals.Length > 1)
         {
-            return PerformCheck(notes, ((ParamValue<float>) vals[0]).value, ((ParamValue<float>) vals[1]).value);
+            return PerformCheck(notes, ((ParamValue<float>) vals[0].Value).value, ((ParamValue<float>) vals[1].Value).value);
         }
         throw new ArgumentException("Wrong number of parameters");
     }

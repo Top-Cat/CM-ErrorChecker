@@ -106,13 +106,13 @@ public class CMJS
                 switch (it)
                 {
                     case UITextInput textInput:
-                        return check.Params[idx].Parse(textInput.InputField.text);
+                        return new KeyValuePair<string, IParamValue>(check.Params[idx].name, check.Params[idx].Parse(textInput.InputField.text));
                     case UIDropdown dropdown:
-                        return check.Params[idx].Parse(dropdown.Dropdown.value.ToString());
+                        return new KeyValuePair<string, IParamValue>(check.Params[idx].name, check.Params[idx].Parse(dropdown.Dropdown.value.ToString()));
                     case Toggle toggle:
-                        return check.Params[idx].Parse(toggle.isOn.ToString());
+                        return new KeyValuePair<string, IParamValue>(check.Params[idx].name, check.Params[idx].Parse(toggle.isOn.ToString()));
                     default:
-                        return new ParamValue<string>(null); // IDK
+                        return new KeyValuePair<string, IParamValue>(check.Params[idx].name, new ParamValue<string>(null)); // IDK
                 }
             }).ToArray();
 

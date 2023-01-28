@@ -8,6 +8,7 @@ using SimpleJSON;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -15,10 +16,6 @@ using System.Threading;
 using Beatmap.Base;
 using Beatmap.Base.Customs;
 using Beatmap.Enums;
-using Beatmap.V2;
-using Beatmap.V2.Customs;
-using Beatmap.V3;
-using Beatmap.V3.Customs;
 using Esprima;
 using UnityEngine;
 
@@ -250,7 +247,9 @@ class ExternalJS : Check
         }
     }
 
-    public override CheckResult PerformCheck(List<BaseNote> notes, List<BaseNote> bombs, List<BaseArc> arcs, List<BaseChain> chains, List<BaseEvent> events, List<BaseObstacle> walls, List<BaseCustomEvent> customEvents, List<BaseBpmChange> bpmChanges, params IParamValue[] vals)
+    public override CheckResult PerformCheck(List<BaseNote> notes, List<BaseNote> bombs, List<BaseArc> arcs,
+        List<BaseChain> chains, List<BaseEvent> events, List<BaseObstacle> walls, List<BaseCustomEvent> customEvents,
+        List<BaseBpmChange> bpmChanges, params KeyValuePair<string, IParamValue>[] vals)
     {
         result.Clear();
 
@@ -274,20 +273,21 @@ class ExternalJS : Check
         {
             var valsToString = vals.Select(paramValue =>
             {
-                switch (paramValue)
+                switch (paramValue.Value)
                 {
                     case ParamValue<float> pvf:
-                        return pvf.value.ToString();
+                        return new KeyValuePair<string, string>(paramValue.Key, pvf.value.ToString(CultureInfo.InvariantCulture));
                     case ParamValue<string> pvs:
-                        return $"\"{pvs.value}\"";
+                        return new KeyValuePair<string, string>(paramValue.Key, $"\"{pvs.value}\"");
                     case ParamValue<bool> pvb:
-                        return pvb.value ? "true" : "false";
+                        return new KeyValuePair<string, string>(paramValue.Key, pvb.value ? "true" : "false");
                     default:
-                        return "null";
+                        return new KeyValuePair<string, string>(paramValue.Key, "null");
                 }
             });
 
-            var valsCombined = string.Join(",", valsToString);
+            var valsObj = string.Join(",", valsToString.Select((v, idx) => $"{idx.ToString()}:{v.Value},\"{v.Key}\":{v.Value}"));
+            var valsParams = string.Join(",", valsToString.Select(v => v.Value));
 
             TimeLog("Init");
 
@@ -330,8 +330,8 @@ class ExternalJS : Check
 
             TimeLog("Run");
 
-            tmp.Execute("global.params = [" + valsCombined + "];" +
-            "var output = module.exports.run ? module.exports.run(cursor, notes, events, walls, {}, global, data, customEvents, bpmChanges, bombs, arcs, chains) : module.exports.performCheck({notes: notes}" + (vals.Length > 0 ? ", " + valsCombined : "") + ");" +
+            tmp.Execute("global.params = {" + valsObj + "};" +
+            "var output = module.exports.run ? module.exports.run(cursor, notes, events, walls, {}, global, data, customEvents, bpmChanges, bombs, arcs, chains) : module.exports.performCheck({notes: notes}" + (vals.Length > 0 ? ", " + valsParams : "") + ");" +
             "if (output && output.notes) { notes = output.notes; };" +
             "if (output && output.bombs) { bombs = output.bombs; };" +
             "if (output && output.arcs) { arcs = output.arcs; };" +

@@ -6,7 +6,6 @@
   <Import Project="packages\Microsoft.Build.Tasks.Git.1.1.1\build\Microsoft.Build.Tasks.Git.props" Condition="Exists('packages\Microsoft.Build.Tasks.Git.1.1.1\build\Microsoft.Build.Tasks.Git.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <ChromapperDir>F:\Programs\CM Dev</ChromapperDir>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{600D3953-D125-4C0F-A5CF-0E3906D6B6F6}</ProjectGuid>
@@ -62,6 +61,10 @@
     </Reference>
     <Reference Include="Plugins">
       <HintPath>$(ChromapperDir)\ChroMapper_Data\Managed\Plugins.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="LiteNetLib">
+      <HintPath>$(ChromapperDir)\ChroMapper_Data\Managed\LiteNetLib.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="0Harmony">

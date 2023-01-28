@@ -135,7 +135,7 @@ public class CMJS
                 var allEvents = eventsContainer.LoadedObjects.Cast<BaseEvent>().OrderBy(it => it.Time).ToList();
                 var allCustomEvents = customEventsContainer.LoadedObjects.Cast<BaseCustomEvent>().OrderBy(it => it.Time).ToList();
                 var allBpmChanges = bpmChangesContainer.LoadedObjects.Cast<BaseBpmChange>().OrderBy(it => it.Time).ToList();
-                errors = check.PerformCheck(allNotes, allEvents, allWalls, allCustomEvents, allBpmChanges, vals).Commit();
+                errors = check.PerformCheck(allNotes, new List<BaseNote>(), new List<BaseArc>(), new List<BaseChain>(), allEvents, allWalls, allCustomEvents, allBpmChanges, vals).Commit();
             }
 
             // Highlight blocks in loaded containers in case we don't scrub far enough with MoveToTimeInBeats to load them

@@ -262,13 +262,13 @@ internal class ExternalJS : Check
                                   switch (paramValue.Value)
                                   {
                                       case ParamValue<float> pvf:
-                                          return new KeyValuePair<string, string>(paramValue.Key, pvf.value.ToString(CultureInfo.InvariantCulture));
+                                          return pvf.value.ToString(CultureInfo.InvariantCulture);
                                       case ParamValue<string> pvs:
-                                          return new KeyValuePair<string, string>(paramValue.Key, $"\"{pvs.value}\"");
+                                          return $"\"{pvs.value}\"";
                                       case ParamValue<bool> pvb:
-                                          return new KeyValuePair<string, string>(paramValue.Key, pvb.value ? "true" : "false");
+                                          return pvb.value ? "true" : "false";
                                       default:
-                                          return new KeyValuePair<string, string>(paramValue.Key, "null");
+                                          return "null";
                                   }
                               }))
                             : "") + ");" +

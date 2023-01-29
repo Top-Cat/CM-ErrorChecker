@@ -455,50 +455,32 @@ internal class ExternalJS : Check
 
     private class ReceivedArguments
     {
-        private readonly List<KeyValuePair<string, IParamValue>> keyMap;
+        // looks dangerous, probably better with JsValue
+        private readonly List<KeyValuePair<string, object>> keyMap;
 
         public ReceivedArguments(IEnumerable<KeyValuePair<string, IParamValue>> p)
         {
-            keyMap = p.ToList();
-        }
-
-        private object RetrieveValue(KeyValuePair<string, IParamValue> kvp)
-        {
-            switch (kvp.Value)
+            keyMap = p.Select(kvp =>
             {
-                case ParamValue<float> pvf:
-                    return pvf.value;
-                case ParamValue<string> pvs:
-                    return pvs.value;
-                case ParamValue<bool> pvb:
-                    return pvb.value;
-                default:
-                    return null;
-            }
+                switch (kvp.Value)
+                {
+                    case ParamValue<float> pvf:
+                        return new KeyValuePair<string, object>(kvp.Key, pvf.value);
+                    case ParamValue<string> pvs:
+                        return new KeyValuePair<string, object>(kvp.Key, pvs.value);
+                    case ParamValue<bool> pvb:
+                        return new KeyValuePair<string, object>(kvp.Key, pvb.value);
+                    default:
+                        return new KeyValuePair<string, object>(kvp.Key, null);
+                }
+            }).ToList();
         }
 
-        private void SetValue(KeyValuePair<string, IParamValue> kvp, object value)
+        private void SetValue(KeyValuePair<string, object> kvp, object value)
         {
-            var newValue = JSONWrapper.castObjToJSON(value);
-            KeyValuePair<string, IParamValue> newKvp;
-
-            if (newValue.IsString)
-                newKvp = new KeyValuePair<string, IParamValue>(kvp.Key, new ParamValue<string>(newValue));
-            else if (newValue.IsNumber)
-                newKvp = new KeyValuePair<string, IParamValue>(kvp.Key, new ParamValue<float>(newValue.AsFloat));
-            else if (newValue.IsBoolean)
-                newKvp = new KeyValuePair<string, IParamValue>(kvp.Key, new ParamValue<bool>(newValue.AsBool));
-            else if (newValue.IsArray)
-                // definitely not allowed
-                throw new Exception("Array cannot be used to assign parameter");
-            else if (newValue.IsObject)
-                // definitely not allowed
-                throw new Exception("Object cannot be used to assign parameter");
-            else
-                newKvp = new KeyValuePair<string, IParamValue>(kvp.Key, new ParamValue<string>(null));
-
+            // var newValue = JSONWrapper.castObjToJSON(value);
             var index = keyMap.FindIndex(r => r.Key == kvp.Key);
-            if (index != -1) keyMap[index] = newKvp;
+            if (index != -1) keyMap[index] = new KeyValuePair<string, object>(kvp.Key, value);
         }
         
         public object this[string idx]
@@ -508,29 +490,14 @@ internal class ExternalJS : Check
                 var result = int.TryParse(idx, out var idxI)
                     ? keyMap.ElementAtOrDefault(idxI)
                     : keyMap.FirstOrDefault(p => p.Key == idx);
-                return result.Equals(default(KeyValuePair<string, IParamValue>)) ? null : RetrieveValue(result);
+                return result.Equals(default(KeyValuePair<string, object>)) ? null : result.Value;
             }
             set
             {
                 var result = int.TryParse(idx, out var idxI)
                     ? keyMap.ElementAtOrDefault(idxI)
                     : keyMap.FirstOrDefault(p => p.Key == idx);
-                if (result.Equals(default(KeyValuePair<string, IParamValue>))) return;
-                SetValue(result, value);
-            }
-        }
-        
-        public object this[int idx]
-        {
-            get
-            {
-                var result = keyMap.ElementAtOrDefault(idx);
-                return result.Equals(default(KeyValuePair<string, IParamValue>)) ? null : RetrieveValue(result);
-            }
-            set
-            {
-                var result = keyMap.ElementAtOrDefault(idx);
-                if (result.Equals(default(KeyValuePair<string, IParamValue>))) return;
+                if (result.Equals(default(KeyValuePair<string, object>))) return;
                 SetValue(result, value);
             }
         }

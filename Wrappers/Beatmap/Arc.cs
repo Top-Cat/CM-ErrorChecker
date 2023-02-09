@@ -13,9 +13,9 @@ internal class Arc : VanillaWrapper<BaseArc>
 
     public Arc(Engine engine, ObjectInstance o) : base(engine, BeatmapFactory.Arc(
         (float)GetJsValue(o, "b"),
-        (int)GetJsValue(o, "c"),
         (int)GetJsValue(o, "x"),
         (int)GetJsValue(o, "y"),
+        (int)GetJsValue(o, "c"),
         (int)GetJsValue(o, "d"),
         0,
         (float)GetJsValue(o, "mu"),

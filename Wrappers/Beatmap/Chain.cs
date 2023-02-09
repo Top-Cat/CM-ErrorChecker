@@ -13,9 +13,9 @@ internal class Chain : VanillaWrapper<BaseChain>
 
     public Chain(Engine engine, ObjectInstance o) : base(engine, BeatmapFactory.Chain(
         (int)GetJsValue(o, "b"),
-        (int)GetJsValue(o, "c"),
         (int)GetJsValue(o, "x"),
         (int)GetJsValue(o, "y"),
+        (int)GetJsValue(o, "c"),
         (int)GetJsValue(o, "d"),
         0,
         (float)GetJsValue(o, "tb"),

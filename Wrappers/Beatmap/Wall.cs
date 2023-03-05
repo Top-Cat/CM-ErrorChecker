@@ -15,7 +15,7 @@ internal class Wall : VanillaWrapper<BaseObstacle>
         (float)GetJsValue(o, new[] { "b", "_time" }),
         (int)GetJsValue(o, new[] { "x", "_lineIndex" }),
         (int)(GetJsExist(o, "y") ? GetJsValue(o, "y") : GetJsValue(o, "_type") == 0 ? 0 : 2),
-        (int)GetJsValue(o, "_type"),
+        (int)(GetJsExist(o, "_type") ? GetJsValue(o, "_type") : 0),
         (float)GetJsValue(o, new[] { "d", "_duration" }),
         (int)GetJsValue(o, new[] { "w", "_width" }),
         (int)(GetJsExist(o, "h") ? GetJsValue(o, "h") : GetJsValue(o, "_type") == 0 ? 5 : 3),

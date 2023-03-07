@@ -60,7 +60,7 @@ abstract class Wrapper<T> where T : BaseObject
 
     protected static bool GetJsExist(ObjectInstance o, string key)
     {
-        return o.IsPrimitive();
+        return o.TryGetValue(key, out _);
     }
 
     protected static string GetJsString(ObjectInstance o, string key)

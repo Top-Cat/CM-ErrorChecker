@@ -173,7 +173,7 @@ internal class ExternalJS : Check
         int _type = Convert.ChangeType(note._type, typeof(int));
         int _cutDirection = Convert.ChangeType(note._cutDirection, typeof(int));
 
-        return notes.Find(it => Mathf.Approximately(_time, it.Time) &&
+        return notes.Find(it => Mathf.Approximately(_time, it.JsonTime) &&
                                 _lineIndex == it.PosX &&
                                 _lineLayer == it.PosY &&
                                 _type == it.Type &&
@@ -182,7 +182,7 @@ internal class ExternalJS : Check
 
     public override CheckResult PerformCheck(List<BaseNote> notes, List<BaseNote> bombs, List<BaseArc> arcs,
         List<BaseChain> chains, List<BaseEvent> events, List<BaseObstacle> walls, List<BaseCustomEvent> customEvents,
-        List<BaseBpmChange> bpmChanges, params KeyValuePair<string, IParamValue>[] vals)
+        List<BaseBpmEvent> BpmEvents, params KeyValuePair<string, IParamValue>[] vals)
     {
         result.Clear();
 
@@ -192,8 +192,8 @@ internal class ExternalJS : Check
 
         var collection =
             BeatmapObjectContainerCollection.GetCollectionForType<BPMChangeGridContainer>(ObjectType.BpmChange);
-        var lastBPMChange = collection.FindLastBpm(atsc.CurrentBeat);
-        var currentBPM = lastBPMChange?.Bpm ?? atsc.Song.BeatsPerMinute;
+        var lastBpmEvent = collection.FindLastBpm(atsc.CurrentBeat);
+        var currentBPM = lastBpmEvent?.Bpm ?? atsc.Song.BeatsPerMinute;
 
         var originalNotes = notes.Select(it => new Note(engine, it)).ToArray();
         var originalBombs = bombs.Select(it => new BombNote(engine, it)).ToArray();
@@ -202,7 +202,7 @@ internal class ExternalJS : Check
         var originalWalls = walls.Select(it => new Wall(engine, it)).ToArray();
         var originalEvents = events.Select(it => new Event(engine, it)).ToArray();
         var originalCustomEvents = customEvents.Select(it => new CustomEvent(engine, it)).ToArray();
-        var originalBpmChanges = bpmChanges.Select(it => new BpmChange(engine, it)).ToArray();
+        var originalBpmEvents = BpmEvents.Select(it => new BpmEvent(engine, it)).ToArray();
 
         try
         {
@@ -216,7 +216,7 @@ internal class ExternalJS : Check
                 .SetValue("walls", originalWalls)
                 .SetValue("events", originalEvents)
                 .SetValue("customEvents", originalCustomEvents)
-                .SetValue("bpmChanges", originalBpmChanges)
+                .SetValue("BpmEvents", originalBpmEvents)
                 .SetValue("data", new MapData(
                     currentBPM,
                     atsc.Song.BeatsPerMinute,
@@ -254,7 +254,7 @@ internal class ExternalJS : Check
             TimeLog("Run");
 
             tmp.Execute("global.params = args;" +
-                        "var output = module.exports.run ? module.exports.run(cursor, notes, events, walls, {}, global, data, customEvents, bpmChanges, bombs, arcs, chains) : module.exports.performCheck({notes: notes}" +
+                        "var output = module.exports.run ? module.exports.run(cursor, notes, events, walls, {}, global, data, customEvents, BpmEvents, bombs, arcs, chains) : module.exports.performCheck({notes: notes}" +
                         (vals.Length > 0
                             ? ", " +
                               string.Join(",", vals.Select(paramValue =>
@@ -278,7 +278,7 @@ internal class ExternalJS : Check
                         "if (output && output.chains) { chains = output.chains; };" +
                         "if (output && output.events) { events = output.events; };" +
                         "if (output && output.customEvents) { customEvents = output.customEvents; };" +
-                        "if (output && output.bpmChanges) { bpmChanges = output.bpmChanges; };" +
+                        "if (output && output.BpmEvents) { BpmEvents = output.BpmEvents; };" +
                         "if (output && output.walls) { walls = output.walls; };");
         }
         catch (JavaScriptException jse)
@@ -304,8 +304,8 @@ internal class ExternalJS : Check
             i => new Event(engine, i), ObjectType.Event));
         actions.AddRange(Reconcile(originalCustomEvents, engine.GetValue("customEvents").AsArray(), customEvents,
             i => new CustomEvent(engine, i), ObjectType.CustomEvent));
-        actions.AddRange(Reconcile(originalBpmChanges, engine.GetValue("bpmChanges").AsArray(), bpmChanges,
-            i => new BpmChange(engine, i), ObjectType.BpmChange));
+        actions.AddRange(Reconcile(originalBpmEvents, engine.GetValue("BpmEvents").AsArray(), BpmEvents,
+            i => new BpmEvent(engine, i), ObjectType.BpmChange));
 
         SelectionController.SelectionChangedEvent?.Invoke();
 

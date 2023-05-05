@@ -48,7 +48,7 @@ public class CheckResult {
 
     public CheckResult Commit()
     {
-        all = errors.Union(warnings).OrderBy(it => it.note.Time).ToList();
+        all = errors.Union(warnings).OrderBy(it => it.note.JsonTime).ToList();
         return this;
     }
 }

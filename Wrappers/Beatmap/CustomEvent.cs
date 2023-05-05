@@ -30,11 +30,11 @@ internal class CustomEvent : Wrapper<BaseCustomEvent>
 
     public float _time
     {
-        get => wrapped.Time;
+        get => wrapped.JsonTime;
         set
         {
             DeleteObject();
-            wrapped.Time = value;
+            wrapped.JsonTime = value;
         }
     }
 
@@ -61,11 +61,11 @@ internal class CustomEvent : Wrapper<BaseCustomEvent>
 
     public float b
     {
-        get => wrapped.Time;
+        get => wrapped.JsonTime;
         set
         {
             DeleteObject();
-            wrapped.Time = value;
+            wrapped.JsonTime = value;
         }
     }
 

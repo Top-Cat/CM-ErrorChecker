@@ -13,7 +13,7 @@ class VisionBlocks : Check
 
     public override CheckResult PerformCheck(List<BaseNote> notes, List<BaseNote> bombs, List<BaseArc> arcs,
         List<BaseChain> chains, List<BaseEvent> events, List<BaseObstacle> walls, List<BaseCustomEvent> customEvents,
-        List<BaseBpmChange> bpmChanges, params KeyValuePair<string, IParamValue>[] vals)
+        List<BaseBpmEvent> BpmEvents, params KeyValuePair<string, IParamValue>[] vals)
     {
         if (vals.Length > 1)
         {
@@ -38,9 +38,9 @@ class VisionBlocks : Check
         }
 
         foreach (var note in notes) {
-            if (note.Time - visionBlockLeft <= maxTime)
+            if (note.JsonTime - visionBlockLeft <= maxTime)
             {
-                if (note.PosX < 2 && note.Time - visionBlockLeft > minTime)
+                if (note.PosX < 2 && note.JsonTime - visionBlockLeft > minTime)
                 {
                     result.Add(visionBlockLeftNote, "Blocks vision of upcoming note on the left");
                     result.AddWarning(note, "Is blocked");
@@ -53,15 +53,15 @@ class VisionBlocks : Check
                 }
             }
 
-            if (note.Time - visionBlockRight <= maxTime)
+            if (note.JsonTime - visionBlockRight <= maxTime)
             {
-                if (note.PosX > 1 && note.Time - visionBlockRight > minTime)
+                if (note.PosX > 1 && note.JsonTime - visionBlockRight > minTime)
                 {
                     result.Add(visionBlockRightNote, "Blocks vision of upcoming note on the right");
                     result.AddWarning(note, "Is blocked");
                 }
 
-                if (note.PosY == 1 && note.PosX == 2 && note.Time - visionBlockLeft <= maxTime)
+                if (note.PosY == 1 && note.PosX == 2 && note.JsonTime - visionBlockLeft <= maxTime)
                 {
                     result.Add(visionBlockRightNote, "Blocks vision of upcoming note on the right");
                     result.AddWarning(note, "Is blocked");
@@ -72,12 +72,12 @@ class VisionBlocks : Check
             {
                 if (note.PosX == 1)
                 {
-                    visionBlockLeft = note.Time;
+                    visionBlockLeft = note.JsonTime;
                     visionBlockLeftNote = note;
                 }
                 else if (note.PosX == 2)
                 {
-                    visionBlockRight = note.Time;
+                    visionBlockRight = note.JsonTime;
                     visionBlockRightNote = note;
                 }
             }

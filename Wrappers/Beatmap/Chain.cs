@@ -33,11 +33,11 @@ internal class Chain : VanillaWrapper<BaseChain>
 
     public float b
     {
-        get => wrapped.Time;
+        get => wrapped.JsonTime;
         set
         {
             DeleteObject();
-            wrapped.Time = value;
+            wrapped.JsonTime = value;
         }
     }
 
@@ -83,11 +83,11 @@ internal class Chain : VanillaWrapper<BaseChain>
 
     public float tb
     {
-        get => wrapped.TailTime;
+        get => wrapped.TailJsonTime;
         set
         {
             DeleteObject();
-            wrapped.TailTime = value;
+            wrapped.TailJsonTime = value;
         }
     }
 

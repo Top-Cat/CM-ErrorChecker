@@ -25,11 +25,11 @@ internal class BombNote : VanillaWrapper<BaseNote>
 
     public float b
     {
-        get => wrapped.Time;
+        get => wrapped.JsonTime;
         set
         {
             DeleteObject();
-            wrapped.Time = value;
+            wrapped.JsonTime = value;
         }
     }
 

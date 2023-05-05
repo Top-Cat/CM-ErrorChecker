@@ -1,75 +1,53 @@
-﻿using Beatmap.Base.Customs;
+﻿using Beatmap.Base;
 using Beatmap.Enums;
 using Beatmap.Helper;
 using Jint;
 using Jint.Native.Object;
 
-internal class BpmChange : Wrapper<BaseBpmChange>
+internal class BpmEvent : Wrapper<BaseBpmEvent>
 {
-    public BpmChange(Engine engine, BaseBpmChange bpmChange) : base(engine, bpmChange)
+    public BpmEvent(Engine engine, BaseBpmEvent bpmEvent) : base(engine, bpmEvent)
     {
         spawned = true;
     }
 
-    public BpmChange(Engine engine, ObjectInstance o) : base(engine, BeatmapFactory.BpmChange(
+    public BpmEvent(Engine engine, ObjectInstance o) : base(engine, BeatmapFactory.BpmEvent(
         (float)GetJsValue(o, new[] { "b", "_time" }),
         (float)GetJsValue(o, new[] { "m", "_BPM" })
     ), false, GetJsBool(o, "selected"))
     {
         spawned = false;
-        wrapped.BeatsPerBar = (float)(GetJsValue(o, new[] { "p", "_beatsPerBar" }) ?? 4f);
-        wrapped.MetronomeOffset = (float)(GetJsValue(o, new[] { "o", "_metronomeOffset" }) ?? 4f);
 
         DeleteObject();
     }
 
     public float _time
     {
-        get => wrapped.Time;
+        get => wrapped.JsonTime;
         set
         {
             DeleteObject();
-            wrapped.Time = value;
+            wrapped.JsonTime = value;
         }
     }
 
     public float _BPM
     {
-        get => wrapped.Bpm;
+        get => wrapped.FloatValue;
         set
         {
             DeleteObject();
-            wrapped.Bpm = value;
-        }
-    }
-
-    public float _beatsPerBar
-    {
-        get => wrapped.BeatsPerBar;
-        set
-        {
-            DeleteObject();
-            wrapped.BeatsPerBar = value;
-        }
-    }
-
-    public float _metronomeOffset
-    {
-        get => wrapped.MetronomeOffset;
-        set
-        {
-            DeleteObject();
-            wrapped.MetronomeOffset = value;
+            wrapped.FloatValue = value;
         }
     }
 
     public float b
     {
-        get => wrapped.Time;
+        get => wrapped.JsonTime;
         set
         {
             DeleteObject();
-            wrapped.Time = value;
+            wrapped.JsonTime = value;
         }
     }
 
@@ -80,26 +58,6 @@ internal class BpmChange : Wrapper<BaseBpmChange>
         {
             DeleteObject();
             wrapped.Bpm = value;
-        }
-    }
-
-    public float p
-    {
-        get => wrapped.BeatsPerBar;
-        set
-        {
-            DeleteObject();
-            wrapped.BeatsPerBar = value;
-        }
-    }
-
-    public float o
-    {
-        get => wrapped.MetronomeOffset;
-        set
-        {
-            DeleteObject();
-            wrapped.MetronomeOffset = value;
         }
     }
 

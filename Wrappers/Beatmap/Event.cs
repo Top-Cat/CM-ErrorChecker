@@ -26,11 +26,11 @@ internal class Event : VanillaWrapper<BaseEvent>
 
     public float _time
     {
-        get => wrapped.Time;
+        get => wrapped.JsonTime;
         set
         {
             DeleteObject();
-            wrapped.Time = value;
+            wrapped.JsonTime = value;
         }
     }
 
@@ -66,11 +66,11 @@ internal class Event : VanillaWrapper<BaseEvent>
 
     public float b
     {
-        get => wrapped.Time;
+        get => wrapped.JsonTime;
         set
         {
             DeleteObject();
-            wrapped.Time = value;
+            wrapped.JsonTime = value;
         }
     }
 

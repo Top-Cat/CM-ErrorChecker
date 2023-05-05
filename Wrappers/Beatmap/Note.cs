@@ -28,11 +28,11 @@ internal class Note : VanillaWrapper<BaseNote>
 
     public float _time
     {
-        get => wrapped.Time;
+        get => wrapped.JsonTime;
         set
         {
             DeleteObject();
-            wrapped.Time = value;
+            wrapped.JsonTime = value;
         }
     }
 
@@ -78,11 +78,11 @@ internal class Note : VanillaWrapper<BaseNote>
 
     public float b
     {
-        get => wrapped.Time;
+        get => wrapped.JsonTime;
         set
         {
             DeleteObject();
-            wrapped.Time = value;
+            wrapped.JsonTime = value;
         }
     }
 

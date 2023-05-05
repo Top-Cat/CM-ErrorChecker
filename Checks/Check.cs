@@ -20,16 +20,16 @@ public abstract class Check
         
     }
 
-    protected virtual CheckResult PerformCheck(List<BaseNote> notes, List<BaseNote> bombs, List<BaseArc> arcs, List<BaseChain> chains, List<BaseEvent> events, List<BaseObstacle> walls, List<BaseCustomEvent> customEvents, List<BaseBpmChange> bpmChanges)
+    protected virtual CheckResult PerformCheck(List<BaseNote> notes, List<BaseNote> bombs, List<BaseArc> arcs, List<BaseChain> chains, List<BaseEvent> events, List<BaseObstacle> walls, List<BaseCustomEvent> customEvents, List<BaseBpmEvent> BpmEvents)
     {
         throw new ArgumentException("Wrong number of parameters");
     }
 
-    public virtual CheckResult PerformCheck(List<BaseNote> notes, List<BaseNote> bombs, List<BaseArc> arcs, List<BaseChain> chains, List<BaseEvent> events, List<BaseObstacle> walls, List<BaseCustomEvent> customEvents, List<BaseBpmChange> bpmChanges, params KeyValuePair<string, IParamValue>[] vals)
+    public virtual CheckResult PerformCheck(List<BaseNote> notes, List<BaseNote> bombs, List<BaseArc> arcs, List<BaseChain> chains, List<BaseEvent> events, List<BaseObstacle> walls, List<BaseCustomEvent> customEvents, List<BaseBpmEvent> BpmEvents, params KeyValuePair<string, IParamValue>[] vals)
     {
         if (vals.Length == 0 && Params.Count == 0)
         {
-            return PerformCheck(notes, bombs, arcs, chains, events, walls, customEvents, bpmChanges);
+            return PerformCheck(notes, bombs, arcs, chains, events, walls, customEvents, BpmEvents);
         }
         throw new ArgumentException("Wrong number of parameters");
     }

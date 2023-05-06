@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -193,7 +193,7 @@ public class CMJS
             index += errors.all.Count;
         }
 
-        float? time = errors.all[index]?.note.JsonTime;
+        float? time = errors.all[index]?.note.SongBpmTime;
         if (time != null)
         {
             atsc.MoveToTimeInBeats(time ?? 0);

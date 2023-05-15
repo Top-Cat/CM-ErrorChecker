@@ -1,8 +1,16 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Beatmap.Base;
+using Beatmap.Base.Customs;
+using Beatmap.Containers;
+using Beatmap.Enums;
+using Beatmap.V2;
+using Beatmap.V2.Customs;
+using Beatmap.V3;
+using Beatmap.V3.Customs;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -11,11 +19,13 @@ using UnityEngine.UI;
 [Plugin("CM JS")]
 public class CMJS
 {
-    private NotesContainer notesContainer;
-    private ObstaclesContainer wallsContainer;
-    private EventsContainer eventsContainer;
-    private CustomEventsContainer customEventsContainer;
-    private BPMChangesContainer bpmChangesContainer;
+    private NoteGridContainer notesContainer;
+    private ChainGridContainer chainsContainer;
+    private ArcGridContainer arcsContainer;
+    private ObstacleGridContainer wallsContainer;
+    private EventGridContainer eventsContainer;
+    private CustomEventGridContainer customEventsContainer;
+    private BPMChangeGridContainer BpmEventsContainer;
     private List<Check> checks = new List<Check>()
     {
         new VisionBlocks(),
@@ -56,14 +66,16 @@ public class CMJS
     {
         if (arg0.buildIndex == 3) // Mapper scene
         {
-            notesContainer = UnityEngine.Object.FindObjectOfType<NotesContainer>();
-            wallsContainer = UnityEngine.Object.FindObjectOfType<ObstaclesContainer>();
-            eventsContainer = UnityEngine.Object.FindObjectOfType<EventsContainer>();
-            customEventsContainer = UnityEngine.Object.FindObjectOfType<CustomEventsContainer>();
-            bpmChangesContainer = UnityEngine.Object.FindObjectOfType<BPMChangesContainer>();
+            notesContainer = UnityEngine.Object.FindObjectOfType<NoteGridContainer>();
+            arcsContainer = UnityEngine.Object.FindObjectOfType<ArcGridContainer>();
+            chainsContainer = UnityEngine.Object.FindObjectOfType<ChainGridContainer>();
+            wallsContainer = UnityEngine.Object.FindObjectOfType<ObstacleGridContainer>();
+            eventsContainer = UnityEngine.Object.FindObjectOfType<EventGridContainer>();
+            customEventsContainer = UnityEngine.Object.FindObjectOfType<CustomEventGridContainer>();
+            BpmEventsContainer = UnityEngine.Object.FindObjectOfType<BPMChangeGridContainer>();
             var mapEditorUI = UnityEngine.Object.FindObjectOfType<MapEditorUI>();
 
-            atsc = BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Note).AudioTimeSyncController;
+            atsc = BeatmapObjectContainerCollection.GetCollectionForType(ObjectType.Note).AudioTimeSyncController;
 
             // Add button to UI
             ui.AddButton(mapEditorUI);
@@ -72,18 +84,14 @@ public class CMJS
 
     public void CheckErrors(Check check)
     {
-        var allNotes = notesContainer.LoadedObjects.Cast<BeatmapNote>().OrderBy(it => it.Time).ToList();
-        var allWalls = wallsContainer.LoadedObjects.Cast<BeatmapObstacle>().OrderBy(it => it.Time).ToList();
-        var allEvents = eventsContainer.LoadedObjects.Cast<MapEvent>().OrderBy(it => it.Time).ToList();
-        var allCustomEvents = customEventsContainer.LoadedObjects.Cast<BeatmapCustomEvent>().OrderBy(it => it.Time).ToList();
-        var allBpmChanges = bpmChangesContainer.LoadedObjects.Cast<BeatmapBPMChange>().OrderBy(it => it.Time).ToList();
+        bool isV3 = Settings.Instance.Load_MapV3;
 
         if (errors != null)
         {
             // Remove error outline from old errors
             foreach (var block in errors.all)
             {
-                if (BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Note).LoadedContainers.TryGetValue(block.note, out BeatmapObjectContainer container))
+                if (BeatmapObjectContainerCollection.GetCollectionForType(ObjectType.Note).LoadedContainers.TryGetValue(block.note, out ObjectContainer container))
                 {
                     container.OutlineVisible = SelectionController.IsObjectSelected(container.ObjectData);
                     container.SetOutlineColor(SelectionController.SelectedColor, false);
@@ -98,21 +106,42 @@ public class CMJS
                 switch (it)
                 {
                     case UITextInput textInput:
-                        return check.Params[idx].Parse(textInput.InputField.text);
+                        return new KeyValuePair<string, IParamValue>(check.Params[idx].name, check.Params[idx].Parse(textInput.InputField.text));
                     case UIDropdown dropdown:
-                        return check.Params[idx].Parse(dropdown.Dropdown.value.ToString());
+                        return new KeyValuePair<string, IParamValue>(check.Params[idx].name, check.Params[idx].Parse(dropdown.Dropdown.value.ToString()));
                     case Toggle toggle:
-                        return check.Params[idx].Parse(toggle.isOn.ToString());
+                        return new KeyValuePair<string, IParamValue>(check.Params[idx].name, check.Params[idx].Parse(toggle.isOn.ToString()));
                     default:
-                        return new ParamValue<string>(null); // IDK
+                        return new KeyValuePair<string, IParamValue>(check.Params[idx].name, new ParamValue<string>(null)); // IDK
                 }
             }).ToArray();
-            errors = check.PerformCheck(allNotes, allEvents, allWalls, allCustomEvents, allBpmChanges, vals).Commit();
+
+            if (isV3)
+            {
+                // TODO: since containers has multiple different object, check events and notes
+                var allNotes = notesContainer.LoadedObjects.Where(it => it is V3ColorNote).Cast<BaseNote>().OrderBy(it => it.JsonTime).ToList();
+                var allBombs = notesContainer.LoadedObjects.Where(it => it is V3BombNote).Cast<BaseNote>().OrderBy(it => it.JsonTime).ToList();
+                var allArcs = arcsContainer.LoadedObjects.Cast<BaseArc>().OrderBy(it => it.JsonTime).ToList();
+                var allChains = chainsContainer.LoadedObjects.Cast<BaseChain>().OrderBy(it => it.JsonTime).ToList();
+                var allWalls = wallsContainer.LoadedObjects.Cast<BaseObstacle>().OrderBy(it => it.JsonTime).ToList();
+                var allEvents = eventsContainer.LoadedObjects.Cast<BaseEvent>().OrderBy(it => it.JsonTime).ToList();
+                var allCustomEvents = customEventsContainer.LoadedObjects.Cast<BaseCustomEvent>().OrderBy(it => it.JsonTime).ToList();
+                var allBpmEvents = BpmEventsContainer.LoadedObjects.Cast<BaseBpmEvent>().OrderBy(it => it.JsonTime).ToList();
+                errors = check.PerformCheck(allNotes, allBombs, allArcs, allChains, allEvents, allWalls, allCustomEvents, allBpmEvents, vals).Commit();
+            } else
+            {
+                var allNotes = notesContainer.LoadedObjects.Cast<BaseNote>().OrderBy(it => it.JsonTime).ToList();
+                var allWalls = wallsContainer.LoadedObjects.Cast<BaseObstacle>().OrderBy(it => it.JsonTime).ToList();
+                var allEvents = eventsContainer.LoadedObjects.Cast<BaseEvent>().OrderBy(it => it.JsonTime).ToList();
+                var allCustomEvents = customEventsContainer.LoadedObjects.Cast<BaseCustomEvent>().OrderBy(it => it.JsonTime).ToList();
+                var allBpmEvents = BpmEventsContainer.LoadedObjects.Cast<BaseBpmEvent>().OrderBy(it => it.JsonTime).ToList();
+                errors = check.PerformCheck(allNotes, new List<BaseNote>(), new List<BaseArc>(), new List<BaseChain>(), allEvents, allWalls, allCustomEvents, allBpmEvents, vals).Commit();
+            }
 
             // Highlight blocks in loaded containers in case we don't scrub far enough with MoveToTimeInBeats to load them
             foreach (var block in errors.errors)
             {
-                if (BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Note).LoadedContainers.TryGetValue(block.note, out BeatmapObjectContainer container))
+                if (BeatmapObjectContainerCollection.GetCollectionForType(ObjectType.Note).LoadedContainers.TryGetValue(block.note, out ObjectContainer container))
                 {
                     container.SetOutlineColor(Color.red);
                 }
@@ -120,7 +149,7 @@ public class CMJS
 
             foreach (var block in errors.warnings)
             {
-                if (BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Note).LoadedContainers.TryGetValue(block.note, out BeatmapObjectContainer container))
+                if (BeatmapObjectContainerCollection.GetCollectionForType(ObjectType.Note).LoadedContainers.TryGetValue(block.note, out ObjectContainer container))
                 {
                     container.SetOutlineColor(Color.yellow);
                 }
@@ -164,7 +193,7 @@ public class CMJS
             index += errors.all.Count;
         }
 
-        float? time = errors.all[index]?.note.Time;
+        float? time = errors.all[index]?.note.SongBpmTime;
         if (time != null)
         {
             atsc.MoveToTimeInBeats(time ?? 0);
@@ -179,7 +208,7 @@ public class CMJS
     }
 
     [ObjectLoaded]
-    private void ObjectLoaded(BeatmapObjectContainer container)
+    private void ObjectLoaded(ObjectContainer container)
     {
         if (container.ObjectData == null || errors == null) return;
 

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Beatmap.Base;
+using Beatmap.Base.Customs;
 
 class VisionBlocks : Check
 {
@@ -9,24 +11,26 @@ class VisionBlocks : Check
         Params.Add(new FloatParam("Max Time", 0.75f));
     }
 
-    public override CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, List<BeatmapCustomEvent> customEvents, List<BeatmapBPMChange> bpmChanges, params IParamValue[] vals)
+    public override CheckResult PerformCheck(List<BaseNote> notes, List<BaseNote> bombs, List<BaseArc> arcs,
+        List<BaseChain> chains, List<BaseEvent> events, List<BaseObstacle> walls, List<BaseCustomEvent> customEvents,
+        List<BaseBpmEvent> BpmEvents, params KeyValuePair<string, IParamValue>[] vals)
     {
         if (vals.Length > 1)
         {
-            return PerformCheck(notes, ((ParamValue<float>) vals[0]).value, ((ParamValue<float>) vals[1]).value);
+            return PerformCheck(notes, ((ParamValue<float>) vals[0].Value).value, ((ParamValue<float>) vals[1].Value).value);
         }
         throw new ArgumentException("Wrong number of parameters");
     }
 
-    public CheckResult PerformCheck(List<BeatmapNote> notes, float minTime, float maxTime)
+    public CheckResult PerformCheck(List<BaseNote> notes, float minTime, float maxTime)
     {
         result.Clear();
 
         float visionBlockLeft = -1f;
         float visionBlockRight = -1f;
 
-        BeatmapNote visionBlockLeftNote = null;
-        BeatmapNote visionBlockRightNote = null;
+        BaseNote visionBlockLeftNote = null;
+        BaseNote visionBlockRightNote = null;
         if (notes.Count > 0)
         {
             visionBlockLeftNote = notes[0];
@@ -34,46 +38,46 @@ class VisionBlocks : Check
         }
 
         foreach (var note in notes) {
-            if (note.Time - visionBlockLeft <= maxTime)
+            if (note.JsonTime - visionBlockLeft <= maxTime)
             {
-                if (note.LineIndex < 2 && note.Time - visionBlockLeft > minTime)
+                if (note.PosX < 2 && note.JsonTime - visionBlockLeft > minTime)
                 {
                     result.Add(visionBlockLeftNote, "Blocks vision of upcoming note on the left");
                     result.AddWarning(note, "Is blocked");
                 }
 
-                if (note.LineLayer == 1 && note.LineIndex == 1)
+                if (note.PosY == 1 && note.PosX == 1)
                 {
                     result.Add(visionBlockLeftNote, "Blocks vision of upcoming note on the left");
                     result.AddWarning(note, "Is blocked");
                 }
             }
 
-            if (note.Time - visionBlockRight <= maxTime)
+            if (note.JsonTime - visionBlockRight <= maxTime)
             {
-                if (note.LineIndex > 1 && note.Time - visionBlockRight > minTime)
+                if (note.PosX > 1 && note.JsonTime - visionBlockRight > minTime)
                 {
                     result.Add(visionBlockRightNote, "Blocks vision of upcoming note on the right");
                     result.AddWarning(note, "Is blocked");
                 }
 
-                if (note.LineLayer == 1 && note.LineIndex == 2 && note.Time - visionBlockLeft <= maxTime)
+                if (note.PosY == 1 && note.PosX == 2 && note.JsonTime - visionBlockLeft <= maxTime)
                 {
                     result.Add(visionBlockRightNote, "Blocks vision of upcoming note on the right");
                     result.AddWarning(note, "Is blocked");
                 }
             }
 
-            if (note.Type != 3 && note.LineLayer == 1)
+            if (note.Type != 3 && note.PosY == 1)
             {
-                if (note.LineIndex == 1)
+                if (note.PosX == 1)
                 {
-                    visionBlockLeft = note.Time;
+                    visionBlockLeft = note.JsonTime;
                     visionBlockLeftNote = note;
                 }
-                else if (note.LineIndex == 2)
+                else if (note.PosX == 2)
                 {
-                    visionBlockRight = note.Time;
+                    visionBlockRight = note.JsonTime;
                     visionBlockRightNote = note;
                 }
             }

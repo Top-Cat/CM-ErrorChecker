@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Beatmap.Base;
+using Beatmap.Base.Customs;
 
 public abstract class Check
 {
@@ -18,16 +20,16 @@ public abstract class Check
         
     }
 
-    protected virtual CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, List<BeatmapCustomEvent> customEvents, List<BeatmapBPMChange> bpmChanges)
+    protected virtual CheckResult PerformCheck(List<BaseNote> notes, List<BaseNote> bombs, List<BaseArc> arcs, List<BaseChain> chains, List<BaseEvent> events, List<BaseObstacle> walls, List<BaseCustomEvent> customEvents, List<BaseBpmEvent> BpmEvents)
     {
         throw new ArgumentException("Wrong number of parameters");
     }
 
-    public virtual CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, List<BeatmapCustomEvent> customEvents, List<BeatmapBPMChange> bpmChanges, params IParamValue[] vals)
+    public virtual CheckResult PerformCheck(List<BaseNote> notes, List<BaseNote> bombs, List<BaseArc> arcs, List<BaseChain> chains, List<BaseEvent> events, List<BaseObstacle> walls, List<BaseCustomEvent> customEvents, List<BaseBpmEvent> BpmEvents, params KeyValuePair<string, IParamValue>[] vals)
     {
         if (vals.Length == 0 && Params.Count == 0)
         {
-            return PerformCheck(notes, events, walls, customEvents, bpmChanges);
+            return PerformCheck(notes, bombs, arcs, chains, events, walls, customEvents, BpmEvents);
         }
         throw new ArgumentException("Wrong number of parameters");
     }

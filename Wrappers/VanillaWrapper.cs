@@ -1,18 +1,32 @@
 ﻿using System;
+using Beatmap.Base;
 using Jint;
 
-abstract class VanillaWrapper<T> : Wrapper<T> where T : BeatmapObject
+abstract class VanillaWrapper<T> : Wrapper<T> where T : BaseObject
 {
-    private Lazy<JSONWraper> customData;
+    private Lazy<JSONWrapper> pCustomData;
     private Action reconcile;
 
-    public object _customData
+    public object customData
     {
-        get => wrapped.CustomData == null ? null : customData.Value;
+        get => wrapped.CustomData == null ? null : pCustomData.Value;
         set
         {
             DeleteObject();
-            wrapped.CustomData = JSONWraper.castObjToJSON(value);
+            wrapped.CustomData = JSONWrapper.castObjToJSON(value);
+            wrapped.RefreshCustom();
+            InitWrapper();
+        }
+    }
+
+    public object _customData
+    {
+        get => wrapped.CustomData == null ? null : pCustomData.Value;
+        set
+        {
+            DeleteObject();
+            wrapped.CustomData = JSONWrapper.castObjToJSON(value);
+            wrapped.RefreshCustom();
             InitWrapper();
         }
     }
@@ -25,8 +39,8 @@ abstract class VanillaWrapper<T> : Wrapper<T> where T : BeatmapObject
     private void InitWrapper()
     {
         reconcile = null;
-        customData = new Lazy<JSONWraper>(() =>
-            new JSONWraper(engine, ref reconcile, wrapped.CustomData, DeleteObject)
+        pCustomData = new Lazy<JSONWrapper>(() =>
+            new JSONWrapper(engine, ref reconcile, wrapped.CustomData, DeleteObject)
         );
     }
 
@@ -38,5 +52,7 @@ abstract class VanillaWrapper<T> : Wrapper<T> where T : BeatmapObject
         {
             wrapped.CustomData = null;
         }
+        
+        wrapped.RefreshCustom();
     }
 }

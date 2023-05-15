@@ -1,8 +1,11 @@
-﻿using Jint;
+﻿using System.Collections.Generic;
+using Beatmap.Base;
+using Beatmap.Helper;
+using Jint;
 using Jint.Native.Object;
 using SimpleJSON;
 
-abstract class Wrapper<T> where T : BeatmapObject
+abstract class Wrapper<T> where T : BaseObject
 {
     protected readonly Engine engine;
     protected bool spawned;
@@ -22,7 +25,7 @@ abstract class Wrapper<T> where T : BeatmapObject
     {
         this.engine = engine;
         this.wrapped = wrapped;
-        if (hasOriginal) original = BeatmapObject.GenerateCopy(wrapped);
+        if (hasOriginal) original = BeatmapFactory.Clone(wrapped);
         _selected = selected.GetValueOrDefault(SelectionController.IsObjectSelected(wrapped));
     }
 
@@ -32,17 +35,58 @@ abstract class Wrapper<T> where T : BeatmapObject
         return (double)value.ToObject();
     }
 
+    protected static double? GetJsValue(ObjectInstance o, IEnumerable<string> key)
+    {
+        foreach (var k in key)
+        {
+            if (o.TryGetValue(k, out var value))
+            {
+                return (double)value.ToObject();
+            }
+        }
+
+        return null;
+    }
+
+    protected static double? GetJsValueOptional(ObjectInstance o, string key)
+    {
+        if (o.TryGetValue(key, out var value))
+        {
+            return (double)value.ToObject();
+        }
+
+        return null;
+    }
+
+    protected static bool GetJsExist(ObjectInstance o, string key)
+    {
+        return o.TryGetValue(key, out _);
+    }
+
     protected static string GetJsString(ObjectInstance o, string key)
     {
         o.TryGetValue(key, out var value);
         return (string)value.ToObject();
     }
 
+    protected static string GetJsString(ObjectInstance o, IEnumerable<string> key)
+    {
+        foreach (var k in key)
+        {
+            if (o.TryGetValue(k, out var value))
+            {
+                return (string)value.ToObject();
+            }
+        }
+
+        return null;
+    }
+
     protected static bool? GetJsBool(ObjectInstance o, string key)
     {
         if (o.TryGetValue(key, out var value))
         {
-            return (bool) value.ToObject();
+            return (bool)value.ToObject();
         }
 
         return null;
@@ -62,6 +106,27 @@ abstract class Wrapper<T> where T : BeatmapObject
         }
 
         return JSON.Parse(customData.AsString());
+    }
+
+    protected static JSONNode GetCustomData(ObjectInstance o, IEnumerable<string> key)
+    {
+        foreach(var k in key)
+        {
+            var engine = new Engine();
+
+            var customData = engine
+                .SetValue("data", o)
+                .Evaluate($"JSON.stringify(data.{k});");
+
+            if (customData.IsUndefined())
+            {
+                continue;
+            }
+
+            return JSON.Parse(customData.AsString());
+        }
+
+        return null;
     }
 
     public abstract bool SpawnObject(BeatmapObjectContainerCollection collection);

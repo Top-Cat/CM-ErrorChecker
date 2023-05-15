@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Beatmap.Base;
+using Beatmap.Base.Customs;
 
 class StackedNotes : Check
 {
@@ -7,7 +9,7 @@ class StackedNotes : Check
     {
     }
 
-    protected override CheckResult PerformCheck(List<BeatmapNote> notes, List<MapEvent> events, List<BeatmapObstacle> walls, List<BeatmapCustomEvent> customEvents, List<BeatmapBPMChange> bpmChanges)
+    protected override CheckResult PerformCheck(List<BaseNote> notes, List<BaseNote> bombs, List<BaseArc> arcs, List<BaseChain> chains, List<BaseEvent> events, List<BaseObstacle> walls, List<BaseCustomEvent> customEvents, List<BaseBpmEvent> bpmEvents)
     {
         result.Clear();
 
@@ -18,12 +20,12 @@ class StackedNotes : Check
                 var noteA = notes[i];
                 var noteB = notes[j];
 
-                if (noteB.Time - noteA.Time > 0.1)
+                if (noteB.JsonTime - noteA.JsonTime > 0.1)
                 {
                     break;
                 }
 
-                if (noteA.LineIndex == noteB.LineIndex && noteA.LineLayer == noteB.LineLayer)
+                if (noteA.PosX == noteB.PosX && noteA.PosY == noteB.PosY)
                 {
                     result.Add(noteA);
                     result.Add(noteB);

@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Beatmap.Base;
 
 public class CheckResult {
     public class Problem
     {
-        public BeatmapNote note;
+        public BaseNote note;
         public string reason;
 
-        public Problem(BeatmapNote note, string reason)
+        public Problem(BaseNote note, string reason)
         {
             this.note = note;
             this.reason = reason;
@@ -30,24 +31,24 @@ public class CheckResult {
         all = null;
     }
 
-    public void Add(BeatmapNote note, string reason = "")
+    public void Add(BaseNote note, string reason = "")
     {
         AddError(note, reason);
     }
 
-    public void AddError(BeatmapNote note, string reason = "")
+    public void AddError(BaseNote note, string reason = "")
     {
         errors.Add(new Problem(note, reason));
     }
 
-    public void AddWarning(BeatmapNote note, string reason = "")
+    public void AddWarning(BaseNote note, string reason = "")
     {
         warnings.Add(new Problem(note, reason));
     }
 
     public CheckResult Commit()
     {
-        all = errors.Union(warnings).OrderBy(it => it.note.Time).ToList();
+        all = errors.Union(warnings).OrderBy(it => it.note.JsonTime).ToList();
         return this;
     }
 }
